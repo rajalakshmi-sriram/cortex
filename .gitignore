@@ -17,19 +17,22 @@ node_modules/
 web/dist/
 
 # Backend build output (regenerate with `pyinstaller cortex_backend.spec`)
-build/
-dist/
+# Leading slash = repo root only, so this doesn't also match unrelated
+# nested folders that happen to share the name (e.g. web/src/data/, which
+# is real source code, not build output or runtime data).
+/build/
+/dist/
 
 # Tauri/Rust build output (regenerate with `npx tauri build` in desktop-tauri/)
 desktop-tauri/src-tauri/target/
 
 # Packaged app/installer output (regenerate via the desktop build; too large
 # and disposable for git - distribute via GitHub Releases instead if needed)
-release/
+/release/
 
 # App runtime data (your actual saved projects + AI settings/API keys - not app code)
-data/
-logs/
+/data/
+/logs/
 
 # OS cruft
 .DS_Store
