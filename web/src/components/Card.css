@@ -1,0 +1,28 @@
+.card-shadow {
+  background: var(--card-accent);
+  border-radius: 16px;
+  margin-bottom: 20px;
+  padding: 0 6px 6px 0;
+  transition: background-color 0.25s ease;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 24px;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.card-title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.card-hint {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}

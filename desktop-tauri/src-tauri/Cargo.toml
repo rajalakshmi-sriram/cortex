@@ -1,0 +1,31 @@
+[package]
+name = "cortex"
+version = "1.0.0"
+description = "Cortex - Research Workspace"
+authors = ["Cortex"]
+edition = "2021"
+
+[lib]
+name = "cortex_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Minimal blocking HTTP client (no async runtime) just to poll the backend's
+# /health endpoint - keeps the shell's own footprint tiny, which is the
+# whole point of using Tauri instead of Electron here.
+ureq = "2"
+base64 = "0.22"
+
+[profile.release]
+# Optimize for binary size/startup over raw compute speed - this shell does
+# no heavy lifting itself, it just hosts a webview and supervises a sidecar.
+opt-level = "s"
+lto = true
+strip = true

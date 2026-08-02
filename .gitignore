@@ -1,0 +1,35 @@
+# Secrets / local config
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+venv-run/
+venv/
+.venv/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Frontend build output (regenerate with `npm run build` in web/)
+web/dist/
+
+# Backend build output (regenerate with `pyinstaller cortex_backend.spec`)
+build/
+dist/
+
+# Tauri/Rust build output (regenerate with `npx tauri build` in desktop-tauri/)
+desktop-tauri/src-tauri/target/
+
+# Packaged app/installer output (regenerate via the desktop build; too large
+# and disposable for git - distribute via GitHub Releases instead if needed)
+release/
+
+# App runtime data (your actual saved projects + AI settings/API keys - not app code)
+data/
+logs/
+
+# OS cruft
+.DS_Store

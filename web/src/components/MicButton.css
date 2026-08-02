@@ -1,0 +1,31 @@
+.mic-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.mic-button:hover {
+  border-color: var(--accent1);
+  color: var(--accent1-text);
+}
+
+.mic-button--listening {
+  background: var(--accent1-btn);
+  border-color: var(--accent1-btn);
+  color: white;
+  animation: mic-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent1) 45%, transparent); }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent1) 0%, transparent); }
+}
