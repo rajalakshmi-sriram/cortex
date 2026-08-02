@@ -106,6 +106,126 @@ JOURNAL_GUIDELINES = {
         'notes': 'Follow APA Style formatting exactly (headings, tables, statistics reporting).',
         'homepage': 'https://apastyle.apa.org/instructional-aids/journal-article-reporting-standards',
     },
+    'jacs': {
+        'name': 'JACS (Journal of the American Chemical Society)',
+        'citation_style': 'ACS (numbered)',
+        'word_limit': 'Communications ~4 pages; Articles no strict word limit but concise',
+        'structure': 'TOC graphic, Introduction, Results and Discussion, Conclusions, Experimental/Methods, References',
+        'notes': 'Requires a table-of-contents (TOC) graphic; supporting information (SI) submitted separately.',
+        'homepage': 'https://pubs.acs.org/page/jacsat/submission/authors.html',
+    },
+    'angewandte chemie': {
+        'name': 'Angewandte Chemie',
+        'citation_style': 'Wiley/ACS-style (numbered)',
+        'word_limit': 'Communications ~5 printed pages; Reviews longer',
+        'structure': 'Graphical abstract, Introduction, Results and Discussion, Conclusion, Experimental Section, References',
+        'notes': 'Known for its graphical-abstract ("frontispiece") requirement and "Very Important Paper" (VIP) designation for top submissions.',
+        'homepage': 'https://onlinelibrary.wiley.com/page/journal/15213773/homepage/forauthors.html',
+    },
+    'chemical science': {
+        'name': 'Chemical Science (Royal Society of Chemistry)',
+        'citation_style': 'RSC (numbered)',
+        'word_limit': 'No strict word limit; concise preferred, typically ~6-8 pages',
+        'structure': 'Abstract, Introduction, Results and Discussion, Conclusions, Experimental, References',
+        'notes': 'Fully open access, published by the RSC; no page charges for most authors.',
+        'homepage': 'https://www.rsc.org/journals-books-databases/journal-authors-reviewers/author-responsibilities/preparing-manuscript/',
+    },
+    'nature chemistry': {
+        'name': 'Nature Chemistry',
+        'citation_style': 'Nature (numbered, superscript)',
+        'word_limit': 'Articles ~3,000-4,000 words',
+        'structure': 'Abstract (~150 words), Introduction, Results, Discussion, Methods, References',
+        'notes': 'Part of the Nature family - same general submission philosophy as Nature.',
+        'homepage': 'https://www.nature.com/nchem/for-authors',
+    },
+    'analytical chemistry': {
+        'name': 'Analytical Chemistry (ACS)',
+        'citation_style': 'ACS (numbered)',
+        'word_limit': 'Articles typically 6,000-8,000 words; no strict cap',
+        'structure': 'Abstract, Introduction, Experimental Section, Results and Discussion, Conclusions, References',
+        'notes': 'Strong focus on methodological rigor and validation of analytical methods.',
+        'homepage': 'https://pubs.acs.org/page/ancham/submission/authors.html',
+    },
+    'jbc': {
+        'name': 'Journal of Biological Chemistry (JBC)',
+        'citation_style': 'ASBMB (numbered)',
+        'word_limit': 'No strict word limit; concise writing encouraged',
+        'structure': 'Abstract, Introduction, Results, Discussion, Experimental Procedures, References',
+        'notes': 'Published by ASBMB; emphasizes mechanistic detail and reproducibility.',
+        'homepage': 'https://www.jbc.org/content/authorinfo',
+    },
+    'elife': {
+        'name': 'eLife',
+        'citation_style': 'eLife house style (numbered)',
+        'word_limit': 'No strict word limit; Research Articles typically ~4,000-6,000 words',
+        'structure': 'Abstract, Introduction, Results, Discussion, Materials and Methods, References',
+        'notes': 'Public peer review model - reviews and author responses are published alongside the paper.',
+        'homepage': 'https://elifesciences.org/for-authors',
+    },
+    'embo journal': {
+        'name': 'The EMBO Journal',
+        'citation_style': 'EMBO house style (numbered)',
+        'word_limit': 'Articles typically <45,000 characters',
+        'structure': 'Synopsis, Abstract, Introduction, Results, Discussion, Materials and Methods, References',
+        'notes': 'Requires a "Synopsis" and graphical summary; strong focus on molecular/cell biology mechanism.',
+        'homepage': 'https://www.embopress.org/authorguide',
+    },
+    'nature biotechnology': {
+        'name': 'Nature Biotechnology',
+        'citation_style': 'Nature (numbered, superscript)',
+        'word_limit': 'Articles ~3,000-4,000 words',
+        'structure': 'Abstract, Introduction, Results, Discussion, Methods, References',
+        'notes': 'Part of the Nature family; strong translational/applied biotech focus.',
+        'homepage': 'https://www.nature.com/nbt/for-authors',
+    },
+    'plos biology': {
+        'name': 'PLOS Biology',
+        'citation_style': 'Vancouver (numbered)',
+        'word_limit': 'No strict limit; concise preferred',
+        'structure': 'Abstract, Introduction, Results, Discussion, Materials and Methods, References',
+        'notes': 'Open access; higher selectivity/perceived-impact bar than PLOS ONE.',
+        'homepage': 'https://journals.plos.org/plosbiology/s/submission-guidelines',
+    },
+    'nature communications': {
+        'name': 'Nature Communications',
+        'citation_style': 'Nature (numbered, superscript)',
+        'word_limit': 'No strict word limit; typically ~5,000 words',
+        'structure': 'Abstract (~150 words), Introduction, Results, Discussion, Methods, References',
+        'notes': 'Open access, part of the Nature family; reviews for technical soundness rather than perceived impact.',
+        'homepage': 'https://www.nature.com/ncomms/submission-guidelines',
+    },
+    'scientific reports': {
+        'name': 'Scientific Reports',
+        'citation_style': 'Nature (numbered, superscript)',
+        'word_limit': 'No strict word limit',
+        'structure': 'Abstract, Introduction, Results, Discussion, Methods, References',
+        'notes': 'Open access, part of the Nature family; reviews for technical soundness, similar philosophy to PLOS ONE.',
+        'homepage': 'https://www.nature.com/srep/author-instructions',
+    },
+    'bmj': {
+        'name': 'BMJ (British Medical Journal)',
+        'citation_style': 'Vancouver (numbered)',
+        'word_limit': 'Research articles ~2,700-4,000 words + structured abstract',
+        'structure': 'Structured Abstract, Introduction, Methods, Results, Discussion, References',
+        'notes': 'Requires adherence to the relevant reporting guideline (CONSORT/STROBE/PRISMA) and trial registration for RCTs.',
+        'homepage': 'https://www.bmj.com/about-bmj/resources-authors',
+    },
+    'annals of internal medicine': {
+        'name': 'Annals of Internal Medicine',
+        'citation_style': 'Vancouver (numbered)',
+        'word_limit': 'Original Research ~2,700-3,500 words + structured abstract',
+        'structure': 'Structured Abstract, Introduction, Methods, Results, Discussion, References',
+        'notes': 'Requires reporting-guideline adherence matched to study design (CONSORT/STROBE/PRISMA).',
+        'homepage': 'https://www.acpjournals.org/authors/annals-author-instructions',
+    },
+    'physical review letters': {
+        'name': 'Physical Review Letters (PRL)',
+        'citation_style': 'APS (numbered)',
+        'word_limit': 'Letters limited to ~3,750 words or 4 published pages',
+        'structure': 'Abstract, Letter body (no rigid section headers required), References',
+        'notes': 'Very strict length limit; uses APS\'s own REVTeX LaTeX template.',
+        'homepage': 'https://journals.aps.org/prl/authors',
+    },
 }
 
 GENERIC_GUIDANCE = {
@@ -136,9 +256,13 @@ def lookup_guidelines(journal_name: str) -> Dict:
     if normalized in JOURNAL_GUIDELINES:
         return JOURNAL_GUIDELINES[normalized]
 
-    for key, guideline in JOURNAL_GUIDELINES.items():
-        if key in normalized or normalized in key:
-            return guideline
+    # Prefer the longest (most specific) matching key rather than the first
+    # one found by insertion order - otherwise a query like "nature
+    # chemistry" would incorrectly match the plain "nature" entry, since
+    # "nature" is a substring of it and was added to the dict first.
+    matches = [key for key in JOURNAL_GUIDELINES if key in normalized or normalized in key]
+    if matches:
+        return JOURNAL_GUIDELINES[max(matches, key=len)]
 
     return GENERIC_GUIDANCE
 

@@ -61,6 +61,8 @@ export const api = {
   suggestSearchTerms: (topic) => request('/ai/suggest-search-terms', { method: 'POST', body: { topic } }),
   getAiSettings: () => request('/settings/ai'),
   updateAiSettings: (settings) => request('/settings/ai', { method: 'POST', body: settings }),
+  getLiteratureSettings: () => request('/settings/literature'),
+  updateLiteratureSettings: (settings) => request('/settings/literature', { method: 'POST', body: settings }),
   aiConverse: (contextType, context, messages) =>
     request('/ai/converse', { method: 'POST', body: { context_type: contextType, context, messages } }),
 

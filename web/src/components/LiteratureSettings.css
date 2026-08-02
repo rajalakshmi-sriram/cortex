@@ -1,0 +1,138 @@
+.lit-settings {
+  position: fixed;
+  bottom: 20px;
+  right: 132px;
+  z-index: 200;
+}
+
+.lit-settings__trigger {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--accent4-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lit-settings__panel {
+  position: absolute;
+  bottom: 56px;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  width: 300px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.lit-settings__section-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.lit-settings__intro {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.lit-settings__source {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.lit-settings__source:first-of-type {
+  padding-top: 0;
+  border-top: none;
+}
+
+.lit-settings__field-label {
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lit-settings__saved-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--accent2-text);
+  background: var(--accent2-tint);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.lit-settings__blurb {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.lit-settings__input-row {
+  display: flex;
+  gap: 6px;
+}
+
+.lit-settings__input-row input {
+  flex: 1;
+}
+
+.lit-settings__clear {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.lit-settings__clear:hover {
+  color: var(--accent1-text);
+  border-color: var(--accent1-text);
+}
+
+.lit-settings__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.lit-settings__save {
+  background: var(--accent4-btn);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lit-settings__save-status {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}

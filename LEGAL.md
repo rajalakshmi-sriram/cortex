@@ -34,9 +34,13 @@ own judgment or your field's standards of rigor. Specifically:
 ## Third-party data sharing - read this before entering sensitive data
 
 **Literature search** queries your research topic against free, public
-APIs: Europe PMC, CrossRef, arXiv, ERIC, Semantic Scholar, and OpenAlex
-(plus Elsevier/Web of Science if you supply your own API key for them).
-Each is subject to its own terms of service.
+APIs: Europe PMC, CrossRef, arXiv, ERIC, Semantic Scholar, and OpenAlex.
+Each is subject to its own terms of service. If you add your own API key
+for a paid database (Elsevier/Scopus, Web of Science) in Literature Sources
+settings (the database icon), that key and the searches it makes are used
+only on your own machine for your own searches - never sent anywhere else,
+and never visible to or shared with any other user of this app, exactly
+like the AI provider keys below.
 
 **AI features are opt-in, and where that data goes depends on which
 provider you choose** in AI Settings (the sparkle icon):

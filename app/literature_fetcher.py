@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict, Optional
 from datetime import datetime
 from app.logger import logger
+from app.literature_settings_store import LiteratureSettingsStore
 
 
 class LiteratureFetcher:
@@ -30,6 +31,8 @@ class LiteratureFetcher:
         self.config = config
         self.timeout = config.API_TIMEOUT
         self.paper_cache = {}
+        self.settings_store = LiteratureSettingsStore(config)
+        self._settings = self.settings_store.load()  # refreshed at the top of each fetch_relevant_papers() call
         logger.info("LiteratureFetcher initialized")
     
     def fetch_relevant_papers(self, query: str, max_results: int = 20) -> List[Dict]:
@@ -45,6 +48,11 @@ class LiteratureFetcher:
         """
         logger.info(f"Fetching papers for query: {query}")
 
+        # Re-read on every search (not just at startup) so a key added via
+        # the Literature Sources settings panel takes effect immediately,
+        # without restarting the app.
+        self._settings = self.settings_store.load()
+
         # Free/public sources - always active.
         fetchers = [
             self._fetch_europepmc,   # PubMed, PMC, bioRxiv/medRxiv preprints (life sciences/medicine)
@@ -55,10 +63,11 @@ class LiteratureFetcher:
             self._fetch_openalex,    # large open scholarly graph, strong humanities/social-science coverage
         ]
 
-        # Paid/keyed sources - only queried if the corresponding key is configured.
-        if self.config.ELSEVIER_API_KEY:
+        # Paid/keyed sources - only queried if the user has added the corresponding
+        # key (via Literature Sources settings, or a .env fallback for dev use).
+        if self._settings.get('elsevier_api_key'):
             fetchers.append(self._fetch_elsevier)
-        if self.config.WOS_API_KEY:
+        if self._settings.get('wos_api_key'):
             fetchers.append(self._fetch_web_of_science)
 
         # All fetchers are independent HTTP calls - run them concurrently so
@@ -363,8 +372,8 @@ class LiteratureFetcher:
                 'fields': 'title,abstract,year,authors,externalIds,venue',
             }
             headers = {}
-            if self.config.SEMANTIC_SCHOLAR_API_KEY:
-                headers['x-api-key'] = self.config.SEMANTIC_SCHOLAR_API_KEY
+            if self._settings.get('semantic_scholar_api_key'):
+                headers['x-api-key'] = self._settings['semantic_scholar_api_key']
 
             response = requests.get(search_url, params=params, headers=headers, timeout=self.timeout)
             response.raise_for_status()
@@ -487,7 +496,7 @@ class LiteratureFetcher:
             search_url = "https://api.elsevier.com/content/search/scopus"
 
             headers = {
-                'X-ELS-APIKey': self.config.ELSEVIER_API_KEY,
+                'X-ELS-APIKey': self._settings.get('elsevier_api_key', ''),
                 'Accept': 'application/json',
             }
             params = {
@@ -536,7 +545,7 @@ class LiteratureFetcher:
         try:
             search_url = "https://api.clarivate.com/apis/wos-starter/v1/documents"
 
-            headers = {'X-ApiKey': self.config.WOS_API_KEY}
+            headers = {'X-ApiKey': self._settings.get('wos_api_key', '')}
             params = {
                 'q': f'TS=({query})',
                 'limit': max_results,

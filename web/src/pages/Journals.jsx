@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProject } from './Workspace';
 import { CrudList } from '../components/CrudList';
 import { Card } from '../components/Card';
@@ -18,6 +18,11 @@ function GuidelinesLookup() {
   const [guidelines, setGuidelines] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [knownJournals, setKnownJournals] = useState({});
+
+  useEffect(() => {
+    api.getJournalGuidelines('').then((d) => setKnownJournals(d.known_journals || {})).catch(() => {});
+  }, []);
 
   async function lookup(e) {
     e.preventDefault();
@@ -43,14 +48,25 @@ function GuidelinesLookup() {
       <form onSubmit={lookup} style={{ display: 'flex', gap: 8 }}>
         <input
           type="text"
+          list="known-journals"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. Nature, PLOS ONE, JAMA, IEEE..."
+          placeholder="e.g. Nature, JACS, eLife, BMJ..."
           aria-label="Journal name"
           style={{ flex: 1 }}
         />
+        <datalist id="known-journals">
+          {Object.values(knownJournals).map((label) => <option key={label} value={label} />)}
+        </datalist>
         <Button type="submit" accent="sand" disabled={loading}>{loading ? 'Looking up…' : 'Look Up'}</Button>
       </form>
+      {Object.keys(knownJournals).length > 0 && (
+        <p style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 6 }}>
+          {Object.keys(knownJournals).length} journals curated, spanning general science, chemistry, biology,
+          clinical medicine, physics, and CS - start typing for suggestions, or look up any other journal for
+          general guidance.
+        </p>
+      )}
       {error && <p role="alert" style={{ color: 'var(--accent1-text)' }}>{error}</p>}
       {guidelines && (
         <div style={{ marginTop: 14 }}>

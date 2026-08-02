@@ -58,9 +58,14 @@ export function LegalNotice() {
               <h3>Where your data goes</h3>
               <p>
                 Literature search queries free public APIs (Europe PMC, CrossRef, arXiv, ERIC, Semantic
-                Scholar, OpenAlex). AI features are opt-in and only run when you click a "Search/Interpret/
-                Get Feedback with AI" button - where that data goes depends on your provider choice in AI
-                Settings (sparkle icon): <strong>Local (Ollama)</strong> keeps everything on your machine;{' '}
+                Scholar, OpenAlex). If you add your own key for a paid database (Elsevier/Scopus, Web of
+                Science) in Literature Sources settings (database icon), it's used only for your own
+                searches on your own machine - never shared with anyone else using this app.
+              </p>
+              <p>
+                AI features are opt-in and only run when you click a "Search/Interpret/Get Feedback with AI"
+                button - where that data goes depends on your provider choice in AI Settings (sparkle icon):{' '}
+                <strong>Local (Ollama)</strong> keeps everything on your machine;{' '}
                 <strong>your own OpenAI or Anthropic API key</strong> sends that specific request to their
                 servers, under their terms.
               </p>

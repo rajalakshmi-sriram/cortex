@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { PalettePicker } from './components/PalettePicker';
 import { AiSettings } from './components/AiSettings';
+import { LiteratureSettings } from './components/LiteratureSettings';
 import { ProjectsHome } from './pages/ProjectsHome';
 import { Workspace } from './pages/Workspace';
 import { Overview } from './pages/Overview';
@@ -35,6 +36,7 @@ export default function App() {
       </Routes>
       <PalettePicker />
       <AiSettings />
+      <LiteratureSettings />
     </>
   );
 }

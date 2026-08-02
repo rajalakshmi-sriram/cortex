@@ -45,6 +45,14 @@ const CHART_TYPES = [
   ['scatter', 'Scatter Plot', 'X Column', 'Y Column(s) - select 1 or more', true, false],
   ['histogram', 'Histogram', 'Column', null, false, false],
   ['box', 'Box Plot', 'Value Column', null, false, true],
+  ['pie', 'Pie Chart', 'Category Column', null, false, false],
+  ['heatmap', 'Heatmap (Correlation Matrix)', 'Columns (ctrl/cmd-click to select 2+)', null, false, false, true],
+];
+
+const SCATTER_TRENDLINES = [
+  ['none', 'None'],
+  ['linear', 'Linear (best-fit line)'],
+  ['quadratic', 'Quadratic (curve fit)'],
 ];
 
 export function DataAnalysis() {
@@ -387,7 +395,9 @@ function ChartCard({ projectId, dataset, columns, rowRange }) {
   const [xColumn, setXColumn] = useState('');
   const [yColumn, setYColumn] = useState('');
   const [yMulti, setYMulti] = useState([]);
+  const [columnsMulti, setColumnsMulti] = useState([]);
   const [groupColumn, setGroupColumn] = useState('');
+  const [trendline, setTrendline] = useState('none');
   const [title, setTitle] = useState('');
   const [xMin, setXMin] = useState('');
   const [xMax, setXMax] = useState('');
@@ -402,28 +412,37 @@ function ChartCard({ projectId, dataset, columns, rowRange }) {
   const [generating, setGenerating] = useState(false);
 
   const chartDef = CHART_TYPES.find(([k]) => k === chartType);
-  const [, , xLabel, yLabel, multiY, showGroup] = chartDef;
+  const [, , xLabel, yLabel, multiY, showGroup, multiColumns] = chartDef;
 
   useEffect(() => {
     setXColumn(columns[0] || '');
     setYColumn(columns[1] || columns[0] || '');
     setYMulti([]);
+    setColumnsMulti([]);
     setGroupColumn('');
+    setTrendline('none');
   }, [chartType, dataset.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function generate(e) {
     e.preventDefault();
     setError('');
-    if (!xColumn) return setError('Select an X column.');
 
-    const params = { x_column: xColumn };
-    if (yLabel && multiY) {
-      if (yMulti.length === 0) return setError('Select at least 1 Y column.');
-      params.y_columns = yMulti;
-    } else if (yLabel && yColumn) {
-      params.y_column = yColumn;
+    const params = {};
+    if (multiColumns) {
+      if (columnsMulti.length < 2) return setError('Select at least 2 columns.');
+      params.columns = columnsMulti;
+    } else {
+      if (!xColumn) return setError('Select an X column.');
+      params.x_column = xColumn;
+      if (yLabel && multiY) {
+        if (yMulti.length === 0) return setError('Select at least 1 Y column.');
+        params.y_columns = yMulti;
+      } else if (yLabel && yColumn) {
+        params.y_column = yColumn;
+      }
+      if (showGroup && groupColumn) params.group_column = groupColumn;
+      if (chartType === 'scatter' && trendline !== 'none') params.trendline = trendline;
     }
-    if (showGroup && groupColumn) params.group_column = groupColumn;
     if (title.trim()) params.title = title.trim();
 
     const rr = rowRange();
@@ -456,12 +475,32 @@ function ChartCard({ projectId, dataset, columns, rowRange }) {
           {CHART_TYPES.map(([key, name]) => <option key={key} value={key}>{name}</option>)}
         </select>
 
-        <label htmlFor="chart-x">{xLabel}</label>
-        <select id="chart-x" value={xColumn} onChange={(e) => setXColumn(e.target.value)}>
-          {columns.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
+        {multiColumns ? (
+          <>
+            <label htmlFor="chart-columns-multi">{xLabel}</label>
+            <select id="chart-columns-multi" multiple value={columnsMulti} onChange={(e) => setColumnsMulti([...e.target.selectedOptions].map((o) => o.value))} style={{ minHeight: 100 }}>
+              {columns.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </>
+        ) : (
+          <>
+            <label htmlFor="chart-x">{xLabel}</label>
+            <select id="chart-x" value={xColumn} onChange={(e) => setXColumn(e.target.value)}>
+              {columns.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </>
+        )}
 
-        {yLabel && !multiY && (
+        {chartType === 'scatter' && (
+          <>
+            <label htmlFor="chart-trendline">Trendline (optional)</label>
+            <select id="chart-trendline" value={trendline} onChange={(e) => setTrendline(e.target.value)}>
+              {SCATTER_TRENDLINES.map(([key, name]) => <option key={key} value={key}>{name}</option>)}
+            </select>
+          </>
+        )}
+
+        {!multiColumns && yLabel && !multiY && (
           <>
             <label htmlFor="chart-y">{yLabel}</label>
             <select id="chart-y" value={yColumn} onChange={(e) => setYColumn(e.target.value)}>
@@ -471,7 +510,7 @@ function ChartCard({ projectId, dataset, columns, rowRange }) {
           </>
         )}
 
-        {yLabel && multiY && (
+        {!multiColumns && yLabel && multiY && (
           <>
             <label htmlFor="chart-y-multi">{yLabel}</label>
             <select id="chart-y-multi" multiple value={yMulti} onChange={(e) => setYMulti([...e.target.selectedOptions].map((o) => o.value))} style={{ minHeight: 90 }}>
@@ -480,7 +519,7 @@ function ChartCard({ projectId, dataset, columns, rowRange }) {
           </>
         )}
 
-        {showGroup && (
+        {!multiColumns && showGroup && (
           <>
             <label htmlFor="chart-group">Group Column (optional)</label>
             <select id="chart-group" value={groupColumn} onChange={(e) => setGroupColumn(e.target.value)}>
@@ -493,26 +532,34 @@ function ChartCard({ projectId, dataset, columns, rowRange }) {
         <label htmlFor="chart-title">Chart title (optional)</label>
         <input id="chart-title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
 
-        <label>Axis Range (optional)</label>
-        <div className="data-analysis__row">
-          <input type="text" value={xMin} onChange={(e) => setXMin(e.target.value)} placeholder="x min" aria-label="X axis minimum" />
-          <input type="text" value={xMax} onChange={(e) => setXMax(e.target.value)} placeholder="x max" aria-label="X axis maximum" />
-          <input type="text" value={yMin} onChange={(e) => setYMin(e.target.value)} placeholder="y min" aria-label="Y axis minimum" />
-          <input type="text" value={yMax} onChange={(e) => setYMax(e.target.value)} placeholder="y max" aria-label="Y axis maximum" />
-        </div>
+        {chartType !== 'pie' && chartType !== 'heatmap' && (
+          <>
+            <label>Axis Range (optional)</label>
+            <div className="data-analysis__row">
+              <input type="text" value={xMin} onChange={(e) => setXMin(e.target.value)} placeholder="x min" aria-label="X axis minimum" />
+              <input type="text" value={xMax} onChange={(e) => setXMax(e.target.value)} placeholder="x max" aria-label="X axis maximum" />
+              <input type="text" value={yMin} onChange={(e) => setYMin(e.target.value)} placeholder="y min" aria-label="Y axis minimum" />
+              <input type="text" value={yMax} onChange={(e) => setYMax(e.target.value)} placeholder="y max" aria-label="Y axis maximum" />
+            </div>
 
-        <label>Tick Marks (optional)</label>
-        <div className="data-analysis__row">
-          <input type="text" value={xTick} onChange={(e) => setXTick(e.target.value)} placeholder="x tick spacing" aria-label="X tick spacing" />
-          <input type="text" value={yTick} onChange={(e) => setYTick(e.target.value)} placeholder="y tick spacing" aria-label="Y tick spacing" />
-          <input type="text" value={tickRotation} onChange={(e) => setTickRotation(e.target.value)} placeholder="x label rotation (°)" aria-label="X tick label rotation" />
-        </div>
+            <label>Tick Marks (optional)</label>
+            <div className="data-analysis__row">
+              <input type="text" value={xTick} onChange={(e) => setXTick(e.target.value)} placeholder="x tick spacing" aria-label="X tick spacing" />
+              <input type="text" value={yTick} onChange={(e) => setYTick(e.target.value)} placeholder="y tick spacing" aria-label="Y tick spacing" />
+              <input type="text" value={tickRotation} onChange={(e) => setTickRotation(e.target.value)} placeholder="x label rotation (°)" aria-label="X tick label rotation" />
+            </div>
+          </>
+        )}
 
-        <label htmlFor="chart-color">Color (optional)</label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <input id="chart-color" type="color" value={color || '#c97b66'} onChange={(e) => setColor(e.target.value)} style={{ width: 44, padding: 2 }} />
-          <Button type="button" variant="ghost" accent="sand" onClick={() => setColor('')}>Auto</Button>
-        </div>
+        {chartType !== 'heatmap' && (
+          <>
+            <label htmlFor="chart-color">Color (optional)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input id="chart-color" type="color" value={color || '#c97b66'} onChange={(e) => setColor(e.target.value)} style={{ width: 44, padding: 2 }} />
+              <Button type="button" variant="ghost" accent="sand" onClick={() => setColor('')}>Auto</Button>
+            </div>
+          </>
+        )}
 
         <div style={{ marginTop: 14 }}>
           <Button type="submit" accent="sand" disabled={generating}>{generating ? 'Generating…' : 'Generate Chart'}</Button>

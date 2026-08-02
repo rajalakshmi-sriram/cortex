@@ -133,6 +133,27 @@ def create_app():
             return _error(str(e), 400)
         return jsonify({'status': 'success', 'settings': ai_assistant.settings_store.public()}), 200
 
+    # ========== Literature source settings (optional, your own API keys) ==========
+    # If you have a subscription/API key for a paid database (Elsevier/Scopus,
+    # Web of Science) or want to raise your Semantic Scholar rate limit, add it
+    # here. Used only for your own searches on your own machine - never sent
+    # anywhere except that database's own API, and never shared with anyone
+    # else using this app. See app/literature_settings_store.py.
+
+    @app.route('/api/v1/settings/literature', methods=['GET'])
+    def get_literature_settings():
+        return jsonify({'status': 'success', 'settings': idea_validator.literature_fetcher.settings_store.public()}), 200
+
+    @app.route('/api/v1/settings/literature', methods=['POST'])
+    def update_literature_settings():
+        data = request.get_json(silent=True) or {}
+        idea_validator.literature_fetcher.settings_store.save(
+            elsevier_api_key=data.get('elsevier_api_key'),
+            wos_api_key=data.get('wos_api_key'),
+            semantic_scholar_api_key=data.get('semantic_scholar_api_key'),
+        )
+        return jsonify({'status': 'success', 'settings': idea_validator.literature_fetcher.settings_store.public()}), 200
+
     @app.route('/api/v1/ai/converse', methods=['POST'])
     def ai_converse():
         """
