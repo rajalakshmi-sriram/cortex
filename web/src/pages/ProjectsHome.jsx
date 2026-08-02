@@ -4,6 +4,7 @@ import { api } from '../api/client';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { PageInstructions } from '../components/PageInstructions';
+import { LegalNotice } from '../components/LegalNotice';
 import './ProjectsHome.css';
 
 const RESEARCH_TYPES = [
@@ -128,6 +129,9 @@ export function ProjectsHome() {
           </ul>
         </Card>
       </main>
+      <footer className="projects-home__footer">
+        <LegalNotice />
+      </footer>
     </div>
   );
 }

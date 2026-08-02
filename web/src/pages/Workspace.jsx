@@ -2,6 +2,7 @@ import { useEffect, useState, createContext, useContext, useCallback } from 'rea
 import { Outlet, useParams, useLocation } from 'react-router-dom';
 import { api } from '../api/client';
 import { Sidebar } from '../components/Sidebar';
+import { LegalNotice } from '../components/LegalNotice';
 import './Workspace.css';
 
 const ProjectContext = createContext(null);
@@ -54,7 +55,12 @@ export function Workspace() {
         backTo="/"
         backLabel="All Projects"
         items={NAV_ITEMS.map((item) => ({ ...item, to: `/projects/${projectId}/${item.to}` }))}
-        footer="v3.0.0 — Web"
+        footer={
+          <>
+            <div>v3.0.0 — Web</div>
+            <LegalNotice />
+          </>
+        }
       />
       <div className="workspace__main">
         <header className="workspace__topbar">

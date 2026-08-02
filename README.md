@@ -114,7 +114,12 @@ arXiv, ERIC, and Semantic Scholar, plus OpenAlex. Optional API keys
 (Elsevier/Scopus, Web of Science) can be added via `.env` if you have them,
 but nothing requires a paid subscription to use.
 
-## License
+## License & legal
 
-Personal research tool - no license file included; treat as all rights
-reserved unless you add one.
+MIT licensed - see [LICENSE](LICENSE). See [LEGAL.md](LEGAL.md) for the
+full disclosure on AI-generated content, third-party data sharing (what
+leaves your machine if you use a hosted AI provider vs. local Ollama), and
+data storage.
+
+This app's code was written with substantial assistance from
+[Claude Code](https://claude.com/claude-code), Anthropic's AI coding tool.
