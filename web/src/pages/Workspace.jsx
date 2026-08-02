@@ -57,7 +57,7 @@ export function Workspace() {
         items={NAV_ITEMS.map((item) => ({ ...item, to: `/projects/${projectId}/${item.to}` }))}
         footer={
           <>
-            <div>v3.0.0 — Web</div>
+            <div>v1.0.0 — Web</div>
             <LegalNotice />
           </>
         }
