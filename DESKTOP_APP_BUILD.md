@@ -52,8 +52,14 @@ GUI that predates the web frontend entirely - unrelated to either build.)
 # 0. One-time: install Rust if you don't already have it
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# 1. Build the backend into a standalone binary
-python3 -m venv venv-run  # if you don't already have one
+# 1. Build the backend into a standalone binary.
+# IMPORTANT: use Python 3.11 specifically, not whatever `python3` happens to
+# resolve to. The pinned scientific-library versions in requirements.txt
+# (scikit-learn, numpy, etc.) don't ship prebuilt wheels for Python 3.13+,
+# so on a machine where `python3` defaults to 3.13 (e.g. a Homebrew/Anaconda
+# default), `pip install -r requirements.txt` fails compiling from source.
+# Install 3.11 first if needed: `brew install python@3.11`
+python3.11 -m venv venv-run  # if you don't already have one
 venv-run/bin/pip install -r requirements.txt pyinstaller
 venv-run/bin/pyinstaller cortex_backend.spec --noconfirm
 
@@ -102,8 +108,10 @@ separate runtime to bundle for that part. Once you have a Windows
 environment with Rust installed (`winget install Rustlang.Rustup`):
 
 ```powershell
-# 1. Build the backend into a standalone binary
-python -m venv venv-run
+# 1. Build the backend into a standalone binary.
+# Use Python 3.11 specifically - see the note in the macOS section above on
+# why (the pinned scientific-library versions don't have 3.13+ wheels).
+py -3.11 -m venv venv-run
 venv-run\Scripts\pip install -r requirements.txt pyinstaller
 venv-run\Scripts\pyinstaller cortex_backend.spec --noconfirm
 
