@@ -69,6 +69,12 @@ class LiteratureFetcher:
             fetchers.append(self._fetch_elsevier)
         if self._settings.get('wos_api_key'):
             fetchers.append(self._fetch_web_of_science)
+        if self._settings.get('ieee_api_key'):
+            fetchers.append(self._fetch_ieee)
+        if self._settings.get('springer_api_key'):
+            fetchers.append(self._fetch_springer)
+        if self._settings.get('core_api_key'):
+            fetchers.append(self._fetch_core)
 
         # All fetchers are independent HTTP calls - run them concurrently so
         # total latency is ~max(), not sum(), of however many are active.
@@ -580,6 +586,150 @@ class LiteratureFetcher:
             logger.error(f"Error fetching from Web of Science: {str(e)}")
             return []
 
+    def _fetch_ieee(self, query: str, max_results: int = 20) -> List[Dict]:
+        """
+        Fetch papers from IEEE Xplore. Only called when the user has added
+        an IEEE Xplore API key - register free at
+        https://developer.ieee.org.
+
+        Args:
+            query (str): Search query
+            max_results (int): Maximum results
+
+        Returns:
+            List[Dict]: IEEE Xplore papers
+        """
+        try:
+            search_url = "http://ieeexploreapi.ieee.org/api/v1/search/articles"
+            params = {
+                'apikey': self._settings.get('ieee_api_key', ''),
+                'querytext': query,
+                'max_records': max_results,
+                'format': 'json',
+            }
+
+            response = requests.get(search_url, params=params, timeout=self.timeout)
+            response.raise_for_status()
+
+            data = response.json()
+            papers = []
+
+            for article in data.get('articles', []):
+                doi = article.get('doi', '')
+                authors = [a.get('full_name', '') for a in (article.get('authors') or {}).get('authors', [])[:5]]
+                paper = {
+                    'title': article.get('title', 'Unknown'),
+                    'authors': authors,
+                    'abstract': article.get('abstract', ''),
+                    'year': int(article.get('publication_year', 2000) or 2000),
+                    'source': article.get('publication_title', 'IEEE Xplore'),
+                    'doi': doi,
+                    'url': f'https://doi.org/{doi}' if doi else article.get('pdf_url', ''),
+                }
+                papers.append(paper)
+
+            logger.info(f"Fetched {len(papers)} papers from IEEE Xplore")
+            return papers
+
+        except Exception as e:
+            logger.error(f"Error fetching from IEEE Xplore: {str(e)}")
+            return []
+
+    def _fetch_springer(self, query: str, max_results: int = 20) -> List[Dict]:
+        """
+        Fetch papers from Springer Nature. Only called when the user has
+        added a Springer Nature API key - register free at
+        https://dev.springernature.com.
+
+        Args:
+            query (str): Search query
+            max_results (int): Maximum results
+
+        Returns:
+            List[Dict]: Springer Nature papers
+        """
+        try:
+            search_url = "http://api.springernature.com/metadata/json"
+            params = {
+                'q': query,
+                'api_key': self._settings.get('springer_api_key', ''),
+                'p': max_results,
+            }
+
+            response = requests.get(search_url, params=params, timeout=self.timeout)
+            response.raise_for_status()
+
+            data = response.json()
+            papers = []
+
+            for record in data.get('records', []):
+                doi = record.get('doi', '')
+                authors = [c.get('creator', '') for c in record.get('creators', [])[:5]]
+                pub_date = record.get('publicationDate', '')
+                year = int(pub_date[:4]) if pub_date[:4].isdigit() else 2000
+                url_entries = record.get('url', []) or []
+                paper = {
+                    'title': record.get('title', 'Unknown'),
+                    'authors': authors,
+                    'abstract': record.get('abstract', ''),
+                    'year': year,
+                    'source': record.get('publicationName', 'Springer Nature'),
+                    'doi': doi,
+                    'url': f'https://doi.org/{doi}' if doi else (url_entries[0].get('value', '') if url_entries else ''),
+                }
+                papers.append(paper)
+
+            logger.info(f"Fetched {len(papers)} papers from Springer Nature")
+            return papers
+
+        except Exception as e:
+            logger.error(f"Error fetching from Springer Nature: {str(e)}")
+            return []
+
+    def _fetch_core(self, query: str, max_results: int = 20) -> List[Dict]:
+        """
+        Fetch papers from CORE (open access aggregator). Only called when
+        the user has added a CORE API key - register free at
+        https://core.ac.uk/services/api.
+
+        Args:
+            query (str): Search query
+            max_results (int): Maximum results
+
+        Returns:
+            List[Dict]: CORE papers
+        """
+        try:
+            search_url = "https://api.core.ac.uk/v3/search/works"
+            headers = {'Authorization': f"Bearer {self._settings.get('core_api_key', '')}"}
+            params = {'q': query, 'limit': max_results}
+
+            response = requests.get(search_url, params=params, headers=headers, timeout=self.timeout)
+            response.raise_for_status()
+
+            data = response.json()
+            papers = []
+
+            for result in data.get('results', []):
+                doi = result.get('doi', '')
+                authors = [a.get('name', '') for a in (result.get('authors') or [])[:5]]
+                paper = {
+                    'title': result.get('title', 'Unknown'),
+                    'authors': authors,
+                    'abstract': result.get('abstract', '') or '',
+                    'year': int(result.get('yearPublished', 2000) or 2000),
+                    'source': result.get('publisher', 'CORE'),
+                    'doi': doi,
+                    'url': f'https://doi.org/{doi}' if doi else result.get('downloadUrl', ''),
+                }
+                papers.append(paper)
+
+            logger.info(f"Fetched {len(papers)} papers from CORE")
+            return papers
+
+        except Exception as e:
+            logger.error(f"Error fetching from CORE: {str(e)}")
+            return []
 
     def _deduplicate_papers(self, papers: List[Dict]) -> List[Dict]:
         """

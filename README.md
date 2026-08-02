@@ -74,9 +74,12 @@ action is triggered by an explicit button click. You choose the provider:
   API key, no data leaves your computer. Install
   [Ollama](https://ollama.com) separately and pull a model (default:
   `qwen2.5:7b-instruct`, CPU-friendly).
-- **Your own OpenAI or Anthropic API key** - if you'd rather use a hosted
-  model, add your own key in the AI Settings panel (sparkle icon,
+- **Your own API key** for a hosted provider - OpenAI, Anthropic, Google
+  Gemini, Mistral, or Groq - added in the AI Settings panel (sparkle icon,
   bottom-right of the app).
+- **A custom OpenAI-compatible endpoint** - point Cortex at any other
+  OpenAI-compatible server (OpenRouter, Together AI, a self-hosted
+  vLLM/LM Studio, etc.) via a base URL you supply.
 
 Where AI shows up, grounded only in your own real data (never inventing
 facts beyond what you gave it):
@@ -134,9 +137,11 @@ bundle itself.
 ## Data sources
 
 Literature search draws on free, public sources: Europe PMC, CrossRef,
-arXiv, ERIC, and Semantic Scholar, plus OpenAlex. Optional API keys
-(Elsevier/Scopus, Web of Science) can be added via `.env` if you have them,
-but nothing requires a paid subscription to use.
+arXiv, ERIC, and Semantic Scholar, plus OpenAlex. Optional keys for
+paid/institutional databases (Elsevier/Scopus, Web of Science, IEEE
+Xplore, Springer Nature, CORE) can be added in the app itself, in
+Literature Sources settings (database icon) - but nothing requires a paid
+subscription to use.
 
 ## License & legal
 

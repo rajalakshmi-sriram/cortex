@@ -58,24 +58,27 @@ export function LegalNotice() {
               <h3>Where your data goes</h3>
               <p>
                 Literature search queries free public APIs (Europe PMC, CrossRef, arXiv, ERIC, Semantic
-                Scholar, OpenAlex). If you add your own key for a paid database (Elsevier/Scopus, Web of
-                Science) in Literature Sources settings (database icon), it's used only for your own
-                searches on your own machine - never shared with anyone else using this app.
+                Scholar, OpenAlex). If you add your own key for a paid/keyed database (Elsevier/Scopus, Web
+                of Science, IEEE Xplore, Springer Nature, or CORE) in Literature Sources settings (database
+                icon), it's used only for your own searches on your own machine - never shared with anyone
+                else using this app.
               </p>
               <p>
                 AI features are opt-in and only run when you click a "Search/Interpret/Get Feedback with AI"
                 button - where that data goes depends on your provider choice in AI Settings (sparkle icon):{' '}
                 <strong>Local (Ollama)</strong> keeps everything on your machine;{' '}
-                <strong>your own OpenAI or Anthropic API key</strong> sends that specific request to their
-                servers, under their terms.
+                <strong>your own API key</strong> for OpenAI, Anthropic, Google Gemini, Mistral, or Groq
+                sends that specific request to their servers, under their terms; a{' '}
+                <strong>custom OpenAI-compatible endpoint</strong> sends it to whatever server you configure
+                - you're responsible for knowing what that endpoint does with it.
               </p>
 
               <p>
                 <strong>If your research involves human subjects, patient data, or other regulated/sensitive
-                data</strong> (e.g. HIPAA- or IRB-covered data): don't enter it into a hosted AI provider
-                unless you've confirmed that complies with your protocol. Use Local (Ollama) to keep it on
-                your own machine instead. This is your responsibility - Cortex has no way to know what data
-                you enter.
+                data</strong> (e.g. HIPAA- or IRB-covered data): don't enter it into any hosted AI provider or
+                custom endpoint unless you've confirmed that complies with your protocol. Use Local (Ollama)
+                to keep it on your own machine instead. This is your responsibility - Cortex has no way to
+                know what data you enter.
               </p>
 
               <h3>Data storage</h3>

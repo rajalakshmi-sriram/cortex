@@ -3,10 +3,17 @@ AI Assistant for Cortex
 Optional, explicitly opt-in AI features. The user picks the provider from
 Cortex's own AI Settings panel:
 
-  - "local"     - a local Ollama server (default: qwen2.5:7b-instruct, CPU-friendly,
-                   fully private, no API key, no data leaves the machine)
-  - "openai"    - the user's own OpenAI API key
-  - "anthropic" - the user's own Anthropic API key
+  - "local"            - a local Ollama server (default: qwen2.5:7b-instruct,
+                          CPU-friendly, fully private, no API key, no data
+                          leaves the machine)
+  - "openai"            - the user's own OpenAI API key
+  - "anthropic"         - the user's own Anthropic API key
+  - "gemini"            - the user's own Google Gemini API key
+  - "mistral"           - the user's own Mistral API key
+  - "groq"              - the user's own Groq API key
+  - "openai_compatible" - any other OpenAI-compatible endpoint the user
+                          points at (OpenRouter, Together AI, a self-hosted
+                          vLLM/LM Studio server, etc.) via a custom base URL
 
 Nothing here runs automatically; every AI feature is triggered by an explicit
 user action ("Search with AI" button, etc.) and is grounded in real data
@@ -22,6 +29,20 @@ from typing import Dict, List
 import requests
 from app.logger import logger
 from app.ai_settings_store import AISettingsStore, DEFAULT_MODELS
+
+# Providers that speak the OpenAI chat-completions request/response shape -
+# only the base URL (and, for Gemini, the completions path) differs.
+# Anthropic has its own distinct API shape, handled separately below.
+OPENAI_COMPATIBLE_PROVIDERS = {'local', 'openai', 'gemini', 'mistral', 'groq', 'openai_compatible'}
+
+# Most OpenAI-compatible providers expose chat completions at
+# "<base_url>/v1/chat/completions". Gemini's compatibility layer is the one
+# exception - its own version prefix is already part of the documented base
+# path, so the standard "/v1/..." suffix doesn't apply to it.
+CHAT_COMPLETIONS_PATH = {
+    'gemini': '/chat/completions',
+}
+DEFAULT_CHAT_COMPLETIONS_PATH = '/v1/chat/completions'
 
 
 class AIUnavailableError(Exception):
@@ -65,8 +86,23 @@ class AIAssistant:
                     'installed_models': [],
                 }
 
-        # Hosted providers (openai/anthropic): "available" just means a key is saved.
-        # We don't ping the provider on every status check to avoid burning quota.
+        if provider == 'openai_compatible':
+            # A custom endpoint might not require auth at all (e.g. a local
+            # LM Studio/vLLM server) - the one thing it truly needs is a
+            # base URL to talk to.
+            has_base_url = bool(settings.get('base_url'))
+            return {
+                'available': has_base_url,
+                'provider': provider,
+                'server_reachable': None,
+                'model': settings['model'],
+                'model_pulled': has_base_url,
+                'installed_models': [],
+            }
+
+        # Hosted providers (openai/anthropic/gemini/mistral/groq): "available"
+        # just means a key is saved. We don't ping the provider on every
+        # status check to avoid burning quota.
         has_key = bool(settings.get('api_key'))
         return {
             'available': has_key,
@@ -81,12 +117,12 @@ class AIAssistant:
         settings = self.settings_store.load()
         provider = settings['provider']
 
-        if provider == 'local':
-            return self._chat_openai_compatible(settings, messages, max_tokens, temperature, api_key=None)
-        elif provider == 'openai':
+        if provider == 'local' or provider == 'openai_compatible':
+            return self._chat_openai_compatible(settings, messages, max_tokens, temperature, api_key=settings.get('api_key') or None)
+        elif provider in OPENAI_COMPATIBLE_PROVIDERS:
             if not settings.get('api_key'):
                 raise AIUnavailableError(
-                    "No OpenAI API key is saved. Add one in AI Settings, or switch to Local (Ollama)."
+                    f"No {provider} API key is saved. Add one in AI Settings, or switch to Local (Ollama)."
                 )
             return self._chat_openai_compatible(settings, messages, max_tokens, temperature, api_key=settings['api_key'])
         elif provider == 'anthropic':
@@ -100,9 +136,10 @@ class AIAssistant:
 
     def _chat_openai_compatible(self, settings, messages, max_tokens, temperature, api_key) -> str:
         headers = {'Authorization': f'Bearer {api_key}'} if api_key else {}
+        path = CHAT_COMPLETIONS_PATH.get(settings['provider'], DEFAULT_CHAT_COMPLETIONS_PATH)
         try:
             response = requests.post(
-                f"{settings['base_url']}/v1/chat/completions",
+                f"{settings['base_url']}{path}",
                 json={
                     'model': settings['model'],
                     'messages': messages,
@@ -124,7 +161,7 @@ class AIAssistant:
                     f"(`ollama pull {settings['model']}`), or switch to an API key in AI Settings."
                 ) from e
             raise AIUnavailableError(
-                f"Could not reach {settings['provider']} ({str(e)}). Check your API key in AI Settings."
+                f"Could not reach {settings['provider']} ({str(e)}). Check your API key/base URL in AI Settings."
             ) from e
         except (KeyError, IndexError, ValueError) as e:
             logger.error(f"Unexpected AI response shape: {str(e)}")

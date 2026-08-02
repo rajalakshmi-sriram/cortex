@@ -12,18 +12,26 @@ import json
 from pathlib import Path
 from typing import Dict, Optional
 
-PROVIDERS = ('local', 'openai', 'anthropic')
+PROVIDERS = ('local', 'openai', 'anthropic', 'gemini', 'mistral', 'groq', 'openai_compatible')
 
 DEFAULT_MODELS = {
     'local': 'qwen2.5:7b-instruct',
     'openai': 'gpt-4o-mini',
     'anthropic': 'claude-3-5-haiku-20241022',
+    'gemini': 'gemini-2.0-flash',
+    'mistral': 'mistral-small-latest',
+    'groq': 'llama-3.3-70b-versatile',
+    'openai_compatible': '',  # no sensible default - the user names their own model
 }
 
 DEFAULT_BASE_URLS = {
     'local': 'http://localhost:11434',
     'openai': 'https://api.openai.com',
     'anthropic': 'https://api.anthropic.com',
+    'gemini': 'https://generativelanguage.googleapis.com/v1beta/openai',
+    'mistral': 'https://api.mistral.ai',
+    'groq': 'https://api.groq.com/openai',
+    'openai_compatible': '',  # no sensible default - the user points this at their own endpoint
 }
 
 
@@ -59,6 +67,10 @@ class AISettingsStore:
               api_key: Optional[str] = None) -> Dict:
         if provider not in PROVIDERS:
             raise ValueError(f"Unknown provider '{provider}'. Must be one of {PROVIDERS}.")
+        if provider == 'openai_compatible' and not (model or '').strip():
+            raise ValueError("Model name is required for a custom OpenAI-compatible endpoint.")
+        if provider == 'openai_compatible' and not (base_url or '').strip():
+            raise ValueError("Base URL is required for a custom OpenAI-compatible endpoint.")
 
         current = self.load()
         new_settings = {

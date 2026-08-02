@@ -36,26 +36,33 @@ own judgment or your field's standards of rigor. Specifically:
 **Literature search** queries your research topic against free, public
 APIs: Europe PMC, CrossRef, arXiv, ERIC, Semantic Scholar, and OpenAlex.
 Each is subject to its own terms of service. If you add your own API key
-for a paid database (Elsevier/Scopus, Web of Science) in Literature Sources
-settings (the database icon), that key and the searches it makes are used
-only on your own machine for your own searches - never sent anywhere else,
-and never visible to or shared with any other user of this app, exactly
-like the AI provider keys below.
+for a paid/keyed database (Elsevier/Scopus, Web of Science, IEEE Xplore,
+Springer Nature, or CORE) in Literature Sources settings (the database
+icon), that key and the searches it makes are used only on your own
+machine for your own searches - never sent anywhere else, and never
+visible to or shared with any other user of this app, exactly like the AI
+provider keys below.
 
 **AI features are opt-in, and where that data goes depends on which
 provider you choose** in AI Settings (the sparkle icon):
 - **Local (Ollama)** - runs entirely on your own machine. Nothing you type
   is sent anywhere.
-- **Your own OpenAI or Anthropic API key** - if you choose this option,
-  whatever you send to that AI feature (manuscript text, hypotheses,
-  statistical results, research ideas) is transmitted to that provider's
-  servers and subject to their terms of service and privacy policy, not
-  Cortex's.
+- **Your own API key for a hosted provider** (OpenAI, Anthropic, Google
+  Gemini, Mistral, or Groq) - whatever you send to that AI feature
+  (manuscript text, hypotheses, statistical results, research ideas) is
+  transmitted to that provider's servers and subject to their terms of
+  service and privacy policy, not Cortex's.
+- **A custom OpenAI-compatible endpoint** (OpenRouter, Together AI, a
+  self-hosted server, etc.) - the same applies to whatever server you
+  point this at. Since this can be any endpoint you configure, you are
+  responsible for knowing what that endpoint does with the data you send
+  it and whether the connection itself is secure (e.g. use `https://` for
+  any endpoint that isn't running on your own machine).
 
 **If your research involves human subjects, patient data, or other
 regulated/sensitive data (e.g. anything covered by HIPAA or your
-institution's IRB protocol): do not enter that data into a hosted AI
-provider (OpenAI/Anthropic) unless you have confirmed that doing so
+institution's IRB protocol): do not enter that data into any hosted AI
+provider or custom endpoint unless you have confirmed that doing so
 complies with your protocol and any required data agreements (e.g. a BAA).
 Use the Local (Ollama) option to keep everything on your own machine
 instead.** This is your responsibility as the user - Cortex has no way to

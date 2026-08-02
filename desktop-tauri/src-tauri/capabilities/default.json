@@ -4,6 +4,8 @@
   "description": "Capability for all Cortex windows",
   "windows": ["*"],
   "permissions": [
-    "core:default"
+    "core:default",
+    "opener:default",
+    "opener:allow-open-url"
   ]
 }

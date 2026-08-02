@@ -24,6 +24,36 @@ const PROVIDERS = [
     needsKey: true,
     modelPlaceholder: 'claude-3-5-haiku-20241022',
   },
+  {
+    value: 'gemini',
+    label: 'Google Gemini (your API key)',
+    blurb: 'Uses your own Google account and billing. Get a key at aistudio.google.com.',
+    needsKey: true,
+    modelPlaceholder: 'gemini-2.0-flash',
+  },
+  {
+    value: 'mistral',
+    label: 'Mistral (your API key)',
+    blurb: 'Uses your own Mistral account and billing. Get a key at console.mistral.ai.',
+    needsKey: true,
+    modelPlaceholder: 'mistral-small-latest',
+  },
+  {
+    value: 'groq',
+    label: 'Groq (your API key)',
+    blurb: 'Fast hosted inference for open-weight models. Get a key at console.groq.com.',
+    needsKey: true,
+    modelPlaceholder: 'llama-3.3-70b-versatile',
+  },
+  {
+    value: 'openai_compatible',
+    label: 'Custom (OpenAI-compatible endpoint)',
+    blurb: 'Point this at any other OpenAI-compatible server - OpenRouter, Together AI, a self-hosted vLLM/LM Studio, etc. Model name and base URL are required; API key only if your endpoint needs one.',
+    needsKey: true,
+    keyOptional: true,
+    needsBaseUrl: true,
+    modelPlaceholder: 'e.g. meta-llama/llama-3.3-70b',
+  },
 ];
 
 export function AiSettings() {
@@ -32,6 +62,7 @@ export function AiSettings() {
   const [provider, setProvider] = useState('local');
   const [model, setModel] = useState('');
   const [apiKey, setApiKey] = useState('');
+  const [baseUrl, setBaseUrl] = useState('');
   const [status, setStatus] = useState(null);
   const [saveState, setSaveState] = useState('');
   const containerRef = useRef(null);
@@ -42,6 +73,7 @@ export function AiSettings() {
       setSettings(data.settings);
       setProvider(data.settings.provider);
       setModel(data.settings.model);
+      setBaseUrl(data.settings.base_url || '');
       const statusData = await api.aiStatus();
       setStatus(statusData);
     } catch {
@@ -75,6 +107,7 @@ export function AiSettings() {
       await api.updateAiSettings({
         provider,
         model: model.trim() || undefined,
+        base_url: activeProvider.needsBaseUrl ? baseUrl.trim() : undefined,
         api_key: activeProvider.needsKey && apiKey.trim() ? apiKey.trim() : undefined,
       });
       setApiKey('');
@@ -100,7 +133,7 @@ export function AiSettings() {
 
           <form onSubmit={save}>
             <label htmlFor="ai-provider" className="ai-settings__field-label">Provider</label>
-            <select id="ai-provider" value={provider} onChange={(e) => { setProvider(e.target.value); setModel(''); }}>
+            <select id="ai-provider" value={provider} onChange={(e) => { setProvider(e.target.value); setModel(''); setBaseUrl(''); }}>
               {PROVIDERS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
             </select>
             <p className="ai-settings__blurb">{activeProvider.blurb}</p>
@@ -114,10 +147,23 @@ export function AiSettings() {
               placeholder={activeProvider.modelPlaceholder}
             />
 
+            {activeProvider.needsBaseUrl && (
+              <>
+                <label htmlFor="ai-base-url" className="ai-settings__field-label">Base URL</label>
+                <input
+                  id="ai-base-url"
+                  type="text"
+                  value={baseUrl}
+                  onChange={(e) => setBaseUrl(e.target.value)}
+                  placeholder="e.g. https://openrouter.ai/api"
+                />
+              </>
+            )}
+
             {activeProvider.needsKey && (
               <>
                 <label htmlFor="ai-key" className="ai-settings__field-label">
-                  API Key {settings?.provider === provider && settings?.has_api_key && '(already saved)'}
+                  API Key {activeProvider.keyOptional && '(optional)'} {settings?.provider === provider && settings?.has_api_key && '(already saved)'}
                 </label>
                 <input
                   id="ai-key"

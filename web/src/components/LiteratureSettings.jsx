@@ -24,6 +24,27 @@ const SOURCES = [
     blurb: 'Semantic Scholar is already searched for everyone - this just raises your personal rate limit if you have a key. Free at semanticscholar.org/product/api.',
     placeholder: 'Semantic Scholar API key',
   },
+  {
+    key: 'ieee_api_key',
+    hasKeyField: 'has_ieee_key',
+    label: 'IEEE Xplore',
+    blurb: 'Add your key to also search IEEE Xplore (engineering/CS). Register free at developer.ieee.org.',
+    placeholder: 'IEEE Xplore API key',
+  },
+  {
+    key: 'springer_api_key',
+    hasKeyField: 'has_springer_key',
+    label: 'Springer Nature',
+    blurb: 'Add your key to also search Springer Nature. Register free at dev.springernature.com.',
+    placeholder: 'Springer Nature API key',
+  },
+  {
+    key: 'core_api_key',
+    hasKeyField: 'has_core_key',
+    label: 'CORE (open access aggregator)',
+    blurb: 'Add your key to also search CORE, a large open-access paper aggregator. Register free at core.ac.uk/services/api.',
+    placeholder: 'CORE API key',
+  },
 ];
 
 export function LiteratureSettings() {

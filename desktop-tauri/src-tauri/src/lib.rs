@@ -189,6 +189,7 @@ pub fn run() {
                 let _ = w.set_focus();
             }
         }))
+        .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![retry_backend])
         .setup(|app| {
             // Resolved here, on the main thread, before anything else touches

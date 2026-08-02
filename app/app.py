@@ -151,6 +151,9 @@ def create_app():
             elsevier_api_key=data.get('elsevier_api_key'),
             wos_api_key=data.get('wos_api_key'),
             semantic_scholar_api_key=data.get('semantic_scholar_api_key'),
+            ieee_api_key=data.get('ieee_api_key'),
+            springer_api_key=data.get('springer_api_key'),
+            core_api_key=data.get('core_api_key'),
         )
         return jsonify({'status': 'success', 'settings': idea_validator.literature_fetcher.settings_store.public()}), 200
 

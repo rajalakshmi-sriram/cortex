@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { initExternalLinkHandler } from './utils/externalLinks';
 import { PalettePicker } from './components/PalettePicker';
 import { AiSettings } from './components/AiSettings';
 import { LiteratureSettings } from './components/LiteratureSettings';
@@ -16,6 +18,8 @@ import { Manuscript } from './pages/Manuscript';
 import { Journals } from './pages/Journals';
 
 export default function App() {
+  useEffect(() => { initExternalLinkHandler(); }, []);
+
   return (
     <>
       <a href="#main-content" className="skip-link">Skip to main content</a>
