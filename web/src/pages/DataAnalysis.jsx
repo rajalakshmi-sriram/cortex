@@ -57,6 +57,7 @@ export function DataAnalysis() {
   const [importName, setImportName] = useState('');
   const [importText, setImportText] = useState('');
   const [importStatus, setImportStatus] = useState('');
+  const [analysisVersion, setAnalysisVersion] = useState(0);
 
   const refresh = useCallback(async () => {
     if (!project.id) return;
@@ -159,9 +160,17 @@ export function DataAnalysis() {
         )}
       </Card>
 
-      {selectedDataset && <StatsCard projectId={project.id} dataset={selectedDataset} columns={columns} rowRange={rowRange} />}
+      {selectedDataset && (
+        <StatsCard
+          projectId={project.id}
+          dataset={selectedDataset}
+          columns={columns}
+          rowRange={rowRange}
+          onAnalysisSaved={() => setAnalysisVersion((v) => v + 1)}
+        />
+      )}
       {selectedDataset && <ChartCard projectId={project.id} dataset={selectedDataset} columns={columns} rowRange={rowRange} />}
-      {selectedDataset && <InterpretCard projectId={project.id} dataset={selectedDataset} />}
+      {selectedDataset && <InterpretCard projectId={project.id} dataset={selectedDataset} refreshSignal={analysisVersion} />}
 
       <Card title="Recommended Tools" accent="blue">
         <ToolChips tools={PAGE_TOOLS.data_analysis} />
@@ -170,7 +179,7 @@ export function DataAnalysis() {
   );
 }
 
-function StatsCard({ projectId, dataset, columns, rowRange }) {
+function StatsCard({ projectId, dataset, columns, rowRange, onAnalysisSaved }) {
   const [testKey, setTestKey] = useState(STAT_TESTS[0][0]);
   const [field1, setField1] = useState('');
   const [field2, setField2] = useState('');
@@ -223,6 +232,7 @@ function StatsCard({ projectId, dataset, columns, rowRange }) {
     try {
       const data = await api.runAnalysis(projectId, dataset.id, testKey, params);
       setResult(data.analysis.result);
+      onAnalysisSaved?.();
     } catch (e) {
       setError(e.message);
       setResult(null);
@@ -519,7 +529,7 @@ function ChartCard({ projectId, dataset, columns, rowRange }) {
   );
 }
 
-function InterpretCard({ projectId, dataset }) {
+function InterpretCard({ projectId, dataset, refreshSignal }) {
   const [analyses, setAnalyses] = useState([]);
   const [hypotheses, setHypotheses] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -534,7 +544,7 @@ function InterpretCard({ projectId, dataset }) {
       setHypotheses(h.hypotheses || []);
       setLoaded(true);
     });
-  }, [projectId, dataset.id]);
+  }, [projectId, dataset.id, refreshSignal]);
 
   const hypothesesText = hypotheses.map((h) => `- ${h.text} [${h.status}]`).join('\n');
 
