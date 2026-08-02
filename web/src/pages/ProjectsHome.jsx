@@ -78,7 +78,7 @@ export function ProjectsHome() {
               type="text"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="e.g. Sleep and Memory Consolidation Study"
+              placeholder="e.g. Enzyme Kinetics of Photosynthetic Carbon Fixation"
               required
             />
 
@@ -88,7 +88,7 @@ export function ProjectsHome() {
               type="text"
               value={form.research_area}
               onChange={(e) => setForm({ ...form, research_area: e.target.value })}
-              placeholder="e.g. Cognitive Neuroscience"
+              placeholder="e.g. Biochemistry, Organic Chemistry, Molecular Biology..."
             />
 
             <label htmlFor="new-type">Research type</label>

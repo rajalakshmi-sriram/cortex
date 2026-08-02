@@ -114,7 +114,7 @@ export function LiteratureReview() {
             id="lit-idea"
             value={idea}
             onChange={(e) => setIdea(e.target.value)}
-            placeholder="e.g. Investigate the role of astrocytes in memory consolidation using optogenetics"
+            placeholder="e.g. Investigate the effect of CRISPR-Cas9 gene editing on enzyme expression in E. coli"
             style={{ flex: 1, minHeight: 60 }}
           />
           <MicButton label="research idea" onTranscript={(t) => setIdea((prev) => (prev ? prev + ' ' + t : t))} />

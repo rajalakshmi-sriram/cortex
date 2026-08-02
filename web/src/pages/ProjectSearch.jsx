@@ -102,7 +102,7 @@ export function ProjectSearch() {
             id="broad-topic"
             value={broadTopic}
             onChange={(e) => setBroadTopic(e.target.value)}
-            placeholder="e.g. sleep and memory"
+            placeholder="e.g. enzyme catalysis"
             style={{ flex: 1, minHeight: 44 }}
           />
           <MicButton label="broad topic" onTranscript={(t) => setBroadTopic((prev) => (prev ? prev + ' ' + t : t))} />
