@@ -98,6 +98,16 @@ RESEARCH_TYPE_METHODOLOGY_TOOLS = {
         {'name': 'APA JARS', 'url': 'https://apastyle.apa.org/jars', 'description': 'Journal Article Reporting Standards for quantitative research'},
         {'name': 'Research Randomizer', 'url': 'https://www.randomizer.org', 'description': 'Free tool for random assignment/sampling'},
     ],
+    'quasi_experimental': [
+        {'name': 'TREND Statement', 'url': 'https://www.cdc.gov/trendstatement/', 'description': 'Reporting guideline for nonrandomized/quasi-experimental behavioral and public health studies'},
+        {'name': 'EQUATOR Network', 'url': 'https://www.equator-network.org', 'description': 'Central library of reporting guidelines across research types'},
+    ],
+    'observational': [
+        {'name': 'STROBE Statement', 'url': 'https://www.strobe-statement.org', 'description': 'Reporting guideline for cohort, case-control, and cross-sectional (observational) studies'},
+    ],
+    'descriptive': [
+        {'name': 'EQUATOR Network', 'url': 'https://www.equator-network.org', 'description': 'Central library of reporting guidelines - browse for the closest match to your descriptive study design'},
+    ],
     'exploratory': [
         {'name': 'COREQ', 'url': 'https://www.equator-network.org/reporting-guidelines/coreq/', 'description': 'Reporting guideline for qualitative research (interviews/case studies)'},
         {'name': 'EQUATOR Network', 'url': 'https://www.equator-network.org', 'description': 'Central library of reporting guidelines - browse case study/qualitative methodology resources'},
@@ -106,11 +116,25 @@ RESEARCH_TYPE_METHODOLOGY_TOOLS = {
         {'name': 'CONSORT Extension for Pilot Trials', 'url': 'http://www.consort-statement.org/extensions/overview/pilotandfeasibility', 'description': 'Reporting guideline specific to pilot & feasibility studies'},
         {'name': 'Research Randomizer', 'url': 'https://www.randomizer.org', 'description': 'Free tool for random assignment/sampling'},
     ],
+    'translational': [
+        {'name': 'ARRIVE Guidelines', 'url': 'https://arriveguidelines.org', 'description': 'Reporting guideline for in vivo animal research, common in preclinical translational studies'},
+        {'name': 'EQUATOR Network', 'url': 'https://www.equator-network.org', 'description': 'Central library of reporting guidelines across research types'},
+    ],
+    'computational': [
+        {'name': 'FAIR Principles', 'url': 'https://www.go-fair.org/fair-principles/', 'description': 'Findable/Accessible/Interoperable/Reusable standards for research data & code'},
+        {'name': 'GitHub', 'url': 'https://github.com', 'description': 'Version control for model/simulation code, for reproducibility'},
+    ],
     'literature_review': [
         {'name': 'PRISMA Statement', 'url': 'https://www.prisma-statement.org', 'description': 'Reporting guideline for systematic reviews & meta-analyses'},
         {'name': 'PRISMA Flow Diagram Generator', 'url': 'https://estech.shinyapps.io/prisma_flowdiagram/', 'description': 'Generate the PRISMA study-selection flow diagram'},
         {'name': 'PROSPERO', 'url': 'https://www.crd.york.ac.uk/prospero/', 'description': 'International registry for systematic review protocols'},
         {'name': 'Cochrane Handbook', 'url': 'https://training.cochrane.org/handbook', 'description': 'Standard methodology reference for systematic reviews'},
+    ],
+    'meta_analytic': [
+        {'name': 'PRISMA Statement', 'url': 'https://www.prisma-statement.org', 'description': 'Reporting guideline for systematic reviews & meta-analyses'},
+        {'name': 'PROSPERO', 'url': 'https://www.crd.york.ac.uk/prospero/', 'description': 'International registry for systematic review/meta-analysis protocols'},
+        {'name': 'Cochrane Handbook', 'url': 'https://training.cochrane.org/handbook', 'description': 'Standard methodology reference for meta-analyses'},
+        {'name': 'metafor (R package)', 'url': 'https://www.metafor-project.org', 'description': 'Free R package for effect-size pooling and heterogeneity testing'},
     ],
     'clinical': [
         {'name': 'ICH-GCP Guidelines', 'url': 'https://ichgcp.net', 'description': 'International Good Clinical Practice standards for clinical trials'},

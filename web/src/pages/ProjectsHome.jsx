@@ -7,26 +7,21 @@ import { PageInstructions } from '../components/PageInstructions';
 import { LegalNotice } from '../components/LegalNotice';
 import './ProjectsHome.css';
 
-const RESEARCH_TYPES = [
-  ['theoretical', 'Theoretical Research'],
-  ['experimental', 'Experimental Research'],
-  ['exploratory', 'Exploratory Research'],
-  ['pilot', 'Pilot Research'],
-  ['literature_review', 'Literature Review'],
-  ['clinical', 'Clinical Research'],
-];
-
 export function ProjectsHome() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [researchTypes, setResearchTypes] = useState({});
   const [form, setForm] = useState({ title: '', research_area: '', research_type: 'experimental' });
   const [creating, setCreating] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     refresh();
+    api.getResearchTypes().then((d) => setResearchTypes(d.types || {})).catch(() => {});
   }, []);
+
+  const researchTypeEntries = Object.entries(researchTypes);
 
   async function refresh() {
     setLoading(true);
@@ -98,15 +93,29 @@ export function ProjectsHome() {
               value={form.research_type}
               onChange={(e) => setForm({ ...form, research_type: e.target.value })}
             >
-              {RESEARCH_TYPES.map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+              {researchTypeEntries.map(([value, info]) => (
+                <option key={value} value={value}>{info.name}</option>
               ))}
             </select>
+            {researchTypes[form.research_type] && (
+              <p className="projects-home__type-description">{researchTypes[form.research_type].description}</p>
+            )}
 
             <Button type="submit" accent="rose" disabled={creating}>
               {creating ? 'Creating…' : 'Create Project'}
             </Button>
           </form>
+        </Card>
+
+        <Card title="All Research Types" hint="Every research type gets its own methodology checklist and recommended reporting guidelines." accent="sand">
+          <dl className="projects-home__type-list">
+            {researchTypeEntries.map(([value, info]) => (
+              <div key={value}>
+                <dt>{info.name}</dt>
+                <dd>{info.description}</dd>
+              </div>
+            ))}
+          </dl>
         </Card>
 
         <Card title="Your Projects" accent="blue">
@@ -120,7 +129,7 @@ export function ProjectsHome() {
                 <button className="projects-home__project" onClick={() => navigate(`/projects/${p.id}`)}>
                   <span className="projects-home__project-title">{p.title}</span>
                   <span className="projects-home__project-meta">
-                    {RESEARCH_TYPES.find(([v]) => v === p.research_type)?.[1] || p.research_type}
+                    {researchTypes[p.research_type]?.name || p.research_type}
                     {p.research_area ? ` · ${p.research_area}` : ''}
                   </span>
                 </button>

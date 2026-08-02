@@ -78,13 +78,28 @@ class Config:
     RESEARCH_TYPES = {
         'theoretical': {
             'name': 'Theoretical Research',
-            'description': 'Develop or improve scientific theories',
+            'description': 'Develop or improve formal theories or conceptual frameworks, tested for logical consistency rather than new data collection',
             'icon': 'lightbulb'
         },
         'experimental': {
             'name': 'Experimental Research',
-            'description': 'Establish causal relationships by manipulating variables under controlled conditions',
+            'description': 'Establish causal relationships by manipulating variables under controlled conditions - includes fundamental/basic-science studies as well as applied ones',
             'icon': 'flask'
+        },
+        'quasi_experimental': {
+            'name': 'Quasi-Experimental Research',
+            'description': 'Approximate causal inference by comparing naturally occurring groups when random assignment isn\'t possible or ethical',
+            'icon': 'flask'
+        },
+        'observational': {
+            'name': 'Observational Research',
+            'description': 'Identify relationships between variables by measuring them as they naturally occur, without manipulation',
+            'icon': 'compass'
+        },
+        'descriptive': {
+            'name': 'Descriptive Research',
+            'description': 'Systematically document or characterize a novel phenomenon, population, or pattern',
+            'icon': 'book'
         },
         'exploratory': {
             'name': 'Exploratory Research',
@@ -96,9 +111,24 @@ class Config:
             'description': 'Run a small-cohort feasibility study ahead of a full-scale study',
             'icon': 'flask'
         },
+        'translational': {
+            'name': 'Translational Research',
+            'description': 'Bridge a basic-science finding toward clinical or applied practice, from preclinical testing through early applied testing',
+            'icon': 'flask'
+        },
+        'computational': {
+            'name': 'Computational Research',
+            'description': 'Build, implement, and validate a mathematical or computational model or simulation',
+            'icon': 'lightbulb'
+        },
         'literature_review': {
             'name': 'Literature Review',
-            'description': 'Search, screen, and synthesize existing published research',
+            'description': 'Search, screen, and synthesize existing published research narratively',
+            'icon': 'book'
+        },
+        'meta_analytic': {
+            'name': 'Meta-Analytic Research',
+            'description': 'Quantitatively pool effect sizes across multiple existing studies to produce a combined estimate',
             'icon': 'book'
         },
         'clinical': {
@@ -134,6 +164,38 @@ class Config:
             'Draft review specific to journals of interest',
             'Record rejections or acceptances of journals',
         ],
+        'quasi_experimental': [
+            'Identify broad research question',
+            'Do literature review',
+            'Construct hypothesis',
+            "Identify naturally occurring comparison groups (random assignment isn't possible or ethical)",
+            'Match or statistically control for confounding variables',
+            'Collect data from each group',
+            'Analyze data using statistical tests appropriate for non-randomized comparisons',
+            'Interpret results, accounting for residual confounding',
+            'Draft review specific to journals of interest',
+            'Record rejections or acceptances of journals',
+        ],
+        'observational': [
+            'Identify broad research question',
+            'Do literature review',
+            'Identify variables of interest and their expected relationships',
+            'Select or recruit a sample without intervening',
+            'Measure variables as they naturally occur',
+            'Analyze data using correlational/associational statistical tests',
+            'Interpret relationships, noting that correlation does not imply causation',
+            'Draft review specific to journals of interest',
+            'Record rejections or acceptances of journals',
+        ],
+        'descriptive': [
+            'Identify the phenomenon, population, or pattern to characterize',
+            'Do literature review to confirm novelty or a gap in existing description',
+            'Define what will be measured or documented',
+            'Systematically observe, measure, or collect samples',
+            'Summarize and characterize findings (e.g. descriptive statistics, typology, case counts)',
+            'Draft review specific to journals of interest',
+            'Record rejections or acceptances of journals',
+        ],
         'exploratory': [
             'Choose 1 case',
             'Gather documents on that case',
@@ -157,6 +219,28 @@ class Config:
             'Draft review specific to journals of interest',
             'Record rejections or acceptances of journals',
         ],
+        'translational': [
+            'Identify a basic-science finding with potential practical application',
+            'Do literature review on the finding and existing translational attempts',
+            'Develop an application, intervention, or prototype based on the finding',
+            'Conduct preclinical or bench-scale testing',
+            'Conduct early-phase applied or human testing',
+            'Collect and analyze data on feasibility and effect',
+            'Interpret findings in terms of readiness for further clinical/applied development',
+            'Draft review specific to journals of interest',
+            'Record rejections or acceptances of journals',
+        ],
+        'computational': [
+            'Identify broad research question or system to model',
+            'Do literature review on existing models and methods',
+            'Define assumptions and construct the model or algorithm',
+            'Implement the model (code or simulate it)',
+            'Validate the model against known data or benchmarks',
+            'Run simulations or computations',
+            'Analyze and interpret model output',
+            'Draft review specific to journals of interest',
+            'Record rejections or acceptances of journals',
+        ],
         'literature_review': [
             'Identify broad research question',
             'Search databases and screen all papers',
@@ -164,6 +248,17 @@ class Config:
             'Extract information from the papers',
             'Synthesize findings from the papers',
             'Identify limitations and gaps',
+            'Draft review specific to journals of interest',
+            'Record rejections or acceptances of journals',
+        ],
+        'meta_analytic': [
+            'Identify a well-defined research question with multiple existing studies',
+            'Define inclusion and exclusion criteria for studies',
+            'Systematically search and screen studies',
+            'Assess quality/risk of bias of included studies',
+            'Extract effect sizes and relevant data from each study',
+            'Statistically pool effect sizes and test heterogeneity',
+            'Interpret the pooled effect and any moderators',
             'Draft review specific to journals of interest',
             'Record rejections or acceptances of journals',
         ],

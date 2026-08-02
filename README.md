@@ -6,17 +6,38 @@ hypotheses, statistical analysis, manuscript drafting, and journal
 submission tracking, all in one place.
 
 **It's a general-purpose research tool, not a neuroscience-specific one.**
-Every project picks a research type (theoretical, experimental, exploratory,
-pilot, literature review, or clinical) and gets a methodology checklist
-matched to that type — the same structure applies whether you're running a
-biochemistry assay, a chemistry synthesis study, a clinical trial, an
-ecology field study, a computational/theoretical project, or anything else.
-Literature search pulls from general-purpose sources (Europe PMC, CrossRef,
-arXiv, ERIC, Semantic Scholar, OpenAlex), not a neuroscience-only database.
+Every project picks one of 12 research types (see the table below) and gets
+a methodology checklist matched to that type — the same structure applies
+whether you're running a biochemistry assay, a chemistry synthesis study, a
+clinical trial, an ecology field study, a computational/theoretical
+project, or anything else. Literature search pulls from general-purpose
+sources (Europe PMC, CrossRef, arXiv, ERIC, Semantic Scholar, OpenAlex),
+not a neuroscience-only database.
 
 Available as a web app (Flask backend + React frontend) and as a native
 desktop app for macOS (built with Tauri) - see
 [DESKTOP_APP_BUILD.md](DESKTOP_APP_BUILD.md) for building the desktop app.
+
+## Research types
+
+Each type gets its own methodology checklist and recommended reporting
+guidelines (e.g. CONSORT, STROBE, PRISMA) - defined in
+[`config/config.py`](config/config.py).
+
+| Type | Goal | Methodology |
+|---|---|---|
+| **Theoretical** | Develop or improve a formal theory | Build/refine a conceptual framework, test for logical consistency - no new data collection |
+| **Experimental** | Establish causal relationships | Manipulate variables under controlled conditions (covers fundamental/basic-science as well as applied studies) |
+| **Quasi-Experimental** | Approximate causal inference without randomization | Compare naturally occurring groups, statistically control for confounds |
+| **Observational** | Identify relationships between variables | Measure variables as they naturally occur, without manipulation |
+| **Descriptive** | Document a novel phenomenon or population | Systematic observation/measurement and characterization, no relationship-testing |
+| **Exploratory** | Deeply understand a single case | Case study: gather evidence, compare against known generalizations |
+| **Pilot** | Test feasibility ahead of a full study | Small-cohort version of an experimental design |
+| **Translational** | Bridge a lab finding to practice | Preclinical testing through early applied/human testing |
+| **Computational** | Build/validate a model or simulation | Implement a model or algorithm, validate against benchmarks, run simulations |
+| **Literature Review** | Narratively synthesize existing research | Search, screen, extract, synthesize, identify gaps |
+| **Meta-Analytic** | Quantitatively pool results across studies | Systematic search, effect-size extraction, statistical pooling, heterogeneity testing |
+| **Clinical** | Evaluate an intervention in human participants | Protocol design, ethics approval, recruitment, safety monitoring, outcome analysis |
 
 ## What it does
 
@@ -32,10 +53,13 @@ desktop app for macOS (built with Tauri) - see
   per step.
 - **Hypotheses** - track candidate hypotheses and their status.
 - **Tasks** - lightweight task/milestone tracking.
-- **Data & Analysis** - import a dataset (CSV/TSV), run real statistical
-  tests (t-tests, ANOVA, correlation, regression, non-parametric tests,
-  etc.) and generate charts, entirely under your control (you pick the test
-  and the columns - nothing is decided automatically).
+- **Data & Analysis** - import a dataset (CSV/TSV) and run a real statistical
+  test on the columns you choose (descriptive statistics, independent/
+  paired/one-sample t-tests, one-way ANOVA, Mann-Whitney U, Wilcoxon
+  signed-rank, Kruskal-Wallis, Pearson/Spearman correlation, a correlation
+  matrix, chi-square, and simple/multiple linear regression), plus bar,
+  line, scatter, histogram, and box-plot charts. Nothing is decided
+  automatically - you pick the test/chart type and the columns.
 - **Manuscript** - draft each section of a manuscript (abstract, intro,
   methods, results, discussion, references) with autosave.
 - **Journals** - track target journals and submission status, and look up

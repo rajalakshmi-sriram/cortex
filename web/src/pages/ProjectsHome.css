@@ -69,3 +69,27 @@
 .projects-home__footer {
   margin-top: 24px;
 }
+
+.projects-home__type-description {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+}
+
+.projects-home__type-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.projects-home__type-list dt {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.projects-home__type-list dd {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
