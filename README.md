@@ -16,6 +16,21 @@ Available two ways:
   app](#running-the-web-app-macos-windows-linux) below. This is also how
   you'd run it if you're developing on the code.
 
+![Cortex project overview, showing the sidebar with Literature Review, Paper Library, Methodology, Hypotheses, Tasks, Data & Analysis, Manuscript, and Journals tabs](docs/images/screenshot-overview.png)
+
+## Quick start
+
+1. Create a project: give it a title, a research area, and pick one of the
+   12 research types below - Cortex builds a matched methodology checklist
+   automatically.
+2. Open **Literature Review** and search a topic - results come from real,
+   free sources (Europe PMC, CrossRef, arXiv, and more), with
+   similarity/novelty scoring against your idea.
+3. Work through the other tabs as your project progresses: track
+   **Hypotheses**, import a dataset into **Data & Analysis** for real
+   statistical tests and charts, draft your **Manuscript**, and track
+   **Journals** for submission.
+
 ## Research types
 
 Each type gets its own methodology checklist and recommended reporting
@@ -192,6 +207,19 @@ arXiv, ERIC, Semantic Scholar, and OpenAlex. Optional keys for
 paid/institutional databases (Elsevier/Scopus, Web of Science, IEEE
 Xplore, Springer Nature, CORE) can be added in Literature Sources settings
 (database icon) - no paid subscription is required to use the app.
+
+## Contributing
+
+Bug reports and feature requests: [open an
+issue](https://github.com/rajalakshmi-sriram/cortex/issues). Include your
+OS, how you're running Cortex (packaged app vs. from source), and steps to
+reproduce.
+
+Pull requests are welcome - fork the repo, make your change against the
+web app workflow in [Running the web
+app](#running-the-web-app-macos-windows-linux), and open a PR describing
+what changed and why. For changes to the desktop app packaging specifically,
+see [DESKTOP_APP_BUILD.md](DESKTOP_APP_BUILD.md).
 
 ## License & legal
 
