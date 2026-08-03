@@ -3,16 +3,10 @@
 Cortex is a research workspace for planning, running, and writing up a
 research project end to end — literature search, methodology tracking,
 hypotheses, statistical analysis, manuscript drafting, and journal
-submission tracking, all in one place.
-
-**It's a general-purpose research tool, not a neuroscience-specific one.**
-Every project picks one of 12 research types (see the table below) and gets
-a methodology checklist matched to that type — the same structure applies
-whether you're running a biochemistry assay, a chemistry synthesis study, a
-clinical trial, an ecology field study, a computational/theoretical
-project, or anything else. Literature search pulls from general-purpose
-sources (Europe PMC, CrossRef, arXiv, ERIC, Semantic Scholar, OpenAlex),
-not a neuroscience-only database.
+submission tracking, all in one place. It's general-purpose: pick one of
+12 research types and get a methodology checklist matched to it, whether
+that's a lab experiment, a clinical trial, a field study, a computational
+project, or a literature review.
 
 Available two ways:
 - **A native desktop app for macOS** - no install of Python or Node
@@ -57,13 +51,10 @@ guidelines (e.g. CONSORT, STROBE, PRISMA) - defined in
   per step.
 - **Hypotheses** - track candidate hypotheses and their status.
 - **Tasks** - lightweight task/milestone tracking.
-- **Data & Analysis** - import a dataset (CSV/TSV) and run a real statistical
-  test on the columns you choose (descriptive statistics, independent/
-  paired/one-sample t-tests, one-way ANOVA, Mann-Whitney U, Wilcoxon
-  signed-rank, Kruskal-Wallis, Pearson/Spearman correlation, a correlation
-  matrix, chi-square, and simple/multiple linear regression), plus bar,
-  line, scatter, histogram, and box-plot charts. Nothing is decided
-  automatically - you pick the test/chart type and the columns.
+- **Data & Analysis** - import a CSV/TSV dataset and run statistical tests
+  (t-tests, ANOVA, non-parametric equivalents, correlation, regression,
+  chi-square) or charts (bar, line, scatter, histogram, box plot) on the
+  columns you choose - nothing is decided automatically.
 - **Manuscript** - draft each section of a manuscript (abstract, intro,
   methods, results, discussion, references) with autosave.
 - **Journals** - track target journals and submission status, and look up
@@ -71,13 +62,12 @@ guidelines (e.g. CONSORT, STROBE, PRISMA) - defined in
 
 ## Optional AI features
 
-AI features are entirely opt-in - nothing runs automatically, and every AI
-action is triggered by an explicit button click. You choose the provider:
+AI features are opt-in, triggered by an explicit button click. Choose a
+provider:
 
-- **Local (Ollama)** - free, fully private, runs on your own machine. No
-  API key, no data leaves your computer. Install
-  [Ollama](https://ollama.com) separately and pull a model (default:
-  `qwen2.5:7b-instruct`, CPU-friendly).
+- **Local (Ollama)** - free, fully private, runs on your own machine.
+  Install [Ollama](https://ollama.com) separately and pull a model
+  (default: `qwen2.5:7b-instruct`, CPU-friendly).
 - **Your own API key** for a hosted provider - OpenAI, Anthropic, Google
   Gemini, Mistral, or Groq - added in the AI Settings panel (sparkle icon,
   bottom-right of the app).
@@ -85,14 +75,9 @@ action is triggered by an explicit button click. You choose the provider:
   OpenAI-compatible server (OpenRouter, Together AI, a self-hosted
   vLLM/LM Studio, etc.) via a base URL you supply.
 
-Where AI shows up, grounded only in your own real data (never inventing
-facts beyond what you gave it):
-- Literature synthesis + gap analysis during a search
-- Manuscript feedback aimed at publication quality
-- Hypothesis specificity/testability feedback
-- Statistical results interpretation, related to your hypotheses
-- Paper summarization
-- Follow-up chat on any of the above, to ask clarifying questions
+Used for: literature synthesis and gap analysis, manuscript feedback,
+hypothesis feedback, statistical results interpretation, paper
+summarization, and follow-up chat on any of the above.
 
 ## macOS app (no setup required)
 
@@ -105,38 +90,32 @@ Node, or terminal required.
 2. Open the downloaded `.dmg` and drag **Cortex** into your **Applications**
    folder.
 3. Open **Cortex** from Applications (or Spotlight). The **first time**,
-   macOS will say it's from an "unidentified developer" and refuse to open
-   it normally - this is expected for any app distributed outside the Mac
-   App Store without a paid Apple Developer certificate, not a sign
-   anything is wrong. To open it anyway:
+   macOS will say it's from an "unidentified developer" - expected for an
+   app distributed outside the Mac App Store. To open it anyway:
    - Right-click (or Control-click) the Cortex app icon → **Open** → click
-     **Open** again in the dialog that appears, **or**
-   - Go to **System Settings → Privacy & Security**, scroll down to the
-     message about Cortex being blocked, and click **Open Anyway**.
+     **Open** again in the dialog, **or**
+   - Go to **System Settings → Privacy & Security**, scroll to the message
+     about Cortex being blocked, and click **Open Anyway**.
 
-   You only need to do this once - after the first launch it opens
-   normally.
+   Only needed once - after the first launch it opens normally.
 
-That's it - no other setup. Your project data is saved locally on your own
-Mac (`~/Library/Application Support/Cortex`), not uploaded anywhere.
+Project data is saved locally on your own Mac
+(`~/Library/Application Support/Cortex`), not uploaded anywhere.
 
 *Windows and Linux users: there isn't a packaged desktop app for those
 platforms yet - use the web app below instead, which works identically.*
 
-If you'd rather build the desktop app yourself from source instead of
-downloading it, see [DESKTOP_APP_BUILD.md](DESKTOP_APP_BUILD.md).
+To build the desktop app from source instead of downloading it, see
+[DESKTOP_APP_BUILD.md](DESKTOP_APP_BUILD.md).
 
 ## Running the web app (macOS, Windows, Linux)
 
-This is for anyone who wants to run Cortex from the source code directly -
-useful on Windows/Linux (no desktop app yet), or if you're developing on
-the code. You'll need [Python 3.11](https://www.python.org/downloads/) and
-[Node.js](https://nodejs.org/) installed first.
+For running Cortex from source - needed on Windows/Linux, or for
+development. Requires [Python 3.11](https://www.python.org/downloads/) and
+[Node.js](https://nodejs.org/).
 
-**1. Clone (or download) the repo and open a terminal in that folder.**
-Every command below assumes you're inside the `cortex` project folder
-(i.e. it contains `run.py` and `requirements.txt`) - if a command below
-says a file isn't found, `cd` into the right folder first.
+**1. Clone (or download) the repo and open a terminal in that folder** -
+the one containing `run.py` and `requirements.txt`.
 
 **2. Start the backend** (Flask, serves on port 5050):
 
@@ -154,51 +133,50 @@ venv-run\Scripts\pip install -r requirements.txt
 venv-run\Scripts\python run.py
 ```
 
-> **Use Python 3.11 specifically** (`python3.11` / `py -3.11`), not
-> whichever `python`/`python3` your system defaults to. The pinned
-> scientific-library versions in `requirements.txt` (scikit-learn, numpy,
-> etc.) don't have prebuilt wheels for Python 3.13+, so installing with a
-> newer default Python (common with Homebrew or Anaconda) will fail trying
-> to compile them from source. If you don't have 3.11 installed:
-> `brew install python@3.11` on macOS, or the installer from
-> [python.org](https://www.python.org/downloads/) on Windows.
+> **Use Python 3.11 specifically** (`python3.11` / `py -3.11`). The pinned
+> scientific-library versions in `requirements.txt` don't have prebuilt
+> wheels for Python 3.13+, so a newer default Python will fail trying to
+> compile them from source. Install 3.11 via `brew install python@3.11`
+> (macOS) or [python.org](https://www.python.org/downloads/) (Windows).
 
-> **"Address already in use" / port 5050 is in use:** this means a
-> previous run of the backend is still running in the background (e.g. from
-> a terminal tab you closed without stopping it). Find and stop it, then
-> try again:
-> - macOS/Linux: `lsof -nP -iTCP:5050 -sTCP:LISTEN` to find the process ID,
->   then `kill <PID>`.
-> - Windows: `netstat -ano | findstr :5050` to find the PID, then
->   `taskkill /PID <PID> /F`.
+> **"Address already in use" on port 5050:** a previous backend run is
+> still active. Find and stop it:
+> - macOS/Linux: `lsof -nP -iTCP:5050 -sTCP:LISTEN`, then `kill <PID>`.
+> - Windows: `netstat -ano | findstr :5050`, then `taskkill /PID <PID> /F`.
 
-Leave that terminal window running - the backend needs to stay up.
+Leave that terminal running - the backend needs to stay up.
 
-**3. In a *second* terminal window**, start the frontend (React + Vite,
-proxies `/api` requests to the backend):
+**3. In a *second* terminal**, start the frontend (React + Vite, proxies
+`/api` requests to the backend):
 ```bash
 cd web
 npm install
 npm run dev
 ```
 
-**4. Open the `http://localhost:...` URL printed in that terminal, in
-your browser.** 
+**4. Open the `http://localhost:...` URL printed in that terminal.**
 
-To stop everything, press `Ctrl+C` in both terminal windows.
+To stop everything, press `Ctrl+C` in both terminals.
 
 ## Project structure
 
 ```
-app/            Flask backend: routes, project storage, literature search,
-                statistics/chart engines, AI assistant, citation formatting
-config/         App configuration (research types, methodology step
-                sequences, data directories)
-web/            React frontend (Vite)
-desktop-tauri/  Tauri desktop app wrapper (macOS/Windows)
-run.py          Development entry point for the backend
-run_desktop.py  Production entry point used by the packaged desktop app
-cortex_backend.spec   PyInstaller spec for bundling the backend
+app/                     Flask backend: routes, project storage,
+                         literature search, statistics/chart engines, AI
+                         assistant, citation formatting
+config/                  App configuration (research types, methodology
+                         step sequences, data directories)
+skills/                  Reference material bundled with the app (e.g.
+                         reporting-guideline templates)
+web/                     React frontend (Vite)
+desktop-tauri/           Tauri desktop app wrapper (macOS/Windows)
+run.py                   Development entry point for the backend
+run_desktop.py           Production entry point used by the packaged
+                         desktop app
+cortex_backend.spec      PyInstaller spec for bundling the backend
+DESKTOP_APP_BUILD.md     How to build the desktop app from source
+LEGAL.md                 AI-generated content, data sharing, and storage
+                         disclosures
 ```
 
 Saved project data lives in `data/` during development, or in a normal
@@ -209,18 +187,15 @@ bundle itself.
 ## Data sources
 
 Literature search draws on free, public sources: Europe PMC, CrossRef,
-arXiv, ERIC, and Semantic Scholar, plus OpenAlex. Optional keys for
+arXiv, ERIC, Semantic Scholar, and OpenAlex. Optional keys for
 paid/institutional databases (Elsevier/Scopus, Web of Science, IEEE
-Xplore, Springer Nature, CORE) can be added in the app itself, in
-Literature Sources settings (database icon) - but nothing requires a paid
-subscription to use.
+Xplore, Springer Nature, CORE) can be added in Literature Sources settings
+(database icon) - no paid subscription is required to use the app.
 
 ## License & legal
 
-MIT licensed - see [LICENSE](LICENSE). See [LEGAL.md](LEGAL.md) for the
-full disclosure on AI-generated content, third-party data sharing (what
-leaves your machine if you use a hosted AI provider vs. local Ollama), and
-data storage.
+MIT licensed - see [LICENSE](LICENSE). See [LEGAL.md](LEGAL.md) for AI-
+generated content, third-party data sharing, and data storage details.
 
 This app's code was written with substantial assistance from
 [Claude Code](https://claude.com/claude-code), Anthropic's AI coding tool.
