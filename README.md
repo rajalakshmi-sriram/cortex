@@ -99,6 +99,15 @@ Node, or terminal required.
 
    Only needed once - after the first launch it opens normally.
 
+   > **Says "Cortex is damaged and can't be opened" instead?** This is a
+   > stricter form of the same warning, not actual corruption - it shows up
+   > because Cortex isn't signed with a paid Apple Developer certificate.
+   > Open Terminal and run:
+   > ```bash
+   > xattr -cr /Applications/Cortex.app
+   > ```
+   > then open Cortex again.
+
 Project data is saved locally on your own Mac
 (`~/Library/Application Support/Cortex`), not uploaded anywhere.
 
