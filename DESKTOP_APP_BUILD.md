@@ -106,15 +106,24 @@ must be present"), re-sign it before building the DMG:
 codesign --force --deep --sign - release/Cortex.app
 ```
 
-## Building on Windows (not yet built - needs a Windows machine or CI)
+## Building on Windows
 
 PyInstaller does not cross-compile: a Windows `.exe` backend has to be built
 by running PyInstaller *on Windows* (a real Windows machine, a VM, or a CI
 runner like GitHub Actions - it cannot be produced from this Mac). The Tauri
 shell itself also needs to be compiled on Windows for a Windows build.
 Windows 10/11 ship WebView2 out of the box, so unlike Electron there's no
-separate runtime to bundle for that part. Once you have a Windows
-environment with Rust installed (`winget install Rustlang.Rustup`):
+separate runtime to bundle for that part.
+
+**Easiest option - GitHub Actions, no Windows machine needed:** run the
+[`Build Windows desktop app`](.github/workflows/build-windows.yml) workflow
+from the repo's Actions tab (`workflow_dispatch`, takes the release tag to
+attach the installer to). It runs the exact steps below on a
+GitHub-hosted `windows-latest` runner and uploads the resulting `.exe`
+installer to that GitHub Release.
+
+**Building manually**, once you have a Windows environment with Rust
+installed (`winget install Rustlang.Rustup`):
 
 ```powershell
 # 1. Build the backend into a standalone binary. Python 3.9+ works.
@@ -135,16 +144,10 @@ npm run tauri build
 ```
 
 Output lands in `desktop-tauri\src-tauri\target\release\bundle\nsis\` (an
-NSIS installer with a normal install wizard) and `\msi\` (an MSI installer,
-if you'd rather distribute that format). Like the Mac build, it isn't
+NSIS installer with a normal install wizard). Like the Mac build, it isn't
 code-signed, so Windows SmartScreen will show an "unrecognized app" warning
 on first run - the installer still works, the user just has to click "More
 info" → "Run anyway".
-
-The easiest way to actually get this build without owning a Windows machine
-is a free GitHub Actions workflow using a `windows-latest` runner to run the
-three steps above and upload `desktop-tauri/src-tauri/target/release/bundle/**`
-as a build artifact.
 
 ## Rebuilding after future code changes
 
