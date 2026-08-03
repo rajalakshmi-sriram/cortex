@@ -183,8 +183,7 @@ npm run dev
 ```
 
 **4. Open the `http://localhost:...` URL printed in that terminal, in
-your browser.** That's the app (usually `http://localhost:5173`, but open
-whichever URL is actually shown).
+your browser.** 
 
 To stop everything, press `Ctrl+C` in both terminal windows.
 
