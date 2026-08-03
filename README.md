@@ -175,14 +175,16 @@ venv-run\Scripts\python run.py
 Leave that terminal window running - the backend needs to stay up.
 
 **3. In a *second* terminal window**, start the frontend (React + Vite,
-serves on port 5173 and proxies `/api` requests to the backend):
+proxies `/api` requests to the backend):
 ```bash
 cd web
 npm install
 npm run dev
 ```
 
-**4. Open `http://localhost:5173` in your browser.** That's the app.
+**4. Open the `http://localhost:...` URL printed in that terminal, in
+your browser.** That's the app (usually `http://localhost:5173`, but open
+whichever URL is actually shown).
 
 To stop everything, press `Ctrl+C` in both terminal windows.
 
