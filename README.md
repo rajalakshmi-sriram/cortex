@@ -14,9 +14,13 @@ project, or anything else. Literature search pulls from general-purpose
 sources (Europe PMC, CrossRef, arXiv, ERIC, Semantic Scholar, OpenAlex),
 not a neuroscience-only database.
 
-Available as a web app (Flask backend + React frontend) and as a native
-desktop app for macOS (built with Tauri) - see
-[DESKTOP_APP_BUILD.md](DESKTOP_APP_BUILD.md) for building the desktop app.
+Available two ways:
+- **A native desktop app for macOS** - no install of Python or Node
+  required, just [download and open it](#macos-app-no-setup-required).
+- **A web app** (Flask backend + React frontend) that you run yourself on
+  any OS (macOS, Windows, or Linux) - see [Running the web
+  app](#running-the-web-app-macos-windows-linux) below. This is also how
+  you'd run it if you're developing on the code.
 
 ## Research types
 
@@ -90,30 +94,97 @@ facts beyond what you gave it):
 - Paper summarization
 - Follow-up chat on any of the above, to ask clarifying questions
 
-## Getting started (development)
+## macOS app (no setup required)
 
-Backend (Flask, port 5050):
+For most Mac users, this is the easiest way to use Cortex - no Python,
+Node, or terminal required.
+
+1. **[Download the latest `.dmg`](https://github.com/rajalakshmi-sriram/cortex/releases/latest)**
+   from the Releases page (look for `Cortex-<version>-arm64.dmg`, for
+   Apple Silicon Macs - M1/M2/M3/M4).
+2. Open the downloaded `.dmg` and drag **Cortex** into your **Applications**
+   folder.
+3. Open **Cortex** from Applications (or Spotlight). The **first time**,
+   macOS will say it's from an "unidentified developer" and refuse to open
+   it normally - this is expected for any app distributed outside the Mac
+   App Store without a paid Apple Developer certificate, not a sign
+   anything is wrong. To open it anyway:
+   - Right-click (or Control-click) the Cortex app icon → **Open** → click
+     **Open** again in the dialog that appears, **or**
+   - Go to **System Settings → Privacy & Security**, scroll down to the
+     message about Cortex being blocked, and click **Open Anyway**.
+
+   You only need to do this once - after the first launch it opens
+   normally.
+
+That's it - no other setup. Your project data is saved locally on your own
+Mac (`~/Library/Application Support/Cortex`), not uploaded anywhere.
+
+*Windows and Linux users: there isn't a packaged desktop app for those
+platforms yet - use the web app below instead, which works identically.*
+
+If you'd rather build the desktop app yourself from source instead of
+downloading it, see [DESKTOP_APP_BUILD.md](DESKTOP_APP_BUILD.md).
+
+## Running the web app (macOS, Windows, Linux)
+
+This is for anyone who wants to run Cortex from the source code directly -
+useful on Windows/Linux (no desktop app yet), or if you're developing on
+the code. You'll need [Python 3.11](https://www.python.org/downloads/) and
+[Node.js](https://nodejs.org/) installed first.
+
+**1. Clone (or download) the repo and open a terminal in that folder.**
+Every command below assumes you're inside the `cortex` project folder
+(i.e. it contains `run.py` and `requirements.txt`) - if a command below
+says a file isn't found, `cd` into the right folder first.
+
+**2. Start the backend** (Flask, serves on port 5050):
+
+macOS / Linux:
 ```bash
 python3.11 -m venv venv-run
 venv-run/bin/pip install -r requirements.txt
 venv-run/bin/python3 run.py
 ```
 
-Frontend (React + Vite, port 5173, proxies `/api` to the backend):
+Windows (PowerShell):
+```powershell
+py -3.11 -m venv venv-run
+venv-run\Scripts\pip install -r requirements.txt
+venv-run\Scripts\python run.py
+```
+
+> **Use Python 3.11 specifically** (`python3.11` / `py -3.11`), not
+> whichever `python`/`python3` your system defaults to. The pinned
+> scientific-library versions in `requirements.txt` (scikit-learn, numpy,
+> etc.) don't have prebuilt wheels for Python 3.13+, so installing with a
+> newer default Python (common with Homebrew or Anaconda) will fail trying
+> to compile them from source. If you don't have 3.11 installed:
+> `brew install python@3.11` on macOS, or the installer from
+> [python.org](https://www.python.org/downloads/) on Windows.
+
+> **"Address already in use" / port 5050 is in use:** this means a
+> previous run of the backend is still running in the background (e.g. from
+> a terminal tab you closed without stopping it). Find and stop it, then
+> try again:
+> - macOS/Linux: `lsof -nP -iTCP:5050 -sTCP:LISTEN` to find the process ID,
+>   then `kill <PID>`.
+> - Windows: `netstat -ano | findstr :5050` to find the PID, then
+>   `taskkill /PID <PID> /F`.
+
+Leave that terminal window running - the backend needs to stay up.
+
+**3. In a *second* terminal window**, start the frontend (React + Vite,
+serves on port 5173 and proxies `/api` requests to the backend):
 ```bash
 cd web
 npm install
 npm run dev
 ```
 
-Then open `http://localhost:5173`.
+**4. Open `http://localhost:5173` in your browser.** That's the app.
 
-## Building the desktop app
-
-See [DESKTOP_APP_BUILD.md](DESKTOP_APP_BUILD.md) for the full build guide
-(macOS is fully built and tested; Windows build config is included but
-needs to be built on a Windows machine or CI, since neither PyInstaller nor
-the Tauri toolchain cross-compile).
+To stop everything, press `Ctrl+C` in both terminal windows.
 
 ## Project structure
 
