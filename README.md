@@ -166,8 +166,6 @@ app/                     Flask backend: routes, project storage,
                          assistant, citation formatting
 config/                  App configuration (research types, methodology
                          step sequences, data directories)
-skills/                  Reference material bundled with the app (e.g.
-                         reporting-guideline templates)
 web/                     React frontend (Vite)
 desktop-tauri/           Tauri desktop app wrapper (macOS/Windows)
 run.py                   Development entry point for the backend

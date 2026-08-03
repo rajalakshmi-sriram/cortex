@@ -5,16 +5,10 @@ desktop app for Mac and Windows. It wraps the same Flask backend + React
 frontend used in normal development - nothing about the app's features
 changes, it's just packaged so a user doesn't need Python or Node installed.
 
-(An earlier pass used Electron for this - `electron/` has been removed.
-Electron bundles a full Chromium browser, which has a hard floor of 4+
-separate processes (main, GPU, network, renderer) and commonly totals
-300-500MB+ of idle memory, regardless of what the app itself does. Tauri
-uses the OS's own native WebView (WKWebView on macOS, WebView2 on Windows)
-instead, so there's no bundled browser engine - idle memory for the whole
-app is roughly 130MB versus Electron's ~525MB, measured on this machine.
-The older `BUILD_MACOS_APP.md` / `build_macos_app.sh` / `macos-app/` /
-`setup.py` files in this repo are from an even earlier PyQt6-only desktop
-GUI that predates the web frontend entirely - unrelated to either build.)
+Tauri uses the OS's own native WebView (WKWebView on macOS, WebView2 on
+Windows) rather than bundling a full browser engine like Electron does,
+which keeps idle memory low (roughly 130MB vs. 300-500MB+ for a typical
+Electron app).
 
 ## How it fits together
 
@@ -46,7 +40,7 @@ GUI that predates the web frontend entirely - unrelated to either build.)
   `%APPDATA%\Cortex` on Windows) - see `_user_data_dir()` in
   `config/config.py`.
 
-## Building on macOS (what was just done)
+## Building on macOS
 
 ```bash
 # 0. One-time: install Rust if you don't already have it

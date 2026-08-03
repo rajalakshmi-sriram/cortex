@@ -1,10 +1,11 @@
 # PyInstaller spec for the Cortex Flask backend, bundled as a standalone
-# binary that Electron spawns as a child process. Build with:
+# binary that the Tauri desktop wrapper spawns as a child process. Build
+# with:
 #   pyinstaller cortex_backend.spec
 # Produces dist/cortex-backend/cortex-backend (a folder build, not
 # --onefile - onefile self-extracts to a temp dir on every launch, which
-# is slower to start and unnecessary here since Electron already ships
-# the whole folder inside its own app bundle).
+# is slower to start and unnecessary here since Tauri already ships the
+# whole folder as a bundled resource).
 
 import sys
 from pathlib import Path
@@ -16,9 +17,7 @@ a = Analysis(
     ['run_desktop.py'],
     pathex=[str(project_root)],
     binaries=[],
-    datas=[
-        (str(project_root / 'skills'), 'skills'),
-    ],
+    datas=[],
     hiddenimports=[
         'flask_cors',
         'pandas',

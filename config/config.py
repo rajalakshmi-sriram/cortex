@@ -41,13 +41,11 @@ else:
 
 PROJECTS_DIR = DATA_DIR / 'projects'
 LOGS_DIR = DATA_DIR / 'logs' if getattr(sys, 'frozen', False) else BASE_DIR / 'logs'
-SKILLS_DIR = BASE_DIR / 'skills'
 
 # Create directories if they don't exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
-SKILLS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class Config:
