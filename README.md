@@ -120,7 +120,7 @@ To build the desktop app from source instead of downloading it, see
 ## Running the web app (macOS, Windows, Linux)
 
 For running Cortex from source - needed on Windows/Linux, or for
-development. Requires [Python 3.11](https://www.python.org/downloads/) and
+development. Requires [Python 3.9+](https://www.python.org/downloads/) and
 [Node.js](https://nodejs.org/).
 
 **1. Clone (or download) the repo and open a terminal in that folder** -
@@ -130,23 +130,17 @@ the one containing `run.py` and `requirements.txt`.
 
 macOS / Linux:
 ```bash
-python3.11 -m venv venv-run
+python3 -m venv venv-run
 venv-run/bin/pip install -r requirements.txt
 venv-run/bin/python3 run.py
 ```
 
 Windows (PowerShell):
 ```powershell
-py -3.11 -m venv venv-run
+py -m venv venv-run
 venv-run\Scripts\pip install -r requirements.txt
 venv-run\Scripts\python run.py
 ```
-
-> **Use Python 3.11 specifically** (`python3.11` / `py -3.11`). The pinned
-> scientific-library versions in `requirements.txt` don't have prebuilt
-> wheels for Python 3.13+, so a newer default Python will fail trying to
-> compile them from source. Install 3.11 via `brew install python@3.11`
-> (macOS) or [python.org](https://www.python.org/downloads/) (Windows).
 
 > **"Address already in use" on port 5050:** a previous backend run is
 > still active. Find and stop it:

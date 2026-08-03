@@ -46,14 +46,10 @@ Electron app).
 # 0. One-time: install Rust if you don't already have it
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# 1. Build the backend into a standalone binary.
-# IMPORTANT: use Python 3.11 specifically, not whatever `python3` happens to
-# resolve to. The pinned scientific-library versions in requirements.txt
-# (scikit-learn, numpy, etc.) don't ship prebuilt wheels for Python 3.13+,
-# so on a machine where `python3` defaults to 3.13 (e.g. a Homebrew/Anaconda
-# default), `pip install -r requirements.txt` fails compiling from source.
-# Install 3.11 first if needed: `brew install python@3.11`
-python3.11 -m venv venv-run  # if you don't already have one
+# 1. Build the backend into a standalone binary. Python 3.9+ works - all
+# pinned scientific-library versions in requirements.txt ship prebuilt
+# wheels through Python 3.13.
+python3 -m venv venv-run  # if you don't already have one
 venv-run/bin/pip install -r requirements.txt pyinstaller
 venv-run/bin/pyinstaller cortex_backend.spec --noconfirm
 
@@ -84,12 +80,31 @@ cp desktop-tauri/src-tauri/target/release/bundle/dmg/Cortex_*.dmg release/
 directly - rerun those two lines after every `npm run tauri build` to keep
 it up to date.
 
-The app isn't code-signed or notarized (that requires a paid Apple Developer
-account), so on first launch macOS Gatekeeper will show an "unidentified
+The app is ad-hoc signed (`bundle.macOS.signingIdentity: "-"` in
+`tauri.conf.json`) rather than signed with a paid Apple Developer
+certificate, so on first launch macOS Gatekeeper will show an "unidentified
 developer" warning. The person installing it should right-click the app →
 Open, or in System Settings → Privacy & Security click "Open Anyway". This
 is normal for any app distributed outside the Mac App Store without a paid
 developer certificate - it's not something wrong with the build.
+
+**Before distributing a new build, verify the signature is actually
+intact** - `cp -R`, disk image creation, or re-bundling resources after
+signing can silently break the seal, which shows up for end users as
+Gatekeeper saying the app **"is damaged and can't be opened"** (a much
+harsher, non-bypassable version of the warning above) rather than the
+normal unidentified-developer prompt:
+
+```bash
+codesign --verify --deep --strict --verbose=4 release/Cortex.app
+```
+
+If that fails (e.g. "code has no resources but signature indicates they
+must be present"), re-sign it before building the DMG:
+
+```bash
+codesign --force --deep --sign - release/Cortex.app
+```
 
 ## Building on Windows (not yet built - needs a Windows machine or CI)
 
@@ -102,10 +117,8 @@ separate runtime to bundle for that part. Once you have a Windows
 environment with Rust installed (`winget install Rustlang.Rustup`):
 
 ```powershell
-# 1. Build the backend into a standalone binary.
-# Use Python 3.11 specifically - see the note in the macOS section above on
-# why (the pinned scientific-library versions don't have 3.13+ wheels).
-py -3.11 -m venv venv-run
+# 1. Build the backend into a standalone binary. Python 3.9+ works.
+py -m venv venv-run
 venv-run\Scripts\pip install -r requirements.txt pyinstaller
 venv-run\Scripts\pyinstaller cortex_backend.spec --noconfirm
 

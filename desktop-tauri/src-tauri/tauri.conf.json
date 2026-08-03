@@ -25,6 +25,9 @@
     ],
     "resources": {
       "../../dist/cortex-backend": "cortex-backend"
+    },
+    "macOS": {
+      "signingIdentity": "-"
     }
   }
 }
