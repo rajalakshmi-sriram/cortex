@@ -9,8 +9,9 @@ that's a lab experiment, a clinical trial, a field study, a computational
 project, or a literature review.
 
 Available two ways:
-- **A native desktop app for macOS** - no install of Python or Node
-  required, just [download and open it](#macos-app-no-setup-required).
+- **A native desktop app for macOS or Windows** - no install of Python or
+  Node required, just [download and open
+  it](#desktop-app-no-setup-required).
 - **A web app** (Flask backend + React frontend) that you run yourself on
   any OS (macOS, Windows, or Linux) - see [Running the web
   app](#running-the-web-app-macos-windows-linux) below. This is also how
@@ -94,14 +95,16 @@ Used for: literature synthesis and gap analysis, manuscript feedback,
 hypothesis feedback, statistical results interpretation, paper
 summarization, and follow-up chat on any of the above.
 
-## macOS app (no setup required)
+## Desktop app (no setup required)
 
-For most Mac users, this is the easiest way to use Cortex - no Python,
-Node, or terminal required.
+The easiest way to use Cortex - no Python, Node, or terminal required.
+Downloads are on the [Releases
+page](https://github.com/rajalakshmi-sriram/cortex/releases/latest).
 
-1. **[Download the latest `.dmg`](https://github.com/rajalakshmi-sriram/cortex/releases/latest)**
-   from the Releases page (look for `Cortex-<version>-arm64.dmg`, for
-   Apple Silicon Macs - M1/M2/M3/M4).
+### macOS
+
+1. **Download `Cortex-<version>-arm64.dmg`** (for Apple Silicon Macs -
+   M1/M2/M3/M4).
 2. Open the downloaded `.dmg` and drag **Cortex** into your **Applications**
    folder.
 3. Open **Cortex** from Applications (or Spotlight). The **first time**,
@@ -123,11 +126,22 @@ Node, or terminal required.
    > ```
    > then open Cortex again.
 
-Project data is saved locally on your own Mac
-(`~/Library/Application Support/Cortex`), not uploaded anywhere.
+Project data is saved locally (`~/Library/Application Support/Cortex`),
+not uploaded anywhere.
 
-*Windows and Linux users: there isn't a packaged desktop app for those
-platforms yet - use the web app below instead, which works identically.*
+### Windows
+
+1. **Download `Cortex_<version>_x64-setup.exe`**.
+2. Run the installer. Windows SmartScreen will likely show an
+   "unrecognized app" warning, since Cortex isn't signed with a paid code
+   certificate - click **More info** → **Run anyway** to continue. Only
+   needed once.
+3. Follow the install wizard, then launch **Cortex** from the Start Menu.
+
+Project data is saved locally (`%APPDATA%\Cortex`), not uploaded anywhere.
+
+*Linux users: there isn't a packaged desktop app yet - use the web app
+below instead, which works identically.*
 
 To build the desktop app from source instead of downloading it, see
 [DESKTOP_APP_BUILD.md](DESKTOP_APP_BUILD.md).
