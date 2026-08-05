@@ -7,6 +7,8 @@ import logging.handlers
 from pathlib import Path
 from datetime import datetime
 
+from config.config import LOGS_DIR
+
 def setup_logger(name, log_file=None):
     """
     Setup logger with file and console handlers
@@ -58,5 +60,5 @@ def setup_logger(name, log_file=None):
 # Create app logger
 logger = setup_logger(
     'cortex',
-    log_file='/Users/rajalakshmisriram/cortex/logs/cortex.log'
+    log_file=str(LOGS_DIR / 'cortex.log')
 )
