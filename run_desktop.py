@@ -2,16 +2,16 @@
 """
 Entry point for the packaged Cortex desktop app.
 
-This is what Electron's main process spawns as a child process (as a
+This is what the Tauri desktop shell spawns as a child process (as a
 PyInstaller-built standalone binary, no separate Python install required on
 the user's machine). Binds to 127.0.0.1 only - this is a local desktop app,
 not a server other machines on the network should be able to reach - and
 runs without the Flask dev reloader, which forks a second process and would
 break inside a frozen executable.
 
-Boot resiliency: if Electron sets CORTEX_PARENT_PID, a background thread
+Boot resiliency: if Tauri sets CORTEX_PARENT_PID, a background thread
 watches that PID and exits this process the moment it disappears. Without
-this, a force-quit or crash of the Electron app (which doesn't always give
+this, a force-quit or crash of the Tauri app (which doesn't always give
 child processes a chance to be told to shut down) could leave this backend
 running forever, holding its port and silently serving nothing anyone can
 see - and then blocking the *next* launch from starting its own backend
