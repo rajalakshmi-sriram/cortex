@@ -40,6 +40,34 @@ Electron app).
   `%APPDATA%\Cortex` on Windows) - see `_user_data_dir()` in
   `config/config.py`.
 
+## Optional: Google Docs integration setup
+
+The Manuscript page's "Google Docs" editor mode can embed and edit a real
+Google Doc with no setup at all. Getting AI Feedback to read that doc's
+live content additionally needs a Google OAuth client, since that requires
+calling the Google Docs API on your behalf - added from within the app
+(Manuscript → Google Docs mode → Google Account panel), not baked into
+Cortex. One-time setup, free:
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com) and
+   create a project (or use an existing one).
+2. **APIs & Services → Library**: search for "Google Docs API" and enable
+   it for that project.
+3. **APIs & Services → OAuth consent screen**: configure it (External is
+   fine for personal use - add yourself as a test user if it stays in
+   "Testing" mode, which is fine for personal/single-user use).
+4. **APIs & Services → Credentials → Create Credentials → OAuth client
+   ID**. Application type: **Desktop app** (not "Web application" - the
+   Desktop type is what allows Cortex's dynamic localhost port to work as
+   the redirect URI without pre-registering an exact port).
+5. Copy the **Client ID** and **Client Secret** into Cortex's Google
+   Account panel and click **Connect Google Account** - it opens Google's
+   sign-in in a new tab and returns automatically once you approve.
+
+Only a read-only Docs scope (`documents.readonly`) is requested. Tokens
+are stored locally in `data/google_docs_settings.json` (or the packaged
+app's per-user data folder), never sent anywhere but Google's own API.
+
 ## Building on macOS
 
 ```bash

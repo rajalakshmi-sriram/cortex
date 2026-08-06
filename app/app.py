@@ -19,6 +19,7 @@ from app.chart_engine import generate_chart, CHART_TYPES
 from app.journal_guidelines import lookup_guidelines, list_known_journals
 from app.ai_assistant import AIAssistant, AIUnavailableError
 from app.citation_formatter import format_citation, papers_to_bibtex, papers_to_ris, CITATION_STYLES
+from app.google_docs_store import GoogleDocsStore, build_authorize_url, exchange_code_for_tokens, get_valid_access_token, fetch_document_text
 
 
 def _paper_summary(p):
@@ -57,6 +58,7 @@ def create_app():
     methodology_engine = MethodologyEngine(config)
     project_store = ProjectStore(config)
     ai_assistant = AIAssistant(config)
+    google_docs_store = GoogleDocsStore(config)
 
     # ========== Health Check ==========
     @app.route('/health', methods=['GET'])
@@ -156,6 +158,71 @@ def create_app():
             core_api_key=data.get('core_api_key'),
         )
         return jsonify({'status': 'success', 'settings': idea_validator.literature_fetcher.settings_store.public()}), 200
+
+    # ========== Google Docs (optional, for AI Feedback on a linked Google Doc) ==========
+    # Read-only OAuth connection to your own Google account, using your own
+    # Google Cloud OAuth client credentials (added below, not baked into
+    # Cortex - see DESKTOP_APP_BUILD.md for setup steps). Used only to fetch
+    # the text of a Google Doc you've linked in Manuscript, so AI Feedback
+    # can read it - never sent anywhere except Google's own API and your
+    # chosen AI provider. See app/google_docs_store.py.
+
+    @app.route('/api/v1/settings/google', methods=['GET'])
+    def get_google_settings():
+        return jsonify({'status': 'success', 'settings': google_docs_store.public()}), 200
+
+    @app.route('/api/v1/settings/google', methods=['POST'])
+    def update_google_settings():
+        data = request.get_json(silent=True) or {}
+        client_id = data.get('client_id', '').strip()
+        client_secret = data.get('client_secret', '').strip()
+        if not client_id or not client_secret:
+            return _error('client_id and client_secret are both required', 400)
+        google_docs_store.save_credentials(client_id, client_secret)
+        return jsonify({'status': 'success', 'settings': google_docs_store.public()}), 200
+
+    @app.route('/api/v1/settings/google/disconnect', methods=['POST'])
+    def disconnect_google():
+        google_docs_store.disconnect()
+        return jsonify({'status': 'success', 'settings': google_docs_store.public()}), 200
+
+    @app.route('/api/v1/settings/google/oauth/authorize-url', methods=['GET'])
+    def google_authorize_url():
+        settings = google_docs_store.load()
+        if not settings.get('client_id'):
+            return _error('Add your Google OAuth client ID and secret first', 400)
+        redirect_uri = request.host_url.rstrip('/') + '/api/v1/settings/google/oauth/callback'
+        return jsonify({'status': 'success', 'url': build_authorize_url(settings['client_id'], redirect_uri)}), 200
+
+    @app.route('/api/v1/settings/google/oauth/callback', methods=['GET'])
+    def google_oauth_callback():
+        code = request.args.get('code')
+        error = request.args.get('error')
+        if error:
+            return f"<html><body><p>Google sign-in was cancelled or failed: {error}. You can close this tab.</p></body></html>", 400
+
+        settings = google_docs_store.load()
+        redirect_uri = request.host_url.rstrip('/') + '/api/v1/settings/google/oauth/callback'
+        try:
+            tokens = exchange_code_for_tokens(settings['client_id'], settings['client_secret'], code, redirect_uri)
+            google_docs_store.save_tokens(tokens['access_token'], tokens.get('refresh_token'), tokens.get('expires_in', 3600))
+        except Exception as e:
+            logger.error(f"Google OAuth callback error: {str(e)}")
+            return f"<html><body><p>Something went wrong connecting your Google account: {str(e)}. You can close this tab and try again.</p></body></html>", 500
+
+        return "<html><body><p>Google account connected. You can close this tab and return to Cortex.</p></body></html>", 200
+
+    @app.route('/api/v1/google/docs/<doc_id>/content', methods=['GET'])
+    def google_doc_content(doc_id):
+        try:
+            access_token = get_valid_access_token(google_docs_store)
+            text = fetch_document_text(doc_id, access_token)
+            return jsonify({'status': 'success', 'text': text}), 200
+        except ValueError as e:
+            return _error(str(e), 400)
+        except Exception as e:
+            logger.error(f"Error fetching Google Doc content: {str(e)}")
+            return _error(f'Internal server error: {str(e)}')
 
     @app.route('/api/v1/ai/converse', methods=['POST'])
     def ai_converse():

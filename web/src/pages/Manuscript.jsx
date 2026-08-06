@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useProject } from './Workspace';
 import { api } from '../api/client';
 import { Card } from '../components/Card';
@@ -148,6 +148,158 @@ function LinkGoogleDocForm({ onLink }) {
   );
 }
 
+function GoogleAccountPanel({ onStatusChange }) {
+  const [settings, setSettings] = useState(null);
+  const [clientId, setClientId] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
+  const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState('');
+
+  const refresh = useCallback(() => {
+    api.getGoogleSettings().then((d) => {
+      setSettings(d.settings);
+      onStatusChange?.(d.settings.connected);
+    }).catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  async function saveCredentials(e) {
+    e.preventDefault();
+    setError('');
+    if (!clientId.trim() || !clientSecret.trim()) return;
+    try {
+      await api.saveGoogleCredentials(clientId.trim(), clientSecret.trim());
+      setClientId('');
+      setClientSecret('');
+      refresh();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  async function connect() {
+    setError('');
+    try {
+      const data = await api.getGoogleAuthorizeUrl();
+      window.open(data.url, '_blank', 'width=520,height=680');
+      setConnecting(true);
+      const interval = setInterval(async () => {
+        try {
+          const d = await api.getGoogleSettings();
+          if (d.settings.connected) {
+            clearInterval(interval);
+            setConnecting(false);
+            setSettings(d.settings);
+            onStatusChange?.(true);
+          }
+        } catch {
+          /* keep polling */
+        }
+      }, 2000);
+      setTimeout(() => { clearInterval(interval); setConnecting(false); }, 120000);
+    } catch (e) {
+      setError(e.message);
+      setConnecting(false);
+    }
+  }
+
+  async function disconnect() {
+    await api.disconnectGoogle();
+    refresh();
+  }
+
+  if (!settings) return null;
+
+  return (
+    <Card title="Google Account" hint="Connect a Google account (read-only) so AI Feedback can read your linked doc's live content." accent="blue">
+      {!settings.has_client_credentials ? (
+        <form onSubmit={saveCredentials}>
+          <p style={{ fontSize: 12.5, color: 'var(--text-muted)', margin: '0 0 10px' }}>
+            Requires your own Google Cloud OAuth client (one-time setup, free) - create one at{' '}
+            <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer">
+              console.cloud.google.com/apis/credentials
+            </a>{' '}
+            (Application type: "Desktop app"), enable the "Google Docs API" for that project, then paste
+            the Client ID and Client Secret below. See DESKTOP_APP_BUILD.md for full steps.
+          </p>
+          <label htmlFor="google-client-id">Client ID</label>
+          <input id="google-client-id" type="text" value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="…apps.googleusercontent.com" />
+          <label htmlFor="google-client-secret">Client Secret</label>
+          <input id="google-client-secret" type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} />
+          <div style={{ marginTop: 10 }}>
+            <Button type="submit" accent="blue">Save Credentials</Button>
+          </div>
+        </form>
+      ) : !settings.connected ? (
+        <Button accent="blue" onClick={connect} disabled={connecting}>
+          {connecting ? 'Waiting for Google sign-in…' : 'Connect Google Account'}
+        </Button>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span>✓ Google account connected</span>
+          <Button variant="ghost" accent="rose" onClick={disconnect}>Disconnect</Button>
+        </div>
+      )}
+      {error && <p role="alert" style={{ color: 'var(--accent1-text)', marginTop: 8 }}>{error}</p>}
+    </Card>
+  );
+}
+
+function GoogleDocAiFeedback({ docId, connected }) {
+  const [docText, setDocText] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function loadDoc() {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await api.getGoogleDocContent(docId);
+      setDocText(data.text);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!connected) {
+    return (
+      <Card title="AI Feedback" accent="blue">
+        <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>
+          Connect your Google account above to get AI feedback grounded in this doc's live content.
+        </p>
+      </Card>
+    );
+  }
+
+  return (
+    <Card
+      title="AI Feedback"
+      hint="Get constructive, journal-reviewer-style feedback grounded in the current content of your linked Google Doc."
+      accent="blue"
+    >
+      <Button variant={docText === null ? 'primary' : 'ghost'} accent="blue" onClick={loadDoc} disabled={loading} style={{ marginBottom: docText !== null ? 12 : 0 }}>
+        {loading ? 'Reading document…' : docText === null ? '✨ Load Document for AI Feedback' : 'Refresh Document Content'}
+      </Button>
+      {error && <p role="alert" style={{ color: 'var(--accent1-text)', marginTop: 8 }}>{error}</p>}
+      {docText !== null && (
+        <AiChatPanel
+          key={docText.length}
+          contextType="manuscript_feedback"
+          context={{ sections: { full_document: docText } }}
+          kickoffMessage="Please review my manuscript draft and give me constructive feedback to help it reach the quality bar of a good/top journal."
+          triggerLabel="Get AI Feedback on My Draft"
+          accent="blue"
+          disabled={!docText.trim()}
+          disabledReason="The linked document appears to be empty."
+        />
+      )}
+    </Card>
+  );
+}
+
 export function Manuscript() {
   const { project } = useProject();
   const [sections, setSections] = useState(Object.fromEntries(SECTIONS.map((s) => [s, ''])));
@@ -155,6 +307,7 @@ export function Manuscript() {
   const [showReferences, setShowReferences] = useState(false);
   const [editorMode, setEditorMode] = useState('cortex');
   const [googleDocId, setGoogleDocId] = useState('');
+  const [googleConnected, setGoogleConnected] = useState(false);
 
   useEffect(() => {
     api.getManuscript(project.id).then((d) => {
@@ -256,7 +409,7 @@ export function Manuscript() {
         {showReferences && <PaperReferencePanel projectId={project.id} />}
       </div>
 
-      {editorMode === 'cortex' && (
+      {editorMode === 'cortex' ? (
         <Card
           title="AI Feedback"
           hint="Get constructive, journal-reviewer-style feedback on your draft, grounded only in what you've written — then ask follow-up questions."
@@ -272,6 +425,11 @@ export function Manuscript() {
             disabledReason="Write (and ideally save) some of your draft first."
           />
         </Card>
+      ) : (
+        <>
+          <GoogleAccountPanel onStatusChange={setGoogleConnected} />
+          {googleDocId && <GoogleDocAiFeedback docId={googleDocId} connected={googleConnected} />}
+        </>
       )}
     </div>
   );

@@ -81,6 +81,14 @@ export const api = {
   updateAiSettings: (settings) => request('/settings/ai', { method: 'POST', body: settings }),
   getLiteratureSettings: () => request('/settings/literature'),
   updateLiteratureSettings: (settings) => request('/settings/literature', { method: 'POST', body: settings }),
+
+  // Google Docs (optional, for AI Feedback on a linked Google Doc)
+  getGoogleSettings: () => request('/settings/google'),
+  saveGoogleCredentials: (clientId, clientSecret) =>
+    request('/settings/google', { method: 'POST', body: { client_id: clientId, client_secret: clientSecret } }),
+  disconnectGoogle: () => request('/settings/google/disconnect', { method: 'POST' }),
+  getGoogleAuthorizeUrl: () => request('/settings/google/oauth/authorize-url'),
+  getGoogleDocContent: (docId) => request(`/google/docs/${docId}/content`),
   aiConverse: (contextType, context, messages) =>
     request('/ai/converse', { method: 'POST', body: { context_type: contextType, context, messages } }),
 
