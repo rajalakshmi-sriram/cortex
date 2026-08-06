@@ -52,6 +52,17 @@
   gap: 8px;
 }
 
+.projects-home__row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.projects-home__row .btn {
+  flex-shrink: 0;
+  align-self: center;
+}
+
 .projects-home__project {
   width: 100%;
   text-align: left;

@@ -81,6 +81,18 @@ export function ProjectsHome() {
     }
   }
 
+  async function handleDelete(project) {
+    if (!window.confirm(`Delete "${project.title}"? This permanently removes the project and everything in it (papers, datasets, manuscript, etc.) - it can't be undone unless you've exported a backup.`)) {
+      return;
+    }
+    try {
+      await api.deleteProject(project.id);
+      refresh();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   return (
     <div className="projects-home">
       <header className="projects-home__header">
@@ -183,7 +195,7 @@ export function ProjectsHome() {
 
           <ul className="projects-home__list">
             {projects.map((p) => (
-              <li key={p.id}>
+              <li key={p.id} className="projects-home__row">
                 <button className="projects-home__project" onClick={() => navigate(`/projects/${p.id}`)}>
                   <span className="projects-home__project-title">{p.title}</span>
                   <span className="projects-home__project-meta">
@@ -191,6 +203,9 @@ export function ProjectsHome() {
                     {p.research_area ? ` · ${p.research_area}` : ''}
                   </span>
                 </button>
+                <Button variant="ghost" accent="rose" onClick={() => handleDelete(p)}>
+                  Delete
+                </Button>
               </li>
             ))}
           </ul>
