@@ -414,6 +414,11 @@ class ProjectStore:
     def update_manuscript(self, project_id: str, sections: Dict) -> Dict:
         path = self._project_dir(project_id) / 'manuscript.json'
         current = self.get_manuscript(project_id)
-        current.update({k: v for k, v in sections.items() if k in self.config.MANUSCRIPT_SECTIONS})
+        # 'google_doc_url' isn't a manuscript section - it's the linked Google
+        # Doc when writing there instead of in Cortex's own editor (see the
+        # split-view toggle in Manuscript.jsx) - allowed here too so it's
+        # saved and loaded the same way as the sections themselves.
+        allowed_keys = set(self.config.MANUSCRIPT_SECTIONS) | {'google_doc_url'}
+        current.update({k: v for k, v in sections.items() if k in allowed_keys})
         atomic_write_text(path, json.dumps(current, indent=2))
         return current
