@@ -4,6 +4,7 @@ import { initExternalLinkHandler } from './utils/externalLinks';
 import { PalettePicker } from './components/PalettePicker';
 import { AiSettings } from './components/AiSettings';
 import { LiteratureSettings } from './components/LiteratureSettings';
+import { Tutorial } from './components/Tutorial';
 import { ProjectsHome } from './pages/ProjectsHome';
 import { Workspace } from './pages/Workspace';
 import { Overview } from './pages/Overview';
@@ -41,6 +42,7 @@ export default function App() {
       <PalettePicker />
       <AiSettings />
       <LiteratureSettings />
+      <Tutorial />
     </>
   );
 }
