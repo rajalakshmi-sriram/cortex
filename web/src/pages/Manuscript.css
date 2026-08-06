@@ -59,6 +59,10 @@
   gap: 2px;
 }
 
+.manuscript-refpanel__item--selected {
+  border-color: var(--accent3-text);
+}
+
 .manuscript-refpanel__title {
   font-weight: 600;
   font-size: 12.5px;
@@ -69,9 +73,35 @@
   color: var(--text-muted);
 }
 
-.manuscript-refpanel__abstract {
-  font-size: 11.5px;
+.manuscript-refpanel__detail {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.manuscript-refpanel__detail-title {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.manuscript-refpanel__link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.manuscript-refpanel__section-label {
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--text-muted);
-  margin-top: 6px;
-  white-space: normal;
+  margin-top: 12px;
+}
+
+.manuscript-refpanel__abstract {
+  font-size: 12px;
+  margin-top: 4px;
+  white-space: pre-line;
 }

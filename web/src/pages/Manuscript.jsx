@@ -15,7 +15,7 @@ const SECTIONS = ['abstract', 'introduction', 'methods', 'results', 'discussion'
 function PaperReferencePanel({ projectId }) {
   const [papers, setPapers] = useState([]);
   const [query, setQuery] = useState('');
-  const [expandedId, setExpandedId] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
     api.listPapers(projectId).then((d) => setPapers(d.papers || [])).catch(() => {});
@@ -26,6 +26,8 @@ function PaperReferencePanel({ projectId }) {
     if (!q) return true;
     return (p.title || '').toLowerCase().includes(q) || (p.authors || '').toLowerCase().includes(q);
   });
+
+  const selected = papers.find((p) => p.id === selectedId);
 
   return (
     <div className="manuscript-refpanel">
@@ -47,19 +49,43 @@ function PaperReferencePanel({ projectId }) {
       <ul className="manuscript-refpanel__list">
         {filtered.map((p) => (
           <li key={p.id}>
-            <button className="manuscript-refpanel__item" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}>
+            <button
+              className={`manuscript-refpanel__item ${p.id === selectedId ? 'manuscript-refpanel__item--selected' : ''}`}
+              onClick={() => setSelectedId(selectedId === p.id ? null : p.id)}
+            >
               <span className="manuscript-refpanel__title">{p.title}</span>
               <span className="manuscript-refpanel__meta">{p.authors} &middot; {p.year}</span>
-              {expandedId === p.id && (
-                <span className="manuscript-refpanel__abstract">
-                  {p.abstract || 'No abstract available.'}
-                  {p.annotations && <><br /><em>Your notes: {p.annotations}</em></>}
-                </span>
-              )}
             </button>
           </li>
         ))}
       </ul>
+
+      {selected && (
+        <div className="manuscript-refpanel__detail">
+          <div className="manuscript-refpanel__detail-title">{selected.title}</div>
+          <div className="manuscript-refpanel__meta">
+            {selected.authors} &middot; {selected.year} {selected.source && <>&middot; {selected.source}</>}
+          </div>
+          {(selected.url || selected.doi) && (
+            <a
+              href={selected.url || `https://doi.org/${selected.doi}`}
+              target="_blank"
+              rel="noreferrer"
+              className="manuscript-refpanel__link"
+            >
+              Open paper ↗
+            </a>
+          )}
+          <div className="manuscript-refpanel__section-label">Abstract</div>
+          <p className="manuscript-refpanel__abstract">{selected.abstract || 'No abstract available for this paper.'}</p>
+          {selected.annotations && (
+            <>
+              <div className="manuscript-refpanel__section-label">Your annotations</div>
+              <p className="manuscript-refpanel__abstract">{selected.annotations}</p>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
