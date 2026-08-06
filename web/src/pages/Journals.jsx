@@ -10,8 +10,47 @@ import { PAGE_TOOLS } from '../data/pageTools';
 const FIELDS = [
   { key: 'name', label: 'Journal Name', kind: 'line' },
   { key: 'status', label: 'Status', kind: 'combo', options: ['target', 'submitted', 'under_review', 'revisions_requested', 'accepted', 'rejected'] },
+  { key: 'deadline', label: 'Submission Deadline (optional)', kind: 'date' },
   { key: 'notes', label: 'Notes', kind: 'multiline' },
 ];
+
+const DEADLINE_WARNING_DAYS = 30;
+
+function daysUntil(dateStr) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr + 'T00:00:00');
+  return Math.round((target - today) / 86400000);
+}
+
+function UpcomingDeadlines({ journals }) {
+  const withDeadlines = journals
+    .filter((j) => j.deadline && !['submitted', 'accepted', 'rejected'].includes(j.status))
+    .map((j) => ({ ...j, daysLeft: daysUntil(j.deadline) }))
+    .filter((j) => j.daysLeft <= DEADLINE_WARNING_DAYS)
+    .sort((a, b) => a.daysLeft - b.daysLeft);
+
+  if (withDeadlines.length === 0) return null;
+
+  return (
+    <Card title="Upcoming Deadlines" accent="rose">
+      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {withDeadlines.map((j) => (
+          <li key={j.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+            <span><strong>{j.name}</strong> &mdash; {j.deadline}</span>
+            <span style={{ color: j.daysLeft < 0 ? 'var(--accent1-text)' : 'var(--text-muted)', fontWeight: j.daysLeft <= 7 ? 700 : 400 }}>
+              {j.daysLeft < 0
+                ? `${Math.abs(j.daysLeft)} day(s) overdue`
+                : j.daysLeft === 0
+                  ? 'Due today'
+                  : `${j.daysLeft} day(s) left`}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
 
 function GuidelinesLookup() {
   const [name, setName] = useState('');
@@ -86,24 +125,28 @@ function GuidelinesLookup() {
 
 export function Journals() {
   const { project } = useProject();
+  const [journals, setJournals] = useState([]);
   return (
     <div>
       <PageInstructions
         accent="sand"
         items={[
-          'Add target journals with a status (target, submitted, under review, etc.) and notes to track your submission pipeline.',
+          'Add target journals with a status (target, submitted, under review, etc.), an optional submission deadline, and notes to track your submission pipeline.',
+          'Journals with a deadline coming up (or overdue) show under "Upcoming Deadlines" below, until you mark them submitted/accepted/rejected.',
           'Use "Journal Submission Guidelines" below to look up a curated summary of a journal\'s formatting/structure requirements — always confirm current details on the journal\'s own author guidelines page before submitting.',
         ]}
       />
+      <UpcomingDeadlines journals={journals} />
       <CrudList
         projectId={project.id}
         resource="journals"
         title="Journals & Submissions"
-        hint="Track target journals and submission status."
+        hint="Track target journals, submission status, and deadlines."
         accent="sand"
         fields={FIELDS}
-        renderer={(j) => `${j.name || ''}\n[${j.status || ''}]`}
+        renderer={(j) => `${j.name || ''}\n[${j.status || ''}]${j.deadline ? ` · due ${j.deadline}` : ''}`}
         tools={PAGE_TOOLS.journals}
+        onChange={setJournals}
       />
       <GuidelinesLookup />
     </div>

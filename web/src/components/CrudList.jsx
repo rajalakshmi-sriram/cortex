@@ -8,7 +8,7 @@ import { ToolChips } from './ToolChips';
  * A reusable "add form + list + delete" card bound to a project sub-resource
  * (hypotheses, tasks, journals, ...). Mirrors the desktop app's CrudListTab.
  */
-export function CrudList({ projectId, resource, title, hint, accent, fields, renderer, tools, extraForSelected }) {
+export function CrudList({ projectId, resource, title, hint, accent, fields, renderer, tools, extraForSelected, onChange }) {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(() => Object.fromEntries(fields.map((f) => [f.key, f.kind === 'combo' ? f.options[0] : ''])));
   const [selectedId, setSelectedId] = useState(null);
@@ -19,10 +19,11 @@ export function CrudList({ projectId, resource, title, hint, accent, fields, ren
     try {
       const data = await api.listCollection(projectId, resource);
       setItems(data[resource] || []);
+      onChange?.(data[resource] || []);
     } catch (e) {
       setError(e.message);
     }
-  }, [projectId, resource]);
+  }, [projectId, resource]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -67,6 +68,13 @@ export function CrudList({ projectId, resource, title, hint, accent, fields, ren
                   value={form[f.key]}
                   onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
                   placeholder={f.placeholder}
+                />
+              ) : f.kind === 'date' ? (
+                <input
+                  id={`${resource}-${f.key}`}
+                  type="date"
+                  value={form[f.key]}
+                  onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
                 />
               ) : (
                 <input
