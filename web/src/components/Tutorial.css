@@ -116,6 +116,11 @@
   cursor: pointer;
 }
 
+.tutorial__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .tutorial__btn--primary {
   background: var(--accent3-btn);
   color: white;

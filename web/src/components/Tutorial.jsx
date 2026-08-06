@@ -203,7 +203,7 @@ export function Tutorial() {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         setTimeout(() => {
           measure(el);
-          requestAnimationFrame(() => setVisible(true));
+          setVisible(true);
         }, 260);
       } else if (attempts > 50) {
         clearInterval(pollRef.current);
@@ -334,8 +334,8 @@ export function Tutorial() {
             <div className="tutorial__actions">
               <button className="tutorial__skip" onClick={close}>End tour</button>
               <div className="tutorial__nav">
-                {stepIndex > 0 && <button className="tutorial__btn tutorial__btn--secondary" onClick={back}>Back</button>}
-                <button className="tutorial__btn tutorial__btn--primary" onClick={next}>{isLast ? 'Finish' : 'Next'}</button>
+                {stepIndex > 0 && <button className="tutorial__btn tutorial__btn--secondary" onClick={back} disabled={!visible}>Back</button>}
+                <button className="tutorial__btn tutorial__btn--primary" onClick={next} disabled={!visible}>{isLast ? 'Finish' : 'Next'}</button>
               </div>
             </div>
           </div>
