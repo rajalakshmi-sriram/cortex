@@ -93,7 +93,7 @@ export function PaperLibrary() {
         accent="sand"
         data-tour="paper-library-list"
       >
-        <div className="paper-library__style-row">
+        <div className="paper-library__style-row" data-tour="citation-export">
           <label htmlFor="citation-style" style={{ margin: 0 }}>Citation style</label>
           <select id="citation-style" value={style} onChange={(e) => setStyle(e.target.value)} style={{ width: 160 }}>
             {STYLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}

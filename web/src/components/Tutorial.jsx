@@ -15,36 +15,60 @@ const SEEN_KEY = 'cortex_tutorial_seen';
  * stats wizard on the Data & Analysis step.
  */
 
+const selectSampleDataset = () => {
+  if (!document.querySelector('[data-tour="stats-wizard"]')) {
+    document.querySelector('[data-tour="datasets-list"] li button')?.click();
+  }
+};
+
 const STEPS = [
   {
     navTo: '',
     selector: '[data-tour="overview-details"]',
     title: 'Your project at a glance',
-    body: "This is Overview - a snapshot of the project's details and methodology progress. The tabs on the left are where you actually do things.",
+    body: "This is Overview - a snapshot of the project's details. The tabs on the left are where you actually do things.",
+  },
+  {
+    navTo: '',
+    selector: '[data-tour="overview-methodology"]',
+    title: 'Methodology progress, at a glance',
+    body: 'A quick read on how far along the checklist you are, without leaving Overview.',
+  },
+  {
+    navTo: '',
+    selector: '[data-tour="overview-backup"]',
+    title: 'Back up or share this project',
+    body: 'Export everything in this project - details, papers, datasets, manuscript, progress - as one .zip file. Hand it to a co-author, or use it as a backup.',
   },
   {
     navTo: 'literature-review',
     selector: '[data-tour="lit-search"]',
     title: 'Search real literature',
-    body: 'Describe a research idea here and Cortex searches real, free sources (Europe PMC, CrossRef, arXiv, and more) for related papers, with a novelty score against your idea.',
+    body: 'Describe a research idea here and Cortex searches real, free sources (Europe PMC, CrossRef, arXiv, and more) for related papers, with a novelty score against your idea. Check "Search with AI" (if set up) for a synthesis + gap analysis too.',
   },
   {
     navTo: 'paper-library',
     selector: '[data-tour="paper-library-list"]',
     title: 'Your saved papers',
-    body: "Papers you save from Literature Review land here. This sample project already has one - click it to see full details, add annotations, or copy a citation.",
+    body: "Papers you save from Literature Review land here. This sample project already has one - click it to see full details, add annotations, or open the source.",
+  },
+  {
+    navTo: 'paper-library',
+    selector: '[data-tour="citation-export"]',
+    title: 'Citations, formatted for you',
+    body: 'Pick a style (APA, MLA, Chicago, Vancouver) to copy any citation, or download your whole library as BibTeX (LaTeX) or RIS (EndNote/Zotero/Mendeley).',
   },
   {
     navTo: 'methodology',
     selector: '[data-tour="methodology-checklist"]',
     title: 'Methodology checklist',
-    body: 'Every project gets a checklist matched to its research type. This sample already has the first two steps checked off - check items as you actually complete them.',
+    body: 'Every project gets a checklist matched to its research type, with recommended tools per step. This sample already has the first two checked off.',
   },
   {
     navTo: 'hypotheses',
     selector: '[data-tour="hypotheses-list"]',
     title: 'Track your hypotheses',
-    body: 'A lightweight place to track candidate hypotheses and their status as your thinking evolves.',
+    body: 'A lightweight place to track candidate hypotheses and their status as your thinking evolves - with AI feedback available on how testable each one is.',
   },
   {
     navTo: 'tasks',
@@ -54,26 +78,71 @@ const STEPS = [
   },
   {
     navTo: 'data-analysis',
+    selector: '[data-tour="import-data"]',
+    title: 'Bring in your data',
+    body: 'Paste CSV/tab-separated data, or upload a file directly - CSV, TSV, or Excel (.xlsx) all work.',
+  },
+  {
+    navTo: 'data-analysis',
     selector: '[data-tour="stats-wizard"]',
     title: 'Not sure which test to run?',
-    body: '"Which Test Should I Use?" checks normality and sample size on your data, then recommends - and can run - the right statistical test.',
-    ensureVisible: () => {
-      if (!document.querySelector('[data-tour="stats-wizard"]')) {
-        document.querySelector('[data-tour="datasets-list"] li button')?.click();
-      }
-    },
+    body: '"Which Test Should I Use?" checks normality and sample size on your data, then recommends - and can run - the right statistical test, like a stats calculator\'s guided mode.',
+    ensureVisible: selectSampleDataset,
+  },
+  {
+    navTo: 'data-analysis',
+    selector: '[data-tour="chart-generator"]',
+    title: 'Or pick everything yourself',
+    body: 'Prefer full control? Pick any test and columns directly under "Run a Statistical Test", or generate a bar/line/scatter/histogram/box/pie chart here.',
+    ensureVisible: selectSampleDataset,
   },
   {
     navTo: 'manuscript',
     selector: '[data-tour="manuscript-editor"]',
     title: 'Draft your manuscript',
-    body: 'Write each section here, or switch to Google Docs mode to edit a real linked Google Doc instead. This sample project already has a starter abstract.',
+    body: 'Write each section here (abstract, intro, methods, results, discussion, references). This sample project already has a starter abstract.',
+  },
+  {
+    navTo: 'manuscript',
+    selector: '[data-tour="manuscript-modes"]',
+    title: 'Or write in Google Docs',
+    body: 'Switch to Google Docs mode to link and edit a real Google Doc instead, live - and toggle the Paper Reference Panel to see your saved papers side-by-side while you write, in either mode.',
   },
   {
     navTo: 'journals',
     selector: '[data-tour="journals-list"]',
     title: 'Track submissions',
-    body: 'Track target journals, submission status, and an optional deadline - anything due soon shows as a reminder here.',
+    body: 'Track target journals, submission status, and an optional deadline for each.',
+  },
+  {
+    navTo: 'journals',
+    selector: '[data-tour="journals-deadlines"]',
+    title: 'Deadline reminders',
+    body: "Anything due within 30 days (or overdue) surfaces here automatically - this sample journal's deadline is 20 days out.",
+  },
+  {
+    navTo: 'journals',
+    selector: '.ai-settings__trigger',
+    title: 'Optional AI features',
+    body: 'This sparkle icon is available on every page - set up a free local model (Ollama) or add your own API key (OpenAI, Anthropic, Gemini, Mistral, Groq). Every AI feature stays off until you click a button that uses it.',
+  },
+  {
+    navTo: 'journals',
+    selector: '.lit-settings__trigger',
+    title: 'Your own literature database keys',
+    body: 'Add a personal/institutional API key for a paid database (Elsevier/Scopus, Web of Science, IEEE Xplore, Springer Nature, CORE), or raise your Semantic Scholar rate limit - optional, nothing requires it.',
+  },
+  {
+    navTo: 'journals',
+    selector: '.palette-picker__trigger',
+    title: 'Make it yours',
+    body: 'Pick a color palette and light/dark/auto appearance - purely cosmetic, applies everywhere in the app.',
+  },
+  {
+    navTo: 'ROOT',
+    selector: '[data-tour="import-project"]',
+    title: 'Bring a project back in',
+    body: 'Got a project exported elsewhere (by you, or a co-author)? Import it here - it always creates a new project, so it can never overwrite anything.',
   },
 ];
 
@@ -109,7 +178,7 @@ export function Tutorial() {
     if (phase !== 'touring' || !projectId) return undefined;
 
     const step = STEPS[stepIndex];
-    const targetPath = `/projects/${projectId}${step.navTo ? '/' + step.navTo : ''}`;
+    const targetPath = step.navTo === 'ROOT' ? '/' : `/projects/${projectId}${step.navTo ? '/' + step.navTo : ''}`;
     if (location.pathname !== targetPath) {
       navigate(targetPath);
       return undefined;

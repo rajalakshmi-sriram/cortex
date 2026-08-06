@@ -50,7 +50,7 @@ export function Overview() {
       )}
 
       {methodology && (
-        <Card title="Methodology Progress" accent="blue">
+        <Card title="Methodology Progress" accent="blue" data-tour="overview-methodology">
           <p>
             {methodology.research_type_name} &mdash; {methodology.completed_count} / {methodology.total_steps} steps completed
           </p>
@@ -62,7 +62,7 @@ export function Overview() {
         </Card>
       )}
 
-      <Card title="Backup & Sharing" hint="Download everything in this project - details, papers, datasets, manuscript, and progress - as one file." accent="sand">
+      <Card title="Backup & Sharing" hint="Download everything in this project - details, papers, datasets, manuscript, and progress - as one file." accent="sand" data-tour="overview-backup">
         <a className="btn btn--secondary" style={{ '--btn-accent-tint': 'var(--accent4-tint)', '--btn-accent-text': 'var(--accent4-text)' }}
           href={api.exportProjectUrl(project.id)} download>
           Export Project (.zip)

@@ -134,6 +134,7 @@ export function DataAnalysis() {
         title="Import Data"
         hint="Paste CSV/tab-separated data, or upload a .csv, .tsv, or Excel (.xlsx) file. First row = column headers. Nothing is sent anywhere except your own local Cortex server."
         accent="blue"
+        data-tour="import-data"
       >
         <label htmlFor="dataset-name">Dataset name</label>
         <input id="dataset-name" type="text" value={importName} onChange={(e) => setImportName(e.target.value)} placeholder='e.g. "Experiment 1 raw data"' />
@@ -631,7 +632,7 @@ function ChartCard({ projectId, dataset, columns, rowRange }) {
   }
 
   return (
-    <Card title="Generate a Chart" hint="Pick a chart type and which columns to plot." accent="sand">
+    <Card title="Generate a Chart" hint="Pick a chart type and which columns to plot." accent="sand" data-tour="chart-generator">
       <form onSubmit={generate}>
         <label htmlFor="chart-type">Chart type</label>
         <select id="chart-type" value={chartType} onChange={(e) => setChartType(e.target.value)}>

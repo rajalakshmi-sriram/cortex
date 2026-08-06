@@ -13,7 +13,7 @@ import os
 import threading
 import uuid
 import zipfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -245,6 +245,7 @@ class ProjectStore:
         self.collection(project_id, 'journals').add({
             'name': '[Sample] Journal of Cognitive Psychology (example)',
             'status': 'target',
+            'deadline': (datetime.now() + timedelta(days=20)).strftime('%Y-%m-%d'),
             'notes': 'Placeholder - replace with a journal you actually plan to submit to.',
         })
 

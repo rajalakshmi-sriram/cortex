@@ -349,7 +349,7 @@ export function Manuscript() {
           'Once you\'ve written some of your draft, click "Get AI Feedback on My Draft" in the AI Feedback section for reviewer-style feedback aimed at top-journal quality — then ask follow-up questions in the chat that appears.',
         ]}
       />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 10 }} data-tour="manuscript-modes">
         <div style={{ display: 'flex', gap: 6 }}>
           <Button
             variant={editorMode === 'cortex' ? 'primary' : 'secondary'}

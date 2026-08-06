@@ -173,7 +173,7 @@ export function ProjectsHome() {
         </Card>
 
         <Card title="Your Projects" accent="blue">
-          <div className="projects-home__import-row">
+          <div className="projects-home__import-row" data-tour="import-project">
             <label className="btn btn--secondary" style={{ '--btn-accent-tint': 'var(--accent3-tint)', '--btn-accent-text': 'var(--accent3-text)' }}>
               {importing ? 'Importing…' : 'Import Project (.zip)'}
               <input

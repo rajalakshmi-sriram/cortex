@@ -33,7 +33,7 @@ function UpcomingDeadlines({ journals }) {
   if (withDeadlines.length === 0) return null;
 
   return (
-    <Card title="Upcoming Deadlines" accent="rose">
+    <Card title="Upcoming Deadlines" accent="rose" data-tour="journals-deadlines">
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {withDeadlines.map((j) => (
           <li key={j.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
