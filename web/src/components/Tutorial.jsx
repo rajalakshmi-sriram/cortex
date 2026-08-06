@@ -146,11 +146,14 @@ const STEPS = [
   },
 ];
 
+const FADE_MS = 220;
+
 export function Tutorial() {
   const [phase, setPhase] = useState('closed'); // closed | intro | creating | touring | outro
   const [stepIndex, setStepIndex] = useState(0);
   const [projectId, setProjectId] = useState(null);
   const [rect, setRect] = useState(null);
+  const [visible, setVisible] = useState(false);
   const [error, setError] = useState('');
   const pollRef = useRef(null);
   const navigate = useNavigate();
@@ -172,19 +175,24 @@ export function Tutorial() {
     setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
   }, []);
 
-  // Drives navigation + waits for (and measures) each step's real target element.
+  // Drives navigation + waits for (and measures) each step's real target
+  // element. Same-page step changes never hide the overlay - rect just
+  // updates and CSS transitions glide it to the new spot. Cross-page steps
+  // fade out first (so nothing floats over the wrong page mid-navigation),
+  // measure the new element while still invisible, then fade back in.
   useEffect(() => {
     clearInterval(pollRef.current);
     if (phase !== 'touring' || !projectId) return undefined;
 
     const step = STEPS[stepIndex];
     const targetPath = step.navTo === 'ROOT' ? '/' : `/projects/${projectId}${step.navTo ? '/' + step.navTo : ''}`;
+
     if (location.pathname !== targetPath) {
-      navigate(targetPath);
-      return undefined;
+      setVisible(false);
+      const t = setTimeout(() => navigate(targetPath), FADE_MS);
+      return () => clearTimeout(t);
     }
 
-    setRect(null);
     let attempts = 0;
     pollRef.current = setInterval(() => {
       attempts += 1;
@@ -193,7 +201,10 @@ export function Tutorial() {
       if (el) {
         clearInterval(pollRef.current);
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => measure(el), 260);
+        setTimeout(() => {
+          measure(el);
+          requestAnimationFrame(() => setVisible(true));
+        }, 260);
       } else if (attempts > 50) {
         clearInterval(pollRef.current);
       }
@@ -201,7 +212,8 @@ export function Tutorial() {
     return () => clearInterval(pollRef.current);
   }, [phase, stepIndex, projectId, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keep the spotlight aligned on scroll/resize.
+  // Keep the spotlight aligned on scroll/resize (glides via the same CSS
+  // transition, since visibility doesn't change here).
   useEffect(() => {
     if (phase !== 'touring') return undefined;
     function reflow() {
@@ -221,6 +233,8 @@ export function Tutorial() {
     localStorage.setItem(SEEN_KEY, '1');
     clearInterval(pollRef.current);
     setPhase('closed');
+    setVisible(false);
+    setRect(null);
   }
 
   function openIntro() {
@@ -296,15 +310,23 @@ export function Tutorial() {
       {phase === 'touring' && (
         <>
           <div className="tour__blocker" onClick={(e) => e.preventDefault()} />
-          {rect && (
-            <div
-              className="tour__spotlight"
-              style={{ top: rect.top - 8, left: rect.left - 8, width: rect.width + 16, height: rect.height + 16 }}
-            />
-          )}
+          <div
+            className="tour__spotlight"
+            style={{
+              opacity: visible && rect ? 1 : 0,
+              top: (rect?.top ?? 0) - 8,
+              left: (rect?.left ?? 0) - 8,
+              width: (rect?.width ?? 0) + 16,
+              height: (rect?.height ?? 0) + 16,
+            }}
+          />
           <div
             className="tour__tooltip"
-            style={rect ? tooltipStyle(rect) : { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+            style={{
+              opacity: visible && rect ? 1 : 0,
+              pointerEvents: visible && rect ? 'auto' : 'none',
+              ...(rect ? tooltipStyle(rect) : { top: '50%', left: '50%' }),
+            }}
           >
             <div className="tour__step-count">Step {stepIndex + 1} of {STEPS.length}</div>
             <h3 className="tour__title">{STEPS[stepIndex].title}</h3>

@@ -143,7 +143,9 @@
   box-shadow: 0 0 0 9999px rgba(10, 10, 10, 0.6);
   border: 2px solid var(--accent3-text);
   pointer-events: none;
-  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
+  transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1), left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.35s cubic-bezier(0.4, 0, 0.2, 1), height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.22s ease;
 }
 
 .tour__tooltip {
@@ -155,7 +157,8 @@
   border-radius: 14px;
   padding: 18px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-  transition: top 0.3s ease, left 0.3s ease;
+  transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1), left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.22s ease;
 }
 
 .tour__step-count {
