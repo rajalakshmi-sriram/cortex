@@ -21,7 +21,7 @@ export function Overview() {
           'To change anything here, use the relevant tab in the sidebar — Project Search for the research focus, Methodology for the checklist.',
         ]}
       />
-      <Card title="Project Details" accent="rose">
+      <Card title="Project Details" accent="rose" data-tour="overview-details">
         <dl className="overview-grid">
           <div><dt>Research area</dt><dd>{project.research_area || '—'}</dd></div>
           <div><dt>Institution</dt><dd>{project.institution || '—'}</dd></div>

@@ -1,317 +1,284 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { api } from '../api/client';
 import './Tutorial.css';
 
 const SEEN_KEY = 'cortex_tutorial_seen';
 
 /**
- * A short, silent product-demo animation: a laptop mockup showing a
- * simulated cursor "using" Cortex (typing, clicking, watching results
- * appear) - one scripted scene per major workflow. Nothing here talks to
- * the real backend; it's a fixed-timeline illustration, not a live app.
+ * A real guided tour: creates an actual sample project via the same API
+ * "Try a Sample Project" uses, then navigates the real router through it,
+ * spotlighting real UI elements with real (sample) data - not a mockup.
+ * The rest of the page is click-blocked while touring, so nothing gets
+ * triggered for real (no accidental external searches, AI calls, etc.)
+ * except the one safe, local-only dataset selection needed to reveal the
+ * stats wizard on the Data & Analysis step.
  */
 
-function useTypewriter(text, active, speed = 45) {
-  const [shown, setShown] = useState('');
-  useEffect(() => {
-    if (!active) { setShown(''); return undefined; }
-    setShown('');
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setShown(text.slice(0, i));
-      if (i >= text.length) clearInterval(id);
-    }, speed);
-    return () => clearInterval(id);
-  }, [text, active, speed]);
-  return shown;
-}
-
-// Each scene drives its own local timeline via chained setTimeouts, and
-// reports cursor position (%) + click pulses up to the shared cursor.
-function SceneCreateProject({ active, setCursor, onDone }) {
-  const [phase, setPhase] = useState(0);
-  const title = useTypewriter('Does Caffeine Improve Reaction Time?', active && phase >= 1);
-
-  useEffect(() => {
-    if (!active) { setPhase(0); return undefined; }
-    const timers = [];
-    timers.push(setTimeout(() => { setCursor(50, 34); }, 200));
-    timers.push(setTimeout(() => setPhase(1), 700));
-    timers.push(setTimeout(() => setCursor(50, 52), 2200));
-    timers.push(setTimeout(() => setPhase(2), 2500));
-    timers.push(setTimeout(() => setCursor(28, 76), 3200));
-    timers.push(setTimeout(() => setPhase(3), 3600));
-    timers.push(setTimeout(() => setCursor(28, 76, true), 3650));
-    timers.push(setTimeout(() => setPhase(4), 4100));
-    timers.push(setTimeout(() => onDone?.(), 5600));
-    return () => timers.forEach(clearTimeout);
-  }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return (
-    <div className="tut-scene">
-      <div className="tut-card">
-        <div className="tut-card__title">Start a New Project</div>
-        <div className="tut-field">
-          <div className="tut-label">Project title</div>
-          <div className={`tut-input ${phase === 1 ? 'tut-input--focused' : ''}`}>
-            {title}<span className={`tut-caret ${phase === 1 ? 'tut-caret--blink' : 'tut-caret--hidden'}`} />
-          </div>
-        </div>
-        <div className="tut-field">
-          <div className="tut-label">Research type</div>
-          <div className={`tut-select ${phase >= 2 ? 'tut-select--focused' : ''}`}>Experimental Research ▾</div>
-        </div>
-        <button className={`tut-btn tut-btn--primary ${phase >= 3 ? 'tut-btn--pressed' : ''}`}>Create Project</button>
-        {phase >= 4 && (
-          <div className="tut-toast">Methodology checklist created ✓ &mdash; 11 steps</div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SceneLiteratureSearch({ active, setCursor, onDone }) {
-  const [phase, setPhase] = useState(0);
-  const query = useTypewriter('caffeine and reaction time', active && phase >= 1);
-  const results = [
-    { title: 'Caffeine and psychomotor performance: a review', match: 91 },
-    { title: 'Acute stimulant effects on simple visual reaction time', match: 84 },
-    { title: 'Dose-response effects of caffeine on alertness', match: 76 },
-  ];
-
-  useEffect(() => {
-    if (!active) { setPhase(0); return undefined; }
-    const timers = [];
-    timers.push(setTimeout(() => setCursor(50, 22), 200));
-    timers.push(setTimeout(() => setPhase(1), 600));
-    timers.push(setTimeout(() => setCursor(85, 22), 2400));
-    timers.push(setTimeout(() => { setPhase(2); setCursor(85, 22, true); }, 2600));
-    timers.push(setTimeout(() => setPhase(3), 3200));
-    timers.push(setTimeout(() => setPhase(4), 3900));
-    timers.push(setTimeout(() => setPhase(5), 4600));
-    timers.push(setTimeout(() => setCursor(90, 46), 5000));
-    timers.push(setTimeout(() => onDone?.(), 6200));
-    return () => timers.forEach(clearTimeout);
-  }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return (
-    <div className="tut-scene">
-      <div className="tut-card">
-        <div className="tut-card__title">Literature Review</div>
-        <div className="tut-search-row">
-          <div className={`tut-input tut-input--grow ${phase === 1 ? 'tut-input--focused' : ''}`}>
-            {query}<span className={`tut-caret ${phase === 1 ? 'tut-caret--blink' : 'tut-caret--hidden'}`} />
-          </div>
-          <button className={`tut-btn tut-btn--primary tut-btn--small ${phase >= 2 ? 'tut-btn--pressed' : ''}`}>Search</button>
-        </div>
-        <div className="tut-results">
-          {results.map((r, i) => phase >= 3 + i && (
-            <div className="tut-result-card" key={r.title}>
-              <span className="tut-result-match">{r.match}%</span>
-              <span className="tut-result-title">{r.title}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SceneDataAnalysis({ active, setCursor, onDone }) {
-  const [phase, setPhase] = useState(0);
-  const bars = [42, 68, 90, 55];
-
-  useEffect(() => {
-    if (!active) { setPhase(0); return undefined; }
-    const timers = [];
-    timers.push(setTimeout(() => setCursor(50, 30), 200));
-    timers.push(setTimeout(() => { setPhase(1); setCursor(50, 30, true); }, 900));
-    timers.push(setTimeout(() => setPhase(2), 1700));
-    timers.push(setTimeout(() => setCursor(50, 58), 2600));
-    timers.push(setTimeout(() => { setPhase(3); setCursor(50, 58, true); }, 3000));
-    timers.push(setTimeout(() => setPhase(4), 3600));
-    timers.push(setTimeout(() => onDone?.(), 5400));
-    return () => timers.forEach(clearTimeout);
-  }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return (
-    <div className="tut-scene">
-      <div className="tut-card">
-        <div className="tut-card__title">Which Test Should I Use?</div>
-        <button className={`tut-btn tut-btn--primary ${phase >= 1 ? 'tut-btn--pressed' : ''}`}>Check Assumptions</button>
-        {phase >= 2 && (
-          <div className="tut-toast tut-toast--wide">
-            Recommended: <strong>Independent Samples t-test</strong> &mdash; both groups look normally distributed
-          </div>
-        )}
-        {phase >= 2 && (
-          <button className={`tut-btn tut-btn--secondary ${phase >= 3 ? 'tut-btn--pressed' : ''}`} style={{ marginTop: 10 }}>
-            Run Independent Samples t-test
-          </button>
-        )}
-        {phase >= 4 && (
-          <div className="tut-chart">
-            {bars.map((h, i) => <div key={i} className="tut-chart__bar" style={{ '--h': `${h}%` }} />)}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SceneAiFeedback({ active, setCursor, onDone }) {
-  const [phase, setPhase] = useState(0);
-  const reply = useTypewriter(
-    'Strong opening — the effect size claim in your abstract needs a citation. Consider tightening the second methods paragraph.',
-    active && phase >= 3, 18,
-  );
-
-  useEffect(() => {
-    if (!active) { setPhase(0); return undefined; }
-    const timers = [];
-    timers.push(setTimeout(() => setCursor(50, 40), 200));
-    timers.push(setTimeout(() => { setPhase(1); setCursor(50, 40, true); }, 900));
-    timers.push(setTimeout(() => setPhase(2), 1300));
-    timers.push(setTimeout(() => setPhase(3), 2400));
-    timers.push(setTimeout(() => onDone?.(), 6200));
-    return () => timers.forEach(clearTimeout);
-  }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return (
-    <div className="tut-scene">
-      <div className="tut-card">
-        <div className="tut-card__title">AI Feedback</div>
-        <button className={`tut-btn tut-btn--primary ${phase >= 1 ? 'tut-btn--pressed' : ''}`}>✨ Get AI Feedback on My Draft</button>
-        {phase >= 2 && (
-          <div className="tut-chat">
-            <div className="tut-chat__msg tut-chat__msg--user">Please review my manuscript draft.</div>
-            {phase < 3 ? (
-              <div className="tut-chat__msg tut-chat__msg--ai tut-chat__msg--thinking">Thinking&hellip;</div>
-            ) : (
-              <div className="tut-chat__msg tut-chat__msg--ai">{reply}</div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-const SCENES = [
-  { key: 'create', label: 'Start a project', Component: SceneCreateProject },
-  { key: 'search', label: 'Search literature', Component: SceneLiteratureSearch },
-  { key: 'analyze', label: 'Analyze your data', Component: SceneDataAnalysis },
-  { key: 'ai', label: 'Get AI feedback', Component: SceneAiFeedback },
+const STEPS = [
+  {
+    navTo: '',
+    selector: '[data-tour="overview-details"]',
+    title: 'Your project at a glance',
+    body: "This is Overview - a snapshot of the project's details and methodology progress. The tabs on the left are where you actually do things.",
+  },
+  {
+    navTo: 'literature-review',
+    selector: '[data-tour="lit-search"]',
+    title: 'Search real literature',
+    body: 'Describe a research idea here and Cortex searches real, free sources (Europe PMC, CrossRef, arXiv, and more) for related papers, with a novelty score against your idea.',
+  },
+  {
+    navTo: 'paper-library',
+    selector: '[data-tour="paper-library-list"]',
+    title: 'Your saved papers',
+    body: "Papers you save from Literature Review land here. This sample project already has one - click it to see full details, add annotations, or copy a citation.",
+  },
+  {
+    navTo: 'methodology',
+    selector: '[data-tour="methodology-checklist"]',
+    title: 'Methodology checklist',
+    body: 'Every project gets a checklist matched to its research type. This sample already has the first two steps checked off - check items as you actually complete them.',
+  },
+  {
+    navTo: 'hypotheses',
+    selector: '[data-tour="hypotheses-list"]',
+    title: 'Track your hypotheses',
+    body: 'A lightweight place to track candidate hypotheses and their status as your thinking evolves.',
+  },
+  {
+    navTo: 'tasks',
+    selector: '[data-tour="tasks-list"]',
+    title: 'Tasks & milestones',
+    body: "Simple task tracking for this project - nothing fancy, just a checklist of what's next.",
+  },
+  {
+    navTo: 'data-analysis',
+    selector: '[data-tour="stats-wizard"]',
+    title: 'Not sure which test to run?',
+    body: '"Which Test Should I Use?" checks normality and sample size on your data, then recommends - and can run - the right statistical test.',
+    ensureVisible: () => {
+      if (!document.querySelector('[data-tour="stats-wizard"]')) {
+        document.querySelector('[data-tour="datasets-list"] li button')?.click();
+      }
+    },
+  },
+  {
+    navTo: 'manuscript',
+    selector: '[data-tour="manuscript-editor"]',
+    title: 'Draft your manuscript',
+    body: 'Write each section here, or switch to Google Docs mode to edit a real linked Google Doc instead. This sample project already has a starter abstract.',
+  },
+  {
+    navTo: 'journals',
+    selector: '[data-tour="journals-list"]',
+    title: 'Track submissions',
+    body: 'Track target journals, submission status, and an optional deadline - anything due soon shows as a reminder here.',
+  },
 ];
 
 export function Tutorial() {
-  const [open, setOpen] = useState(false);
-  const [scene, setScene] = useState(0);
-  const [cursorPos, setCursorPos] = useState({ x: 50, y: 50 });
-  const [clicking, setClicking] = useState(false);
-  const clickTimeoutRef = useRef(null);
+  const [phase, setPhase] = useState('closed'); // closed | intro | creating | touring | outro
+  const [stepIndex, setStepIndex] = useState(0);
+  const [projectId, setProjectId] = useState(null);
+  const [rect, setRect] = useState(null);
+  const [error, setError] = useState('');
+  const pollRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    if (!localStorage.getItem(SEEN_KEY)) setOpen(true);
-  }, []);
-
-  const setCursor = useCallback((x, y, click = false) => {
-    setCursorPos({ x, y });
-    if (click) {
-      setClicking(true);
-      clearTimeout(clickTimeoutRef.current);
-      clickTimeoutRef.current = setTimeout(() => setClicking(false), 350);
-    }
+    if (!localStorage.getItem(SEEN_KEY)) setPhase('intro');
   }, []);
 
   useEffect(() => {
-    if (!open) return undefined;
-    function onKey(e) {
-      if (e.key === 'Escape') close();
-    }
+    if (phase === 'closed') return undefined;
+    function onKey(e) { if (e.key === 'Escape') close(); }
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const measure = useCallback((el) => {
+    const r = el.getBoundingClientRect();
+    setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+  }, []);
+
+  // Drives navigation + waits for (and measures) each step's real target element.
+  useEffect(() => {
+    clearInterval(pollRef.current);
+    if (phase !== 'touring' || !projectId) return undefined;
+
+    const step = STEPS[stepIndex];
+    const targetPath = `/projects/${projectId}${step.navTo ? '/' + step.navTo : ''}`;
+    if (location.pathname !== targetPath) {
+      navigate(targetPath);
+      return undefined;
+    }
+
+    setRect(null);
+    let attempts = 0;
+    pollRef.current = setInterval(() => {
+      attempts += 1;
+      step.ensureVisible?.();
+      const el = document.querySelector(step.selector);
+      if (el) {
+        clearInterval(pollRef.current);
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => measure(el), 260);
+      } else if (attempts > 50) {
+        clearInterval(pollRef.current);
+      }
+    }, 100);
+    return () => clearInterval(pollRef.current);
+  }, [phase, stepIndex, projectId, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep the spotlight aligned on scroll/resize.
+  useEffect(() => {
+    if (phase !== 'touring') return undefined;
+    function reflow() {
+      const step = STEPS[stepIndex];
+      const el = step && document.querySelector(step.selector);
+      if (el) measure(el);
+    }
+    window.addEventListener('resize', reflow);
+    window.addEventListener('scroll', reflow, true);
+    return () => {
+      window.removeEventListener('resize', reflow);
+      window.removeEventListener('scroll', reflow, true);
+    };
+  }, [phase, stepIndex, measure]);
+
   function close() {
     localStorage.setItem(SEEN_KEY, '1');
-    setOpen(false);
+    clearInterval(pollRef.current);
+    setPhase('closed');
   }
 
-  function openFromStart() {
-    setScene(0);
-    setCursorPos({ x: 50, y: 50 });
-    setOpen(true);
+  function openIntro() {
+    setError('');
+    setPhase('intro');
   }
 
-  function goTo(i) {
-    setCursorPos({ x: 50, y: 50 });
-    setScene(Math.max(0, Math.min(SCENES.length - 1, i)));
+  async function beginTour() {
+    setPhase('creating');
+    setError('');
+    try {
+      const data = await api.createSampleProject();
+      setProjectId(data.project.id);
+      setStepIndex(0);
+      setPhase('touring');
+      navigate(`/projects/${data.project.id}`);
+    } catch (e) {
+      setError(e.message);
+      setPhase('intro');
+    }
   }
 
-  const isLast = scene === SCENES.length - 1;
-  const ActiveScene = SCENES[scene].Component;
+  function next() {
+    if (stepIndex < STEPS.length - 1) setStepIndex((i) => i + 1);
+    else setPhase('outro');
+  }
+
+  function back() {
+    setStepIndex((i) => Math.max(0, i - 1));
+  }
+
+  const isLast = stepIndex === STEPS.length - 1;
 
   return (
     <>
       <button
         className="tutorial__trigger"
-        onClick={openFromStart}
+        onClick={openIntro}
         aria-haspopup="dialog"
-        aria-label="Open app tutorial"
-        title="Tutorial"
+        aria-label="Open guided tour"
+        title="Guided tour"
       >
         ?
       </button>
 
-      {open && (
-        <div className="tutorial__overlay" role="dialog" aria-modal="true" aria-label="Cortex tutorial">
-          <div className="tutorial__modal">
-            <button className="tutorial__close" onClick={close} aria-label="Close tutorial">&times;</button>
-            <h2 className="tutorial__heading">See Cortex in action</h2>
-            <p className="tutorial__subheading">{SCENES[scene].label}</p>
-
-            <div className="tut-laptop">
-              <div className="tut-laptop__screen">
-                {SCENES.map(({ key, Component }, i) => (
-                  <div key={key} style={{ display: i === scene ? 'block' : 'none', height: '100%' }}>
-                    <Component active={i === scene} setCursor={setCursor} onDone={() => !isLast && goTo(scene + 1)} />
-                  </div>
-                ))}
-                <div
-                  className={`tut-cursor ${clicking ? 'tut-cursor--click' : ''}`}
-                  style={{ left: `${cursorPos.x}%`, top: `${cursorPos.y}%` }}
-                  aria-hidden="true"
-                />
-              </div>
-              <div className="tut-laptop__base" />
+      {phase === 'intro' && (
+        <div className="tutorial__overlay" role="dialog" aria-modal="true" aria-label="Cortex guided tour">
+          <div className="tutorial__modal tutorial__modal--center">
+            <button className="tutorial__close" onClick={close} aria-label="Close">&times;</button>
+            <h2 className="tutorial__heading">Take a guided tour</h2>
+            <p className="tutorial__body">
+              This creates a real sample project (papers, a hypothesis, a dataset, a manuscript
+              draft, a journal entry - all pre-filled) and walks you through each part of Cortex
+              using it, for real. It's yours afterward to explore or delete.
+            </p>
+            {error && <p role="alert" className="tutorial__error">{error}</p>}
+            <div className="tutorial__actions tutorial__actions--center">
+              <button className="tutorial__skip" onClick={close}>No thanks</button>
+              <button className="tutorial__btn tutorial__btn--primary" onClick={beginTour}>Start Tour</button>
             </div>
+          </div>
+        </div>
+      )}
 
-            <div className="tutorial__dots" role="tablist" aria-label="Scenes">
-              {SCENES.map((s, i) => (
-                <button
-                  key={s.key}
-                  role="tab"
-                  aria-selected={i === scene}
-                  aria-label={s.label}
-                  className={`tutorial__dot ${i === scene ? 'tutorial__dot--active' : ''}`}
-                  onClick={() => goTo(i)}
-                />
-              ))}
-            </div>
+      {phase === 'creating' && (
+        <div className="tutorial__overlay" role="dialog" aria-modal="true" aria-label="Setting up tour">
+          <div className="tutorial__modal tutorial__modal--center">
+            <p className="tutorial__body" style={{ margin: 0 }}>Setting up your sample project&hellip;</p>
+          </div>
+        </div>
+      )}
 
+      {phase === 'touring' && (
+        <>
+          <div className="tour__blocker" onClick={(e) => e.preventDefault()} />
+          {rect && (
+            <div
+              className="tour__spotlight"
+              style={{ top: rect.top - 8, left: rect.left - 8, width: rect.width + 16, height: rect.height + 16 }}
+            />
+          )}
+          <div
+            className="tour__tooltip"
+            style={rect ? tooltipStyle(rect) : { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+          >
+            <div className="tour__step-count">Step {stepIndex + 1} of {STEPS.length}</div>
+            <h3 className="tour__title">{STEPS[stepIndex].title}</h3>
+            <p className="tour__body">{STEPS[stepIndex].body}</p>
             <div className="tutorial__actions">
-              <button className="tutorial__skip" onClick={close}>Skip tour</button>
+              <button className="tutorial__skip" onClick={close}>End tour</button>
               <div className="tutorial__nav">
-                {scene > 0 && <button className="tutorial__btn tutorial__btn--secondary" onClick={() => goTo(scene - 1)}>Back</button>}
-                <button className="tutorial__btn tutorial__btn--primary" onClick={() => (isLast ? close() : goTo(scene + 1))}>
-                  {isLast ? 'Done' : 'Next'}
-                </button>
+                {stepIndex > 0 && <button className="tutorial__btn tutorial__btn--secondary" onClick={back}>Back</button>}
+                <button className="tutorial__btn tutorial__btn--primary" onClick={next}>{isLast ? 'Finish' : 'Next'}</button>
               </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {phase === 'outro' && (
+        <div className="tutorial__overlay" role="dialog" aria-modal="true" aria-label="Tour complete">
+          <div className="tutorial__modal tutorial__modal--center">
+            <button className="tutorial__close" onClick={close} aria-label="Close">&times;</button>
+            <h2 className="tutorial__heading">That's the tour</h2>
+            <p className="tutorial__body">
+              This sample project is yours now - keep exploring it, or delete it anytime from the
+              "All Projects" screen. You can replay this tour later with the <strong>?</strong> button.
+            </p>
+            <div className="tutorial__actions tutorial__actions--center">
+              <button className="tutorial__btn tutorial__btn--primary" onClick={close}>Done</button>
             </div>
           </div>
         </div>
       )}
     </>
   );
+}
+
+function tooltipStyle(rect) {
+  const spaceBelow = window.innerHeight - (rect.top + rect.height);
+  const placeBelow = spaceBelow > 220 || rect.top < 220;
+  return placeBelow
+    ? { top: Math.min(rect.top + rect.height + 20, window.innerHeight - 260), left: clampLeft(rect.left) }
+    : { top: Math.max(rect.top - 240, 16), left: clampLeft(rect.left) };
+}
+
+function clampLeft(left) {
+  const width = 340;
+  return Math.min(Math.max(left, 16), window.innerWidth - width - 16);
 }

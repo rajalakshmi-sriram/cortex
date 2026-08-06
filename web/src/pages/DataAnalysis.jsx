@@ -167,7 +167,7 @@ export function DataAnalysis() {
         </div>
       </Card>
 
-      <Card title="Your Datasets" hint="Select a dataset to run a test or make a chart from it." accent="blue">
+      <Card title="Your Datasets" hint="Select a dataset to run a test or make a chart from it." accent="blue" data-tour="datasets-list">
         {datasets.length === 0 && <p style={{ color: 'var(--text-muted)' }}>No datasets yet — import one above.</p>}
         <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
           {datasets.map((d) => (
@@ -278,6 +278,7 @@ function TestWizardCard({ projectId, dataset, columns, onAnalysisSaved }) {
       title="Which Test Should I Use?"
       hint="Pick a numeric column and a grouping column - Cortex checks normality and sample size, then recommends (and can run) the matching test, like a stats calculator's guided mode."
       accent="sand"
+      data-tour="stats-wizard"
     >
       <form onSubmit={checkAssumptions}>
         <label htmlFor="wizard-value">Numeric column</label>

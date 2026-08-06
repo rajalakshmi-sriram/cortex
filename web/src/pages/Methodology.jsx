@@ -63,6 +63,7 @@ export function Methodology() {
         title="Methodology Checklist"
         hint="The standard steps for this project's research type. Check off each step as you complete it."
         accent="sage"
+        data-tour="methodology-checklist"
       >
         <p style={{ color: 'var(--text-muted)' }}>
           {methodology.research_type_name} &mdash; {methodology.completed_count} / {methodology.total_steps} steps completed

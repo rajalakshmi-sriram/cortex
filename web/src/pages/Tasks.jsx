@@ -26,6 +26,7 @@ export function Tasks() {
         title="Tasks & Milestones"
         hint="Track tasks for this project."
         accent="sage"
+        tourId="tasks-list"
         fields={FIELDS}
         renderer={(t) => `${t.title || ''}\n[${t.status || ''}] due ${t.due_date || '—'}`}
         tools={PAGE_TOOLS.tasks}

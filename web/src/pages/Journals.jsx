@@ -143,6 +143,7 @@ export function Journals() {
         title="Journals & Submissions"
         hint="Track target journals, submission status, and deadlines."
         accent="sand"
+        tourId="journals-list"
         fields={FIELDS}
         renderer={(j) => `${j.name || ''}\n[${j.status || ''}]${j.deadline ? ` · due ${j.deadline}` : ''}`}
         tools={PAGE_TOOLS.journals}

@@ -373,7 +373,7 @@ export function Manuscript() {
 
       <div className={showReferences ? 'manuscript-split' : undefined}>
         {editorMode === 'cortex' ? (
-          <Card title="Manuscript Draft" hint="Draft each section of your manuscript. Saved to this project." accent="blue">
+          <Card title="Manuscript Draft" hint="Draft each section of your manuscript. Saved to this project." accent="blue" data-tour="manuscript-editor">
             {SECTIONS.map((section) => (
               <div key={section}>
                 <label htmlFor={`section-${section}`} style={{ textTransform: 'capitalize' }}>{section}</label>

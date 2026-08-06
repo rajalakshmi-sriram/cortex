@@ -26,6 +26,7 @@ export function Hypotheses() {
         title="Hypotheses"
         hint="Track candidate hypotheses for this project."
         accent="rose"
+        tourId="hypotheses-list"
         fields={FIELDS}
         renderer={(h) => `${h.text || ''}\n[${h.status || ''}]`}
         tools={PAGE_TOOLS.hypotheses}

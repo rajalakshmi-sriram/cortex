@@ -91,6 +91,7 @@ export function PaperLibrary() {
         title="Paper Library"
         hint="Papers saved from Literature Review, sorted by match score. Select one to add annotations or open the source."
         accent="sand"
+        data-tour="paper-library-list"
       >
         <div className="paper-library__style-row">
           <label htmlFor="citation-style" style={{ margin: 0 }}>Citation style</label>

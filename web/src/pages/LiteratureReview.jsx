@@ -107,6 +107,7 @@ export function LiteratureReview() {
         title="Search Literature"
         hint="Find real papers for a specific research topic and check how novel it is against what's already published."
         accent="rose"
+        data-tour="lit-search"
       >
         <label htmlFor="lit-idea">Your research idea or topic</label>
         <div style={{ display: 'flex', gap: 8 }}>

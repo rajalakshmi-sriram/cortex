@@ -8,7 +8,7 @@ import { ToolChips } from './ToolChips';
  * A reusable "add form + list + delete" card bound to a project sub-resource
  * (hypotheses, tasks, journals, ...). Mirrors the desktop app's CrudListTab.
  */
-export function CrudList({ projectId, resource, title, hint, accent, fields, renderer, tools, extraForSelected, onChange }) {
+export function CrudList({ projectId, resource, title, hint, accent, fields, renderer, tools, extraForSelected, onChange, tourId }) {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(() => Object.fromEntries(fields.map((f) => [f.key, f.kind === 'combo' ? f.options[0] : ''])));
   const [selectedId, setSelectedId] = useState(null);
@@ -101,7 +101,7 @@ export function CrudList({ projectId, resource, title, hint, accent, fields, ren
         )}
       </Card>
 
-      <Card title="Saved Entries" accent={accent}>
+      <Card title="Saved Entries" accent={accent} data-tour={tourId}>
         {items.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Nothing here yet.</p>}
         <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {items.map((item) => (
