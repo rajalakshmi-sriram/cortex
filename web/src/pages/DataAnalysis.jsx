@@ -198,6 +198,15 @@ export function DataAnalysis() {
       </Card>
 
       {selectedDataset && (
+        <TestWizardCard
+          projectId={project.id}
+          dataset={selectedDataset}
+          columns={columns}
+          onAnalysisSaved={() => setAnalysisVersion((v) => v + 1)}
+        />
+      )}
+
+      {selectedDataset && (
         <StatsCard
           projectId={project.id}
           dataset={selectedDataset}
@@ -213,6 +222,130 @@ export function DataAnalysis() {
         <ToolChips tools={PAGE_TOOLS.data_analysis} />
       </Card>
     </div>
+  );
+}
+
+function TestWizardCard({ projectId, dataset, columns, onAnalysisSaved }) {
+  const [valueColumn, setValueColumn] = useState('');
+  const [groupColumn, setGroupColumn] = useState('');
+  const [recommendation, setRecommendation] = useState(null);
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState('');
+  const [runResult, setRunResult] = useState(null);
+  const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    setValueColumn(columns[0] || '');
+    setGroupColumn(columns[1] || columns[0] || '');
+    setRecommendation(null);
+    setRunResult(null);
+  }, [dataset.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function checkAssumptions(e) {
+    e.preventDefault();
+    setError('');
+    setRunResult(null);
+    if (!valueColumn || !groupColumn) return setError('Select both columns.');
+    setChecking(true);
+    try {
+      const data = await api.recommendTest(projectId, dataset.id, valueColumn, groupColumn);
+      setRecommendation(data.recommendation);
+    } catch (e) {
+      setError(e.message);
+      setRecommendation(null);
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  async function runRecommended() {
+    if (!recommendation) return;
+    setRunning(true);
+    setError('');
+    try {
+      const data = await api.runAnalysis(projectId, dataset.id, recommendation.recommended_test, recommendation.recommended_params);
+      setRunResult(data.analysis.result);
+      onAnalysisSaved?.();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <Card
+      title="Which Test Should I Use?"
+      hint="Pick a numeric column and a grouping column - Cortex checks normality and sample size, then recommends (and can run) the matching test, like a stats calculator's guided mode."
+      accent="sand"
+    >
+      <form onSubmit={checkAssumptions}>
+        <label htmlFor="wizard-value">Numeric column</label>
+        <select id="wizard-value" value={valueColumn} onChange={(e) => setValueColumn(e.target.value)}>
+          {columns.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+
+        <label htmlFor="wizard-group">Group column</label>
+        <select id="wizard-group" value={groupColumn} onChange={(e) => setGroupColumn(e.target.value)}>
+          {columns.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+
+        <div style={{ marginTop: 12 }}>
+          <Button type="submit" accent="sand" disabled={checking}>{checking ? 'Checking…' : 'Check Assumptions'}</Button>
+        </div>
+        {error && <p role="alert" style={{ color: 'var(--accent1-text)' }}>{error}</p>}
+      </form>
+
+      {recommendation && (
+        <div style={{ marginTop: 16 }}>
+          <p><strong>Recommended: {recommendation.recommended_test_name}</strong></p>
+          <p style={{ color: 'var(--text-muted)' }}>{recommendation.reasoning}</p>
+
+          <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', marginTop: 8 }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left' }}>Group</th>
+                <th style={{ textAlign: 'left' }}>n</th>
+                <th style={{ textAlign: 'left' }}>Normal? (Shapiro-Wilk p)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(recommendation.groups).map(([g, info]) => (
+                <tr key={g}>
+                  <td>{g}</td>
+                  <td>{info.n}</td>
+                  <td>
+                    {info.normality
+                      ? `${info.is_normal ? 'Yes' : 'No'} (p=${info.normality.p_value.toFixed(4)})`
+                      : 'Too few values to check'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {recommendation.variance_homogeneity && (
+            <p style={{ marginTop: 8, fontSize: 13 }}>
+              Variance homogeneity (Levene's test): {recommendation.variance_homogeneity.equal_variance ? 'equal' : 'unequal'} (p={recommendation.variance_homogeneity.p_value.toFixed(4)})
+            </p>
+          )}
+
+          {recommendation.warnings.length > 0 && (
+            <ul style={{ marginTop: 8, fontSize: 13, color: 'var(--accent1-text)' }}>
+              {recommendation.warnings.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          )}
+
+          <div style={{ marginTop: 12 }}>
+            <Button accent="sand" onClick={runRecommended} disabled={running}>
+              {running ? 'Running…' : `Run ${recommendation.recommended_test_name}`}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {runResult && <StatsResult result={runResult} />}
+    </Card>
   );
 }
 

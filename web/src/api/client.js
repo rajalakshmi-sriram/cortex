@@ -130,6 +130,10 @@ export const api = {
   deleteDataset: (projectId, id) => request(`/projects/${projectId}/datasets/${id}`, { method: 'DELETE' }),
   runAnalysis: (projectId, datasetId, test, params) =>
     request(`/projects/${projectId}/datasets/${datasetId}/analyze`, { method: 'POST', body: { test, params } }),
+  recommendTest: (projectId, datasetId, valueColumn, groupColumn) =>
+    request(`/projects/${projectId}/datasets/${datasetId}/recommend-test`, {
+      method: 'POST', body: { value_column: valueColumn, group_column: groupColumn },
+    }),
   generateChart: (projectId, datasetId, chartType, params) =>
     request(`/projects/${projectId}/datasets/${datasetId}/chart`, { method: 'POST', body: { chart_type: chartType, params } }),
 };

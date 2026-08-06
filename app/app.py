@@ -14,7 +14,7 @@ from app.idea_validator import IdeaValidator
 from app.methodology_engine import MethodologyEngine
 from app.project_store import ProjectStore
 from app.data_import import parse_csv_text, parse_rows, parse_excel_bytes, table_to_dataframe
-from app.stats_engine import run_analysis, TEST_CATALOG
+from app.stats_engine import run_analysis, recommend_test, TEST_CATALOG
 from app.chart_engine import generate_chart, CHART_TYPES
 from app.journal_guidelines import lookup_guidelines, list_known_journals
 from app.ai_assistant import AIAssistant, AIUnavailableError
@@ -543,6 +543,30 @@ def create_app():
             return _error(f'Missing column selection: {str(e)}', 400)
         except Exception as e:
             logger.error(f"Error running analysis: {str(e)}")
+            return _error(f'Internal server error: {str(e)}')
+
+    @app.route('/api/v1/projects/<project_id>/datasets/<dataset_id>/recommend-test', methods=['POST'])
+    def recommend_stat_test(project_id, dataset_id):
+        try:
+            dataset = project_store.collection(project_id, 'datasets').get(dataset_id)
+            if not dataset:
+                return _error('Dataset not found', 404)
+
+            data = request.get_json() or {}
+            value_column = data.get('value_column')
+            group_column = data.get('group_column')
+            if not value_column or not group_column:
+                return _error('Missing required fields: value_column, group_column', 400)
+
+            df = table_to_dataframe(dataset)
+            result = recommend_test(df, value_column, group_column, data.get('row_range'))
+            return jsonify({'status': 'success', 'recommendation': result}), 200
+        except ValueError as e:
+            return _error(str(e), 400)
+        except KeyError as e:
+            return _error(f'Missing column selection: {str(e)}', 400)
+        except Exception as e:
+            logger.error(f"Error recommending test: {str(e)}")
             return _error(f'Internal server error: {str(e)}')
 
     # ========== Charts (manual chart type + column selection) ==========

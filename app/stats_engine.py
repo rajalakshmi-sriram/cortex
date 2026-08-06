@@ -107,6 +107,90 @@ def run_analysis(df: pd.DataFrame, test: str, params: Dict) -> Dict:
     raise ValueError(f"Unhandled test: {test}")
 
 
+def recommend_test(df: pd.DataFrame, value_column: str, group_column: str, row_range: Optional[List[int]] = None) -> Dict:
+    """
+    Guided "which test should I use?" mode: given a numeric value column and
+    a grouping column, check the assumptions each test relies on (normality
+    per group via Shapiro-Wilk, sample size) and recommend the matching test
+    from TEST_CATALOG - a t-test/ANOVA if the data looks normal enough, the
+    non-parametric equivalent (Mann-Whitney/Kruskal-Wallis) otherwise. This
+    doesn't run the test itself - see run_analysis() for that, using the
+    'recommended_test'/'recommended_params' this returns.
+    """
+    _ensure_deps()
+    df = _apply_row_range(df, row_range)
+
+    groups = df[group_column].dropna().unique().tolist()
+    if len(groups) < 2:
+        raise ValueError(f"Need at least 2 groups in '{group_column}' to compare, found {len(groups)}")
+
+    group_stats = {}
+    warnings = []
+    all_normal = True
+
+    for g in groups:
+        series = _numeric(df[df[group_column] == g][value_column])
+        n = int(series.count())
+        entry = {'n': n}
+
+        if n < 3:
+            entry['normality'] = None
+            entry['is_normal'] = False
+            all_normal = False
+            warnings.append(f"Group '{g}' has only {n} value(s) - too few to test normality (need at least 3).")
+        else:
+            stat, p = scipy_stats.shapiro(series)
+            is_normal = bool(p > 0.05)
+            entry['normality'] = {'statistic': float(stat), 'p_value': float(p)}
+            entry['is_normal'] = is_normal
+            if not is_normal:
+                all_normal = False
+            if n < 10:
+                warnings.append(f"Group '{g}' has a small sample size (n={n}) - test results may be unreliable regardless of which test is used.")
+
+        group_stats[str(g)] = entry
+
+    variance_check = None
+    numeric_groups = [_numeric(df[df[group_column] == g][value_column]) for g in groups]
+    numeric_groups = [s for s in numeric_groups if len(s) >= 2]
+    if len(numeric_groups) >= 2:
+        lev_stat, lev_p = scipy_stats.levene(*numeric_groups)
+        variance_check = {'statistic': float(lev_stat), 'p_value': float(lev_p), 'equal_variance': bool(lev_p > 0.05)}
+
+    two_groups = len(groups) == 2
+    if all_normal:
+        recommended = 'ttest_ind' if two_groups else 'anova'
+        reasoning = (
+            f"All {len(groups)} group(s) look approximately normally distributed (Shapiro-Wilk p > 0.05), "
+            f"so a {'t-test' if two_groups else 'one-way ANOVA'} is appropriate."
+        )
+    else:
+        recommended = 'mann_whitney' if two_groups else 'kruskal'
+        reasoning = (
+            "At least one group doesn't look normally distributed (or was too small to check), so the "
+            f"non-parametric {'Mann-Whitney U test' if two_groups else 'Kruskal-Wallis test'} is safer than "
+            f"assuming normality."
+        )
+
+    if not two_groups and len(groups) > 2 and all_normal and variance_check and not variance_check['equal_variance']:
+        warnings.append(
+            "Group variances look unequal (Levene's test p ≤ 0.05) - standard ANOVA assumes equal variances, "
+            "so treat the result with some caution."
+        )
+
+    return {
+        'value_column': value_column,
+        'group_column': group_column,
+        'groups': group_stats,
+        'variance_homogeneity': variance_check,
+        'recommended_test': recommended,
+        'recommended_test_name': TEST_CATALOG[recommended]['name'],
+        'recommended_params': {'value_column': value_column, 'group_column': group_column},
+        'reasoning': reasoning,
+        'warnings': warnings,
+    }
+
+
 def _descriptive(df: pd.DataFrame, value_columns: List[str]) -> Dict:
     stats_by_column = {}
     for col in value_columns:
