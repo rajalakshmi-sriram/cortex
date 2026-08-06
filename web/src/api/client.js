@@ -43,6 +43,23 @@ export const api = {
   getProject: (id) => request(`/projects/${id}`),
   updateProject: (id, data) => request(`/projects/${id}`, { method: 'PUT', body: data }),
   deleteProject: (id) => request(`/projects/${id}`, { method: 'DELETE' }),
+  exportProjectUrl: (id) => `${BASE}/projects/${id}/export`,
+  importProject: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${BASE}/projects/import`, { method: 'POST', body: formData });
+    if (!response.ok) {
+      let message = `HTTP ${response.status}`;
+      try {
+        const data = await response.json();
+        message = data.message || message;
+      } catch {
+        /* non-JSON error body */
+      }
+      throw new Error(message);
+    }
+    return response.json();
+  },
 
   // Research types / methodology
   getResearchTypes: () => request('/research-types'),
@@ -74,6 +91,7 @@ export const api = {
   deletePaper: (projectId, paperId) => request(`/projects/${projectId}/papers/${paperId}`, { method: 'DELETE' }),
   getCitations: (projectId, style) => request(`/projects/${projectId}/papers/citations?style=${style}`),
   bibtexUrl: (projectId) => `${BASE}/projects/${projectId}/papers/bibtex`,
+  risUrl: (projectId) => `${BASE}/projects/${projectId}/papers/ris`,
 
   // Sub-collections (hypotheses, tasks, journals, notes, datasets, analyses, charts)
   listCollection: (projectId, name) => request(`/projects/${projectId}/${name}`),

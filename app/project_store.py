@@ -7,10 +7,12 @@ Each project is a directory under data/projects/<project_id>/ containing a
 project.json plus one JSON file per sub-resource collection.
 """
 
+import io
 import json
 import os
 import threading
 import uuid
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -18,6 +20,10 @@ from typing import Dict, List, Optional
 from app.logger import logger
 
 SUB_COLLECTIONS = ['tasks', 'papers', 'notes', 'hypotheses', 'journals', 'datasets', 'analyses', 'charts']
+
+# Bumped only if the export .zip's internal file layout changes in a way
+# that would break reading an older export back in.
+EXPORT_FORMAT_VERSION = 1
 
 
 def new_id() -> str:
@@ -196,6 +202,65 @@ class ProjectStore:
         if name not in SUB_COLLECTIONS:
             raise ValueError(f"Unknown collection: {name}")
         return JSONCollection(self._project_dir(project_id) / f'{name}.json')
+
+    def export_project(self, project_id: str) -> bytes:
+        """
+        Package a project (metadata, methodology, manuscript, and every
+        sub-collection - papers, datasets, tasks, etc.) into a .zip's raw
+        bytes, for backup or handing off to a co-author.
+        """
+        project = self.get_project(project_id)
+        if not project:
+            raise ValueError(f"Unknown project: {project_id}")
+
+        project_dir = self._project_dir(project_id)
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr('manifest.json', json.dumps({
+                'cortex_export_version': EXPORT_FORMAT_VERSION,
+                'exported_at': now(),
+                'source_project_id': project_id,
+            }, indent=2))
+            zf.writestr('project.json', json.dumps(project, indent=2))
+
+            for filename in ['methodology.json', 'manuscript.json'] + [f'{name}.json' for name in SUB_COLLECTIONS]:
+                path = project_dir / filename
+                if path.exists():
+                    zf.writestr(filename, path.read_text())
+
+        return buffer.getvalue()
+
+    def import_project(self, zip_bytes: bytes) -> Dict:
+        """
+        Recreate a project from a .zip produced by export_project(), as a
+        brand-new project (fresh ID) so it never collides with anything
+        already in this store - safe to import the same export multiple
+        times, or into the same Cortex instance that exported it.
+        """
+        try:
+            zf = zipfile.ZipFile(io.BytesIO(zip_bytes), 'r')
+        except zipfile.BadZipFile:
+            raise ValueError('Not a valid .zip file')
+
+        with zf:
+            names = set(zf.namelist())
+            if 'manifest.json' not in names or 'project.json' not in names:
+                raise ValueError('Not a valid Cortex project export')
+
+            manifest = json.loads(zf.read('manifest.json'))
+            if manifest.get('cortex_export_version') != EXPORT_FORMAT_VERSION:
+                raise ValueError(f"Unsupported export version: {manifest.get('cortex_export_version')!r}")
+
+            source_project = json.loads(zf.read('project.json'))
+            project = self.create_project(source_project)
+            project_dir = self._project_dir(project['id'])
+
+            for filename in ['methodology.json', 'manuscript.json'] + [f'{name}.json' for name in SUB_COLLECTIONS]:
+                if filename in names:
+                    atomic_write_text(project_dir / filename, zf.read(filename).decode('utf-8'))
+
+        logger.info(f"Imported project '{project['title']}' ({project['id']}) from export")
+        return self.get_project(project['id'])
 
     def get_methodology(self, project_id: str) -> Dict:
         project = self.get_project(project_id)

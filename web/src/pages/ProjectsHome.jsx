@@ -14,6 +14,7 @@ export function ProjectsHome() {
   const [researchTypes, setResearchTypes] = useState({});
   const [form, setForm] = useState({ title: '', research_area: '', research_type: 'experimental' });
   const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,6 +48,22 @@ export function ProjectsHome() {
       setError(e.message);
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function handleImport(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setImporting(true);
+    setError('');
+    try {
+      const data = await api.importProject(file);
+      navigate(`/projects/${data.project.id}`);
+    } catch (e) {
+      setError(`Import failed: ${e.message}`);
+    } finally {
+      setImporting(false);
     }
   }
 
@@ -119,6 +136,22 @@ export function ProjectsHome() {
         </Card>
 
         <Card title="Your Projects" accent="blue">
+          <div className="projects-home__import-row">
+            <label className="btn btn--secondary" style={{ '--btn-accent-tint': 'var(--accent3-tint)', '--btn-accent-text': 'var(--accent3-text)' }}>
+              {importing ? 'Importing…' : 'Import Project (.zip)'}
+              <input
+                type="file"
+                accept=".zip,application/zip"
+                onChange={handleImport}
+                disabled={importing}
+                style={{ display: 'none' }}
+              />
+            </label>
+            <span className="projects-home__import-hint">
+              From a project exported elsewhere (Overview → Export Project)
+            </span>
+          </div>
+
           {loading && <p role="status">Loading projects&hellip;</p>}
           {error && <p role="alert" className="projects-home__error">{error}</p>}
           {!loading && projects.length === 0 && <p>No projects yet &mdash; create your first one above.</p>}

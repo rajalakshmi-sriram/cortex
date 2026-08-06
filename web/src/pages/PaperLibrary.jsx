@@ -101,6 +101,10 @@ export function PaperLibrary() {
             href={api.bibtexUrl(project.id)} download>
             Download .bib
           </a>
+          <a className="btn btn--secondary" style={{ '--btn-accent-tint': 'var(--accent4-tint)', '--btn-accent-text': 'var(--accent4-text)' }}
+            href={api.risUrl(project.id)} download title="RIS format - importable by EndNote, Zotero, Mendeley">
+            Download .ris
+          </a>
           {copyStatus && <span role="status">{copyStatus}</span>}
         </div>
 

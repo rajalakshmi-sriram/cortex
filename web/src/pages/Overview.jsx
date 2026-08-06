@@ -61,6 +61,18 @@ export function Overview() {
           </div>
         </Card>
       )}
+
+      <Card title="Backup & Sharing" hint="Download everything in this project - details, papers, datasets, manuscript, and progress - as one file." accent="sand">
+        <a className="btn btn--secondary" style={{ '--btn-accent-tint': 'var(--accent4-tint)', '--btn-accent-text': 'var(--accent4-text)' }}
+          href={api.exportProjectUrl(project.id)} download>
+          Export Project (.zip)
+        </a>
+        <p style={{ marginTop: 10 }}>
+          To bring it into another Cortex instance (a co-author's, or after
+          reinstalling), use <strong>Import Project</strong> on the "All
+          Projects" screen.
+        </p>
+      </Card>
     </div>
   );
 }

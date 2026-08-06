@@ -18,7 +18,7 @@ from app.stats_engine import run_analysis, TEST_CATALOG
 from app.chart_engine import generate_chart, CHART_TYPES
 from app.journal_guidelines import lookup_guidelines, list_known_journals
 from app.ai_assistant import AIAssistant, AIUnavailableError
-from app.citation_formatter import format_citation, papers_to_bibtex, CITATION_STYLES
+from app.citation_formatter import format_citation, papers_to_bibtex, papers_to_ris, CITATION_STYLES
 
 
 def _paper_summary(p):
@@ -341,6 +341,42 @@ def create_app():
             return _error('Project not found', 404)
         return jsonify({'status': 'success'}), 200
 
+    # ========== Whole-project export/import (backup, sharing with a co-author) ==========
+
+    @app.route('/api/v1/projects/<project_id>/export', methods=['GET'])
+    def export_project(project_id):
+        try:
+            project = project_store.get_project(project_id)
+            if not project:
+                return _error('Project not found', 404)
+
+            zip_bytes = project_store.export_project(project_id)
+            filename = re.sub(r'[^A-Za-z0-9_-]+', '_', project.get('title', 'cortex-project')) + '.cortexproject.zip'
+
+            return Response(
+                zip_bytes,
+                mimetype='application/zip',
+                headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+            )
+        except Exception as e:
+            logger.error(f"Error exporting project: {str(e)}")
+            return _error(f'Internal server error: {str(e)}')
+
+    @app.route('/api/v1/projects/import', methods=['POST'])
+    def import_project():
+        try:
+            if 'file' not in request.files:
+                return _error('No file provided', 400)
+
+            zip_bytes = request.files['file'].read()
+            project = project_store.import_project(zip_bytes)
+            return jsonify({'status': 'success', 'project': project}), 201
+        except ValueError as e:
+            return _error(str(e), 400)
+        except Exception as e:
+            logger.error(f"Error importing project: {str(e)}")
+            return _error(f'Internal server error: {str(e)}')
+
     # ========== Generic sub-resource collections (tasks, papers, notes, hypotheses, journals) ==========
 
     def _collection_routes(name):
@@ -411,6 +447,22 @@ def create_app():
             return Response(
                 bib_content,
                 mimetype='application/x-bibtex',
+                headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+            )
+        except Exception as e:
+            return _error(f'Internal server error: {str(e)}')
+
+    @app.route('/api/v1/projects/<project_id>/papers/ris', methods=['GET'])
+    def paper_ris(project_id):
+        try:
+            papers = project_store.collection(project_id, 'papers').list()
+            ris_content = papers_to_ris(papers)
+            project = project_store.get_project(project_id)
+            filename = re.sub(r'[^A-Za-z0-9_-]+', '_', (project or {}).get('title', 'cortex-library')) + '.ris'
+
+            return Response(
+                ris_content,
+                mimetype='application/x-research-info-systems',
                 headers={'Content-Disposition': f'attachment; filename="{filename}"'}
             )
         except Exception as e:

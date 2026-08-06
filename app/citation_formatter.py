@@ -8,7 +8,7 @@ managers. Purely mechanical string formatting - no AI involved.
 import re
 from typing import Dict, List
 
-CITATION_STYLES = ['apa', 'mla', 'chicago', 'vancouver', 'bibtex']
+CITATION_STYLES = ['apa', 'mla', 'chicago', 'vancouver', 'bibtex', 'ris']
 
 
 def _parse_name(name: str) -> tuple:
@@ -143,6 +143,9 @@ def format_citation(paper: Dict, style: str) -> str:
     if style == 'bibtex':
         return _to_bibtex_entry(paper)
 
+    if style == 'ris':
+        return _to_ris_entry(paper)
+
     raise ValueError(f"Unknown citation style: {style}")
 
 
@@ -186,4 +189,40 @@ def _to_bibtex_entry(paper: Dict) -> str:
 def papers_to_bibtex(papers: List[Dict]) -> str:
     """Export a whole paper list as one .bib file's contents"""
     entries = [_to_bibtex_entry(p) for p in papers]
+    return '\n\n'.join(entries) + '\n'
+
+
+def _to_ris_entry(paper: Dict) -> str:
+    """
+    RIS is the tagged interchange format understood by EndNote, Zotero,
+    Mendeley, and most other reference managers - unlike BibTeX, it isn't
+    tied to LaTeX.
+    """
+    title = paper.get('title', 'Untitled')
+    authors_raw = paper.get('authors', '')
+    authors = [a.strip() for a in authors_raw.split(',')] if isinstance(authors_raw, str) else (authors_raw or [])
+    year = paper.get('year', '')
+    source = paper.get('source', '')
+    doi = paper.get('doi', '')
+    url = paper.get('url', '')
+
+    lines = ['TY  - JOUR']
+    for name in authors:
+        lines.append(f'AU  - {_display_name(name)}')
+    lines.append(f'TI  - {title}')
+    if source:
+        lines.append(f'JO  - {source}')
+    if year:
+        lines.append(f'PY  - {year}')
+    if doi:
+        lines.append(f'DO  - {doi}')
+    if url:
+        lines.append(f'UR  - {url}')
+    lines.append('ER  - ')
+    return '\n'.join(lines)
+
+
+def papers_to_ris(papers: List[Dict]) -> str:
+    """Export a whole paper list as one .ris file's contents"""
+    entries = [_to_ris_entry(p) for p in papers]
     return '\n\n'.join(entries) + '\n'
