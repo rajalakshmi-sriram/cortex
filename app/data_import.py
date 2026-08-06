@@ -70,6 +70,22 @@ def parse_rows(rows: List[Dict]) -> Dict:
     return _dataframe_to_table(df)
 
 
+def parse_excel_bytes(file_bytes: bytes) -> Dict:
+    """Parse an uploaded .xlsx/.xls file's first sheet into a table"""
+    if not file_bytes:
+        raise ValueError("No file content provided")
+
+    _ensure_deps()
+    try:
+        df = pd.read_excel(io.BytesIO(file_bytes))
+    except Exception as e:
+        raise ValueError(f"Could not read Excel file: {e}")
+    if df.shape[1] == 0:
+        raise ValueError("Could not detect any columns in the provided file")
+
+    return _dataframe_to_table(df)
+
+
 def table_to_dataframe(dataset: Dict) -> 'pd.DataFrame':
     """Reconstruct a pandas DataFrame from a stored dataset's columns/rows"""
     _ensure_deps()

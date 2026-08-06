@@ -109,6 +109,23 @@ export const api = {
 
   // Datasets / stats / charts
   importDataset: (projectId, data) => request(`/projects/${projectId}/datasets/import`, { method: 'POST', body: data }),
+  importDatasetFile: async (projectId, file, name) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (name) formData.append('name', name);
+    const response = await fetch(`${BASE}/projects/${projectId}/datasets/import`, { method: 'POST', body: formData });
+    if (!response.ok) {
+      let message = `HTTP ${response.status}`;
+      try {
+        const data = await response.json();
+        message = data.message || message;
+      } catch {
+        /* non-JSON error body */
+      }
+      throw new Error(message);
+    }
+    return response.json();
+  },
   listDatasets: (projectId) => request(`/projects/${projectId}/datasets`),
   deleteDataset: (projectId, id) => request(`/projects/${projectId}/datasets/${id}`, { method: 'DELETE' }),
   runAnalysis: (projectId, datasetId, test, params) =>

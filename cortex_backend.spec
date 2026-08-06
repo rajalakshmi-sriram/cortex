@@ -21,6 +21,7 @@ a = Analysis(
     hiddenimports=[
         'flask_cors',
         'pandas',
+        'openpyxl',
         'numpy',
         'scipy',
         'scipy.stats',

@@ -98,6 +98,21 @@ export function DataAnalysis() {
     }
   }
 
+  async function importDatasetFile(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      await api.importDatasetFile(project.id, file, importName.trim());
+      setImportName('');
+      setImportStatus('Imported ✓');
+      refresh();
+    } catch (e) {
+      setImportStatus('');
+      alert(e.message);
+    }
+  }
+
   async function deleteDataset() {
     if (!selectedDatasetId) return;
     await api.deleteDataset(project.id, selectedDatasetId);
@@ -117,13 +132,14 @@ export function DataAnalysis() {
       />
       <Card
         title="Import Data"
-        hint="Paste CSV or tab-separated data (first row = column headers). Nothing is sent anywhere except your own local Cortex server."
+        hint="Paste CSV/tab-separated data, or upload a .csv, .tsv, or Excel (.xlsx) file. First row = column headers. Nothing is sent anywhere except your own local Cortex server."
         accent="blue"
       >
+        <label htmlFor="dataset-name">Dataset name</label>
+        <input id="dataset-name" type="text" value={importName} onChange={(e) => setImportName(e.target.value)} placeholder='e.g. "Experiment 1 raw data"' />
+
         <form onSubmit={importDataset}>
-          <label htmlFor="dataset-name">Dataset name</label>
-          <input id="dataset-name" type="text" value={importName} onChange={(e) => setImportName(e.target.value)} placeholder='e.g. "Experiment 1 raw data"' />
-          <label htmlFor="dataset-csv">Data</label>
+          <label htmlFor="dataset-csv">Paste data</label>
           <textarea
             id="dataset-csv"
             value={importText}
@@ -136,6 +152,19 @@ export function DataAnalysis() {
             {importStatus && <span role="status">{importStatus}</span>}
           </div>
         </form>
+
+        <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>— or —</span>
+          <label className="btn btn--secondary" style={{ '--btn-accent-tint': 'var(--accent3-tint)', '--btn-accent-text': 'var(--accent3-text)' }}>
+            Upload File (.csv, .tsv, .xlsx)
+            <input
+              type="file"
+              accept=".csv,.tsv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              onChange={importDatasetFile}
+              style={{ display: 'none' }}
+            />
+          </label>
+        </div>
       </Card>
 
       <Card title="Your Datasets" hint="Select a dataset to run a test or make a chart from it." accent="blue">

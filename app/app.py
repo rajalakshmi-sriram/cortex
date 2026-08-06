@@ -13,7 +13,7 @@ from app.logger import logger
 from app.idea_validator import IdeaValidator
 from app.methodology_engine import MethodologyEngine
 from app.project_store import ProjectStore
-from app.data_import import parse_csv_text, parse_rows, table_to_dataframe
+from app.data_import import parse_csv_text, parse_rows, parse_excel_bytes, table_to_dataframe
 from app.stats_engine import run_analysis, TEST_CATALOG
 from app.chart_engine import generate_chart, CHART_TYPES
 from app.journal_guidelines import lookup_guidelines, list_known_journals
@@ -473,19 +473,31 @@ def create_app():
     @app.route('/api/v1/projects/<project_id>/datasets/import', methods=['POST'])
     def import_dataset(project_id):
         try:
-            data = request.get_json() or {}
-            name = data.get('name', 'Untitled Dataset').strip() or 'Untitled Dataset'
+            if 'file' in request.files:
+                file = request.files['file']
+                filename = file.filename or ''
+                name = (request.form.get('name') or filename or 'Untitled Dataset').strip() or 'Untitled Dataset'
 
-            if data.get('csv_text'):
-                table = parse_csv_text(data['csv_text'])
-            elif data.get('rows'):
-                table = parse_rows(data['rows'])
+                if filename.lower().endswith(('.xlsx', '.xls')):
+                    table = parse_excel_bytes(file.read())
+                else:
+                    table = parse_csv_text(file.read().decode('utf-8', errors='replace'))
+                source = 'file_upload'
             else:
-                return _error('Provide either csv_text or rows', 400)
+                data = request.get_json() or {}
+                name = data.get('name', 'Untitled Dataset').strip() or 'Untitled Dataset'
+                source = data.get('source', 'import')
+
+                if data.get('csv_text'):
+                    table = parse_csv_text(data['csv_text'])
+                elif data.get('rows'):
+                    table = parse_rows(data['rows'])
+                else:
+                    return _error('Provide either csv_text, rows, or a file', 400)
 
             dataset = project_store.collection(project_id, 'datasets').add({
                 'name': name,
-                'source': data.get('source', 'import'),
+                'source': source,
                 **table,
             })
             return jsonify({'status': 'success', 'dataset': dataset}), 201
