@@ -203,6 +203,82 @@ class ProjectStore:
             raise ValueError(f"Unknown collection: {name}")
         return JSONCollection(self._project_dir(project_id) / f'{name}.json')
 
+    def create_sample_project(self) -> Dict:
+        """
+        Create a fully-populated example project so a brand-new user has
+        something to click around in immediately, instead of a blank slate.
+        Every piece of content is clearly marked as a sample so it's never
+        mistaken for real research.
+        """
+        project = self.create_project({
+            'title': '[Sample] Does Caffeine Improve Reaction Time?',
+            'research_area': 'Cognitive Psychology',
+            'research_type': 'experimental',
+            'specific_topic': 'The effect of a single 200mg caffeine dose on simple visual reaction time in healthy adults.',
+            'specific_aims': 'To determine whether acute caffeine intake produces a measurable improvement in reaction time compared to placebo.',
+            'research_questions': ['Does 200mg caffeine reduce mean reaction time relative to placebo?'],
+        })
+        project_id = project['id']
+
+        self.collection(project_id, 'papers').add({
+            'title': '[Sample paper] Caffeine and psychomotor performance: a review',
+            'authors': 'Sample Author A, Sample Author B',
+            'year': 2020,
+            'source': 'Example Journal of Psychopharmacology',
+            'annotations': 'This is placeholder sample data to help you explore the Paper Library - not a real paper. Delete it any time.',
+        })
+
+        self.collection(project_id, 'hypotheses').add({
+            'text': 'H1: Participants who consume 200mg caffeine will have a faster mean reaction time than the placebo group.',
+            'status': 'proposed',
+        })
+
+        self.collection(project_id, 'tasks').add({
+            'title': '[Sample task] Recruit 30 participants',
+            'status': 'todo',
+        })
+        self.collection(project_id, 'tasks').add({
+            'title': '[Sample task] Run pilot session',
+            'status': 'done',
+        })
+
+        self.collection(project_id, 'journals').add({
+            'name': '[Sample] Journal of Cognitive Psychology (example)',
+            'status': 'target',
+            'notes': 'Placeholder - replace with a journal you actually plan to submit to.',
+        })
+
+        self.collection(project_id, 'datasets').add({
+            'name': '[Sample] Reaction Time Data (ms)',
+            'source': 'sample',
+            'columns': ['participant', 'group', 'reaction_time_ms'],
+            'rows': [
+                [1, 'placebo', 312], [2, 'placebo', 298], [3, 'placebo', 305],
+                [4, 'placebo', 320], [5, 'placebo', 291], [6, 'placebo', 315],
+                [7, 'caffeine', 274], [8, 'caffeine', 281], [9, 'caffeine', 265],
+                [10, 'caffeine', 290], [11, 'caffeine', 270], [12, 'caffeine', 278],
+            ],
+            'row_count': 12,
+            'col_count': 3,
+        })
+
+        self.update_manuscript(project_id, {
+            'abstract': (
+                '[Sample text - replace with your own] This example explores whether a 200mg dose of '
+                'caffeine improves simple visual reaction time relative to placebo in healthy adults. '
+                'Edit or clear this section to start writing your own manuscript.'
+            ),
+        })
+
+        # Mark the first couple of methodology steps done, so the progress bar
+        # (and the idea of checking steps off) is visible immediately.
+        steps = self.config.RESEARCH_TYPE_STEPS.get('experimental', [])
+        for i in range(min(2, len(steps))):
+            self.set_methodology_step(project_id, i, True)
+
+        logger.info(f"Created sample project '{project['title']}' ({project_id})")
+        return self.get_project(project_id)
+
     def export_project(self, project_id: str) -> bytes:
         """
         Package a project (metadata, methodology, manuscript, and every

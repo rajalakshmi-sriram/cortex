@@ -40,6 +40,7 @@ export const api = {
   // Projects
   listProjects: () => request('/projects'),
   createProject: (data) => request('/projects', { method: 'POST', body: data }),
+  createSampleProject: () => request('/projects/sample', { method: 'POST' }),
   getProject: (id) => request(`/projects/${id}`),
   updateProject: (id, data) => request(`/projects/${id}`, { method: 'PUT', body: data }),
   deleteProject: (id) => request(`/projects/${id}`, { method: 'DELETE' }),

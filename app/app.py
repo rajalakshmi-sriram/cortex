@@ -316,6 +316,15 @@ def create_app():
             logger.error(f"Error creating project: {str(e)}")
             return _error(f'Internal server error: {str(e)}')
 
+    @app.route('/api/v1/projects/sample', methods=['POST'])
+    def create_sample_project():
+        try:
+            project = project_store.create_sample_project()
+            return jsonify({'status': 'success', 'project': project}), 201
+        except Exception as e:
+            logger.error(f"Error creating sample project: {str(e)}")
+            return _error(f'Internal server error: {str(e)}')
+
     @app.route('/api/v1/projects/<project_id>', methods=['GET'])
     def get_project(project_id):
         project = project_store.get_project(project_id)

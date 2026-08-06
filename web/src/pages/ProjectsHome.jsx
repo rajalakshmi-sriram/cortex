@@ -15,6 +15,7 @@ export function ProjectsHome() {
   const [form, setForm] = useState({ title: '', research_area: '', research_type: 'experimental' });
   const [creating, setCreating] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [creatingSample, setCreatingSample] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +49,19 @@ export function ProjectsHome() {
       setError(e.message);
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function handleCreateSample() {
+    setCreatingSample(true);
+    setError('');
+    try {
+      const data = await api.createSampleProject();
+      navigate(`/projects/${data.project.id}`);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setCreatingSample(false);
     }
   }
 
@@ -122,6 +136,17 @@ export function ProjectsHome() {
               {creating ? 'Creating…' : 'Create Project'}
             </Button>
           </form>
+
+          <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+            <p style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--text-muted)' }}>
+              New to Cortex? Try a pre-filled example project instead - papers, a hypothesis, a
+              dataset, and a manuscript draft already in place, so you can see how everything fits
+              together before starting your own.
+            </p>
+            <Button variant="secondary" accent="rose" onClick={handleCreateSample} disabled={creatingSample}>
+              {creatingSample ? 'Creating…' : 'Try a Sample Project'}
+            </Button>
+          </div>
         </Card>
 
         <Card title="All Research Types" hint="Every research type gets its own methodology checklist and recommended reporting guidelines." accent="sand">
