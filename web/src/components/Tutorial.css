@@ -240,7 +240,7 @@
 .tour__tooltip {
   position: fixed;
   z-index: 302;
-  width: 360px;
+  /* width is set inline - it narrows to fit beside popovers in small windows */
   box-sizing: border-box;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -348,10 +348,162 @@
 }
 
 @media (max-width: 480px) {
-  .tour__tooltip {
-    width: calc(100vw - 28px);
-  }
   .tutorial__toc {
     grid-template-columns: 1fr;
   }
+}
+
+/* ---------- finish celebration ---------- */
+
+.tutorial__modal--done {
+  text-align: center;
+  padding: 0 28px 24px;
+  overflow: hidden;
+}
+
+/* full-bleed accent band so "Tour complete" reads as an event, not a paragraph */
+.tour-done__hero {
+  margin: 0 -28px 4px;
+  padding: 30px 28px 24px;
+  background:
+    radial-gradient(120% 140% at 50% -30%, var(--accent2-tint), transparent 70%),
+    var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.tour-done__ring {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--border), 0 8px 22px rgba(0, 0, 0, 0.16);
+  animation: tour-pop 0.45s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+.tour-done__check {
+  width: 44px;
+  height: 44px;
+  fill: none;
+  stroke: var(--accent2-text);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tour-done__check-circle {
+  stroke-dasharray: 145;
+  stroke-dashoffset: 145;
+  opacity: 0.35;
+  animation: tour-draw 0.7s ease 0.15s forwards;
+}
+
+.tour-done__check-mark {
+  stroke-dasharray: 42;
+  stroke-dashoffset: 42;
+  animation: tour-draw 0.4s cubic-bezier(0.5, 0, 0.3, 1) 0.55s forwards;
+}
+
+@keyframes tour-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.tour-done__title {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  animation: tour-rise-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s both;
+}
+
+.tour-done__subtitle {
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent2-text);
+  animation: tour-rise-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.38s both;
+}
+
+@keyframes tour-rise-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes tour-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: none; }
+}
+
+.tutorial__heading--center,
+.tutorial__body--center {
+  text-align: center;
+}
+
+.tutorial__heading--center {
+  padding-right: 0;
+}
+
+.tutorial__modal--done .tutorial__toc {
+  justify-items: start;
+  margin: 16px auto;
+  max-width: 340px;
+}
+
+.tutorial__modal--done .tutorial__close {
+  background: var(--surface);
+  z-index: 1;
+}
+
+.tutorial__signoff {
+  margin: 14px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tour-confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 301;
+}
+
+.tour-confetti__bit {
+  position: absolute;
+  top: -16px;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: tour-confetti-fall;
+  animation-timing-function: cubic-bezier(0.3, 0.5, 0.6, 1);
+  animation-fill-mode: forwards;
+}
+
+.tour-confetti__bit--round {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+@keyframes tour-confetti-fall {
+  0% { opacity: 0; transform: translate3d(0, -10px, 0) rotate(0deg); }
+  8% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--drift), 105vh, 0) rotate(var(--spin)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-confetti { display: none; }
+  .tour-done__ring,
+  .tour-done__title,
+  .tour-done__subtitle { animation: none; }
+  .tour-done__check-circle,
+  .tour-done__check-mark { stroke-dashoffset: 0; animation: none; }
 }

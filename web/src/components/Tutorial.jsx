@@ -39,6 +39,18 @@ const selectDatasetIfNeeded = () => {
   }
 };
 
+// A step normally spotlights `selector`, but if it declares `expandTo` and
+// that element is on screen (a popover the user just opened), that becomes
+// the thing worth highlighting.
+const currentTarget = (step) => {
+  if (!step) return null;
+  if (step.expandTo) {
+    const expanded = document.querySelector(step.expandTo);
+    if (expanded) return expanded;
+  }
+  return document.querySelector(step.selector);
+};
+
 // CrudList only renders "Delete Selected" once something is selected, which
 // makes it a reliable "they picked an item" signal for hypotheses/tasks/journals.
 const hasDeleteSelected = (scope) =>
@@ -217,28 +229,33 @@ const STEPS = [
     section: 'setup',
     navTo: 'journals',
     selector: '.ai-settings__trigger',
+    expandTo: '.ai-settings__panel',
     title: 'AI is optional, and yours to configure',
     body: 'Every AI feature is opt-in and only runs on an explicit click. Use a free local model (Ollama - nothing leaves your machine), or your own API key for OpenAI, Anthropic, Gemini, Mistral or Groq.',
     placement: 'left',
     mode: 'do',
     doHint: 'Open it and have a look at the providers.',
     completeWhen: () => !!document.querySelector('.ai-settings__panel'),
+    dwellMs: 3500,
   },
   {
     section: 'setup',
     navTo: 'journals',
     selector: '.lit-settings__trigger',
+    expandTo: '.lit-settings__panel',
     title: 'Your own database keys',
     body: 'Institutional access to Scopus, Web of Science, IEEE, Springer or CORE? Add those keys here and searches will include them. Everything works without them too.',
     placement: 'left',
     mode: 'do',
     doHint: 'Open it to see which databases you can add.',
     completeWhen: () => !!document.querySelector('.lit-settings__panel'),
+    dwellMs: 3500,
   },
   {
     section: 'setup',
     navTo: 'journals',
     selector: '.palette-picker__trigger',
+    expandTo: '.palette-picker__panel',
     title: 'Make it yours',
     body: 'Several palettes, plus light/dark that can follow the time of day.',
     placement: 'left',
@@ -261,6 +278,7 @@ const FADE_MS = 220;
 // actually see what your action did.
 const DONE_PAUSE_MS = 4200;
 const TOOLTIP_W = 360;
+const MIN_TOOLTIP_W = 250;
 const GAP = 16;
 const MARGIN = 14;
 
@@ -281,6 +299,7 @@ export function Tutorial() {
   const pollRef = useRef(null);
   const watchRef = useRef(null);
   const capturedRef = useRef(null);
+  const rectRef = useRef(null);
   const tipRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -324,9 +343,15 @@ export function Tutorial() {
 
   const measure = useCallback((el) => {
     const r = el.getBoundingClientRect();
+    const next = { top: r.top, left: r.left, width: r.width, height: r.height };
+    const prev = rectRef.current;
+    // Skip no-op updates - this runs on a poll for steps that track a
+    // popover, and re-setting an identical rect would re-render forever.
+    if (prev && ['top', 'left', 'width', 'height'].every((k) => Math.abs(prev[k] - next[k]) < 1)) return;
+    rectRef.current = next;
     const cs = window.getComputedStyle(el);
     setRadius(parseFloat(cs.borderTopLeftRadius) || 12);
-    setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+    setRect(next);
   }, []);
 
   useLayoutEffect(() => {
@@ -362,7 +387,7 @@ export function Tutorial() {
     pollRef.current = setInterval(() => {
       attempts += 1;
       step.ensureVisible?.();
-      const el = document.querySelector(step.selector);
+      const el = currentTarget(step);
       if (el) {
         clearInterval(pollRef.current);
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -404,8 +429,18 @@ export function Tutorial() {
     setAlreadySatisfied(satisfiedOnArrival);
     if (satisfiedOnArrival) return undefined;
 
+    // Steps that just open a panel would otherwise complete the instant it
+    // appears, whisking it away before you've read anything. `dwellMs` keeps
+    // the step alive while the condition holds, so you get time to look -
+    // and the spotlight re-aims onto the panel meanwhile.
+    let heldSince = null;
     watchRef.current = setInterval(() => {
-      if (check()) {
+      if (!check()) {
+        heldSince = null;
+        return;
+      }
+      if (heldSince === null) heldSince = Date.now();
+      if (Date.now() - heldSince >= (step.dwellMs || 0)) {
         clearInterval(watchRef.current);
         setActionDone(true);
       }
@@ -427,7 +462,7 @@ export function Tutorial() {
   useEffect(() => {
     if (phase !== 'touring') return undefined;
     function reflow() {
-      const el = step && document.querySelector(step.selector);
+      const el = currentTarget(step);
       if (el) measure(el);
     }
     window.addEventListener('resize', reflow);
@@ -436,6 +471,22 @@ export function Tutorial() {
       window.removeEventListener('resize', reflow);
       window.removeEventListener('scroll', reflow, true);
     };
+  }, [phase, stepIndex, measure]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Single source of truth for where the spotlight sits: re-measure the
+  // step's live target on a light interval. This keeps up with layout
+  // shifts, and with steps whose target opens a popover (AI settings,
+  // literature sources, palette) - once the popover is up it becomes the
+  // thing highlighted, so the tooltip repositions clear of it instead of
+  // sitting on top of what you're trying to read. measure() ignores no-op
+  // updates, so this costs a querySelector per tick and nothing more.
+  useEffect(() => {
+    if (phase !== 'touring') return undefined;
+    const id = setInterval(() => {
+      const el = currentTarget(step);
+      if (el) measure(el);
+    }, 200);
+    return () => clearInterval(id);
   }, [phase, stepIndex, measure]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------- keyboard ----------
@@ -513,7 +564,8 @@ export function Tutorial() {
   }
 
   const pct = Math.round(((stepIndex + 1) / STEPS.length) * 100);
-  const tipPos = rect ? tooltipPosition(rect, tipSize, placement) : null;
+  const tipWidth = rect ? tooltipWidthFor(rect, placement) : TOOLTIP_W;
+  const tipPos = rect ? tooltipPosition(rect, { ...tipSize, w: tipWidth }, placement) : null;
 
   return (
     <>
@@ -597,10 +649,11 @@ export function Tutorial() {
             style={{
               opacity: visible ? 1 : 0,
               pointerEvents: visible ? 'auto' : 'none',
+              width: tipWidth,
               ...(tipPos || { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }),
             }}
           >
-            {rect && <span className="tour__arrow" style={arrowStyle(rect, tipPos, placement)} aria-hidden="true" />}
+            {rect && <span className="tour__arrow" style={arrowStyle(rect, tipPos, placement, tipWidth)} aria-hidden="true" />}
 
             <div className="tour__progress">
               <div className="tour__progress-bar"><div className="tour__progress-fill" style={{ width: `${pct}%` }} /></div>
@@ -646,10 +699,23 @@ export function Tutorial() {
 
       {phase === 'done' && (
         <div className="tutorial__overlay" role="dialog" aria-modal="true" aria-labelledby="tour-done-title">
-          <div className="tutorial__modal">
+          <Confetti />
+          <div className="tutorial__modal tutorial__modal--done">
             <button className="tutorial__close" onClick={() => setPhase('closed')} aria-label="Close">&times;</button>
-            <h2 className="tutorial__heading" id="tour-done-title">You're set</h2>
-            <p className="tutorial__body">Here's what you just covered:</p>
+
+            <div className="tour-done__hero">
+              <div className="tour-done__ring" aria-hidden="true">
+                <svg viewBox="0 0 52 52" className="tour-done__check">
+                  <circle className="tour-done__check-circle" cx="26" cy="26" r="23" />
+                  <path className="tour-done__check-mark" d="M15 27.5 L22.5 35 L37.5 19" />
+                </svg>
+              </div>
+              <h2 className="tour-done__title" id="tour-done-title">Tour complete</h2>
+              <p className="tour-done__subtitle">
+                All {STEPS.length} steps, across every part of Cortex.
+              </p>
+            </div>
+
             <ul className="tutorial__toc tutorial__toc--done">
               {SECTIONS.map((s) => (
                 <li key={s.key}>
@@ -658,13 +724,17 @@ export function Tutorial() {
                 </li>
               ))}
             </ul>
-            <p className="tutorial__body">
-              The sample project is yours - keep poking at it, or delete it from the All Projects
-              screen. The <strong>?</strong> button replays this tour anytime.
+
+            <p className="tutorial__body tutorial__body--center">
+              The sample project is yours - keep experimenting with it, or delete it from the All
+              Projects screen and start your own. The <strong>?</strong> button replays this tour
+              whenever you want it.
             </p>
+            <p className="tutorial__signoff">Cortex is ready when you are.</p>
+
             <div className="tutorial__actions tutorial__actions--end">
               <button className="tutorial__skip" onClick={() => { setStepIndex(0); setPhase('touring'); }}>
-                Replay
+                Replay the tour
               </button>
               <button className="tutorial__btn tutorial__btn--primary" onClick={() => setPhase('closed')}>
                 Start exploring
@@ -677,17 +747,80 @@ export function Tutorial() {
   );
 }
 
+// A short, one-shot confetti burst for the finish screen. Deliberately
+// tiny - a handful of divs animated by CSS, no library, and it respects
+// prefers-reduced-motion via the stylesheet.
+function Confetti() {
+  const pieces = useRef(
+    Array.from({ length: 44 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 0.9,
+      duration: 2.6 + Math.random() * 1.8,
+      drift: (Math.random() - 0.5) * 140,
+      spin: (Math.random() - 0.5) * 900,
+      accent: (i % 4) + 1,
+      round: i % 3 === 0,
+    })),
+  ).current;
+
+  return (
+    <div className="tour-confetti" aria-hidden="true">
+      {pieces.map((p) => (
+        <span
+          key={p.id}
+          className={`tour-confetti__bit ${p.round ? 'tour-confetti__bit--round' : ''}`}
+          style={{
+            left: `${p.left}%`,
+            background: `var(--accent${p.accent})`,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+            '--drift': `${p.drift}px`,
+            '--spin': `${p.spin}deg`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // ---------- positioning helpers ----------
 
+// Free space on each side of the highlighted element.
+function sideSpace(rect) {
+  return {
+    bottom: window.innerHeight - (rect.top + rect.height),
+    top: rect.top,
+    right: window.innerWidth - (rect.left + rect.width),
+    left: rect.left,
+  };
+}
+
 function choosePlacement(rect, tip, preferred) {
+  const space = sideSpace(rect);
+  const fitsVert = (s) => s >= tip.h + GAP + MARGIN;
+  const fitsHoriz = (s) => s >= MIN_TOOLTIP_W + GAP + MARGIN;
   const fits = {
-    bottom: window.innerHeight - (rect.top + rect.height) >= tip.h + GAP + MARGIN,
-    top: rect.top >= tip.h + GAP + MARGIN,
-    right: window.innerWidth - (rect.left + rect.width) >= tip.w + GAP + MARGIN,
-    left: rect.left >= tip.w + GAP + MARGIN,
+    bottom: fitsVert(space.bottom),
+    top: fitsVert(space.top),
+    right: fitsHoriz(space.right),
+    left: fitsHoriz(space.left),
   };
   if (preferred && fits[preferred]) return preferred;
-  return ['bottom', 'top', 'right', 'left'].find((p) => fits[p]) || 'bottom';
+  const ok = ['bottom', 'top', 'right', 'left'].filter((p) => fits[p]);
+  if (ok.length) return ok[0];
+  // Nothing fits outright (small window next to a big popover) - use
+  // whichever side has the most room and let the tooltip narrow itself.
+  return Object.entries(space).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+// On a horizontal placement the tooltip shrinks to whatever room is left,
+// so it never has to sit on top of what it's pointing at.
+function tooltipWidthFor(rect, placement) {
+  const cap = Math.min(TOOLTIP_W, window.innerWidth - MARGIN * 2);
+  if (placement !== 'left' && placement !== 'right') return cap;
+  const available = sideSpace(rect)[placement] - GAP - MARGIN;
+  return Math.max(Math.min(MIN_TOOLTIP_W, cap), Math.min(cap, Math.floor(available)));
 }
 
 function tooltipPosition(rect, tip, placement) {
@@ -711,12 +844,12 @@ function tooltipPosition(rect, tip, placement) {
 
 // Keeps the little arrow pointing at the target even after the tooltip is
 // clamped back inside the viewport.
-function arrowStyle(rect, pos, placement) {
+function arrowStyle(rect, pos, placement, width = TOOLTIP_W) {
   if (!pos) return { display: 'none' };
   const targetCX = rect.left + rect.width / 2;
   const targetCY = rect.top + rect.height / 2;
   if (placement === 'top' || placement === 'bottom') {
-    return { left: Math.min(Math.max(targetCX - pos.left, 18), TOOLTIP_W - 18) };
+    return { left: Math.min(Math.max(targetCX - pos.left, 18), width - 18) };
   }
   return { top: Math.max(targetCY - pos.top, 18) };
 }
