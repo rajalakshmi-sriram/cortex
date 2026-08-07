@@ -19,6 +19,17 @@ Available two ways:
 
 ![Cortex project overview, showing the sidebar with Literature Review, Paper Library, Methodology, Hypotheses, Tasks, Data & Analysis, Manuscript, and Journals tabs](docs/images/screenshot-overview.png)
 
+### Guided tour
+
+First time you open a project, Cortex offers a hands-on 20-step walkthrough.
+It spins up a fully populated sample project and then walks you through the
+real interface - most steps ask you to actually do the thing (type a search
+idea, tick a methodology box, pick a colour palette) and wait until you've
+done it before moving on. You can replay it anytime from the **?** button in
+the bottom-right corner.
+
+![The Cortex guided tour's opening dialog, listing the six sections it covers: the basics, finding literature, planning the work, analyzing data, writing it up, and settings](docs/images/screenshot-tour.png)
+
 ## Quick start
 
 1. Create a project: give it a title, a research area, and pick one of the
