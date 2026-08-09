@@ -1,4 +1,4 @@
-import { useProject } from './Workspace';
+import { useProject } from './ProjectContext';
 import { CrudList } from '../components/CrudList';
 import { AiChatPanel } from '../components/AiChatPanel';
 import { PageInstructions } from '../components/PageInstructions';

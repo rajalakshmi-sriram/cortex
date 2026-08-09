@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useProject } from './Workspace';
+import { useProject } from './ProjectContext';
 import { CrudList } from '../components/CrudList';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';

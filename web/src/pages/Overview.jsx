@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useProject } from './Workspace';
+import { useProject } from './ProjectContext';
 import { api } from '../api/client';
 import { Card } from '../components/Card';
 import { PageInstructions } from '../components/PageInstructions';

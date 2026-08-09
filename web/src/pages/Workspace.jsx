@@ -1,14 +1,10 @@
-import { useEffect, useState, createContext, useContext, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Outlet, useParams, useLocation } from 'react-router-dom';
 import { api } from '../api/client';
 import { Sidebar } from '../components/Sidebar';
 import { LegalNotice } from '../components/LegalNotice';
+import { ProjectProvider } from './ProjectContext';
 import './Workspace.css';
-
-const ProjectContext = createContext(null);
-export function useProject() {
-  return useContext(ProjectContext);
-}
 
 const NAV_ITEMS = [
   { to: '', end: true, label: 'Overview', accent: 'rose', icon: <HomeIcon /> },
@@ -73,9 +69,9 @@ export function Workspace() {
         <main id="main-content" className="workspace__content" tabIndex={-1}>
           {error && <p role="alert">{error}</p>}
           {project ? (
-            <ProjectContext.Provider value={{ project, refresh }}>
+            <ProjectProvider value={{ project, refresh }}>
               <Outlet />
-            </ProjectContext.Provider>
+            </ProjectProvider>
           ) : (
             !error && <p role="status">Loading project&hellip;</p>
           )}
@@ -112,3 +108,5 @@ function DocIcon() {
 function NewspaperIcon() {
   return <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 5h13v14H6a2 2 0 0 1-2-2Z" stroke="currentColor" strokeWidth="1.5" /><path d="M17 9h3v9a1 1 0 0 1-1 1h-2" stroke="currentColor" strokeWidth="1.5" /></svg>;
 }
+
+

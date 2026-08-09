@@ -1,4 +1,4 @@
-import { useProject } from './Workspace';
+import { useProject } from './ProjectContext';
 import { CrudList } from '../components/CrudList';
 import { PageInstructions } from '../components/PageInstructions';
 import { PAGE_TOOLS } from '../data/pageTools';
