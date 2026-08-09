@@ -84,7 +84,9 @@ export function ReferenceList({ sections, entries, style, onInsertIntoReferences
       {unknown.length > 0 && (
         <div className="cite-refs__unknown" role="alert">
           <strong>{unknown.length} citation{unknown.length === 1 ? '' : 's'} not in your library:</strong>{' '}
-          {unknown.map((k) => <code key={k}>[@{k}]</code>).reduce((prev, curr) => [prev, ', ', curr])}
+          {unknown.map((k, i) => (
+            <span key={k}>{i > 0 && ', '}<code>[@{k}]</code></span>
+          ))}
           <br />
           These stay in your text but can't be turned into references — the paper may have been removed
           from the library, or the key mistyped.
