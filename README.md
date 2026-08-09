@@ -72,7 +72,14 @@ guidelines (e.g. CONSORT, STROBE, PRISMA) - defined in
   see similarity/novelty scoring against your idea, and save results to a
   library.
 - **Paper Library** - saved papers with annotations and one-click citation
-  formatting (APA, MLA, Chicago, Vancouver) or BibTeX export.
+  formatting (APA, MLA, Chicago, Vancouver) or BibTeX export. Already have a
+  library elsewhere? Drop in a **BibTeX (.bib) or RIS (.ris) export** from
+  Zotero, Mendeley, EndNote, or Papers - duplicates are matched by DOI or
+  title and skipped, so re-importing an updated export is safe.
+- **Systematic Review** - two-pass screening (title/abstract, then full text)
+  with a recorded reason for every full-text exclusion, and a **PRISMA 2020
+  flow diagram generated from your decisions**, downloadable as an SVG for
+  your manuscript.
 - **Methodology** - a checklist of the standard steps for your project's
   research type, plus relevant reporting guidelines and recommended tools
   per step.
@@ -83,7 +90,9 @@ guidelines (e.g. CONSORT, STROBE, PRISMA) - defined in
   chi-square) or charts (bar, line, scatter, histogram, box plot) on the
   columns you choose - nothing is decided automatically.
 - **Manuscript** - draft each section of a manuscript (abstract, intro,
-  methods, results, discussion, references) with autosave.
+  methods, results, discussion, references) with autosave. Type **@** to cite
+  a paper from your library; the reference list is derived from those
+  citations, so it can never drift out of step with the text.
 - **Journals** - track target journals and submission status, and look up
   curated formatting/structure guidelines for common journals.
 
@@ -206,7 +215,8 @@ To stop everything, press `Ctrl+C` in both terminals.
 ```
 app/                     Flask backend: routes, project storage,
                          literature search, statistics/chart engines, AI
-                         assistant, citation formatting
+                         assistant, citation formatting/parsing,
+                         systematic-review screening and PRISMA counts
 config/                  App configuration (research types, methodology
                          step sequences, data directories)
 web/                     React frontend (Vite)
