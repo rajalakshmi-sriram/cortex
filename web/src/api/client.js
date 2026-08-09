@@ -101,6 +101,22 @@ export const api = {
   getCitations: (projectId, style) => request(`/projects/${projectId}/papers/citations?style=${style}`),
   bibtexUrl: (projectId) => `${BASE}/projects/${projectId}/papers/bibtex`,
   risUrl: (projectId) => `${BASE}/projects/${projectId}/papers/ris`,
+  importReferences: async (projectId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${BASE}/projects/${projectId}/papers/import`, { method: 'POST', body: formData });
+    if (!response.ok) {
+      let message = `HTTP ${response.status}`;
+      try {
+        const data = await response.json();
+        message = data.message || message;
+      } catch {
+        /* non-JSON error body */
+      }
+      throw new Error(message);
+    }
+    return response.json();
+  },
 
   // Sub-collections (hypotheses, tasks, journals, notes, datasets, analyses, charts)
   listCollection: (projectId, name) => request(`/projects/${projectId}/${name}`),

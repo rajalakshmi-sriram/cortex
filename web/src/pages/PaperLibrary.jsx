@@ -6,6 +6,7 @@ import { Button } from '../components/Button';
 import { MicButton } from '../components/MicButton';
 import { AiChatPanel } from '../components/AiChatPanel';
 import { PageInstructions } from '../components/PageInstructions';
+import { ReferenceImport } from '../components/ReferenceImport';
 import './PaperLibrary.css';
 
 const STYLES = [
@@ -83,6 +84,7 @@ export function PaperLibrary() {
         accent="sand"
         items={[
           'Papers you save from Literature Review show up here, sorted by match score. Pick a citation style and copy or download citations for any of them.',
+          <>Already have a library elsewhere? Export it from Zotero, Mendeley, or EndNote as <strong>.bib</strong> or <strong>.ris</strong> and drop it into "Import from a Reference Manager" below — duplicates are skipped automatically.</>,
           'Click a paper to open its details, add your own annotations, or open the source.',
           'Once a paper is selected, use "Summarize with AI" under Paper Details to get an AI summary grounded in its abstract.',
         ]}
@@ -109,7 +111,9 @@ export function PaperLibrary() {
           {copyStatus && <span role="status">{copyStatus}</span>}
         </div>
 
-        {papers.length === 0 && <p>No papers saved yet — find some in Literature Review.</p>}
+        {papers.length === 0 && (
+          <p>No papers saved yet — find some in Literature Review, or import an existing library below.</p>
+        )}
 
         <ul className="paper-library__list">
           {papers.map((p) => (
@@ -132,6 +136,8 @@ export function PaperLibrary() {
           ))}
         </ul>
       </Card>
+
+      <ReferenceImport projectId={project.id} onImported={refresh} />
 
       {selected && (
         <Card title="Paper Details & Annotations" accent="sand">

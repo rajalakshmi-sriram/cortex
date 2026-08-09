@@ -19,6 +19,7 @@ from app.chart_engine import generate_chart, CHART_TYPES
 from app.journal_guidelines import lookup_guidelines, list_known_journals
 from app.ai_assistant import AIAssistant, AIUnavailableError
 from app.citation_formatter import format_citation, papers_to_bibtex, papers_to_ris, CITATION_STYLES
+from app.citation_parser import parse_references, dedupe_against, CitationParseError
 from app.google_docs_store import GoogleDocsStore, build_authorize_url, exchange_code_for_tokens, get_valid_access_token, fetch_document_text
 
 
@@ -542,6 +543,64 @@ def create_app():
                 headers={'Content-Disposition': f'attachment; filename="{filename}"'}
             )
         except Exception as e:
+            return _error(f'Internal server error: {str(e)}')
+
+    # ========== Reference-manager import (.bib / .ris -> Paper Library) ==========
+
+    @app.route('/api/v1/projects/<project_id>/papers/import', methods=['POST'])
+    def import_references(project_id):
+        """
+        Import a BibTeX or RIS export from Zotero/Mendeley/EndNote into the
+        Paper Library. Papers already in the library (matched by DOI or
+        title) are reported back as skipped rather than duplicated.
+        """
+        try:
+            if not project_store.get_project(project_id):
+                return _error('Project not found', 404)
+
+            if 'file' in request.files:
+                upload = request.files['file']
+                filename = upload.filename or ''
+                try:
+                    text = upload.read().decode('utf-8')
+                except UnicodeDecodeError:
+                    # EndNote and older managers still emit latin-1.
+                    upload.seek(0)
+                    text = upload.read().decode('latin-1', errors='replace')
+            else:
+                data = request.get_json(silent=True) or {}
+                text = data.get('text', '')
+                filename = data.get('filename', '')
+
+            if not text.strip():
+                return _error('No file content provided', 400)
+
+            papers, fmt = parse_references(text, filename)
+            collection = project_store.collection(project_id, 'papers')
+            new_papers, duplicates = dedupe_against(papers, collection.list())
+
+            added = []
+            for paper in new_papers:
+                added.append(collection.add({
+                    **paper,
+                    'import_source': f'{fmt} import',
+                    'annotations': '',
+                }))
+
+            return jsonify({
+                'status': 'success',
+                'format': fmt,
+                'parsed': len(papers),
+                'imported': len(added),
+                'skipped': len(duplicates),
+                'skipped_titles': [p['title'] for p in duplicates[:20]],
+                'papers': added,
+            }), 201
+
+        except CitationParseError as e:
+            return _error(str(e), 400)
+        except Exception as e:
+            logger.error(f"Error importing references: {str(e)}")
             return _error(f'Internal server error: {str(e)}')
 
     # ========== Data import (CSV/manual rows -> dataset) ==========
