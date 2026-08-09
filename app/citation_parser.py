@@ -20,16 +20,46 @@ from typing import Dict, List, Tuple
 from app.logger import logger
 
 # BibTeX escapes/among-braces markup we can safely flatten to plain text.
+#
+# Accent commands appear in the wild both adjacent to their letter and
+# separated by a space - Zotero writes {\"u}, BibDesk writes {\c c} - so
+# every accent pattern allows optional whitespace between the two. Getting
+# this wrong leaves literal LaTeX in an author's name.
+_ACCENT_COMMANDS = [
+    '"',    # umlaut      \"u  -> u
+    "'",    # acute       \'e  -> e
+    '`',    # grave       \`a  -> a
+    r'\^',  # circumflex  \^o  -> o
+    '~',    # tilde       \~n  -> n
+    'c',    # cedilla     \c c -> c
+    'v',    # caron       \v s -> s
+    'u',    # breve       \u g -> g
+    'H',    # double acute
+    'r',    # ring
+    '=',    # macron
+    r'\.',  # dot above
+    'k',    # ogonek
+    'b',    # bar under
+    'd',    # dot under
+]
+
 _LATEX_REPLACEMENTS = [
     (r'\\&', '&'), (r'\\%', '%'), (r'\\_', '_'), (r'\\\$', '$'), (r'\\#', '#'),
     (r'\\textendash\s*', '-'), (r'\\textemdash\s*', '-'),
     (r'---', '-'), (r'--', '-'),
-    (r'\\"\{?([aeiouAEIOU])\}?', r'\1'),   # umlaut
-    (r"\\'\{?([a-zA-Z])\}?", r'\1'),        # acute
-    (r'\\`\{?([a-zA-Z])\}?', r'\1'),        # grave
-    (r'\\\^\{?([a-zA-Z])\}?', r'\1'),       # circumflex
-    (r'\\~\{?([a-zA-Z])\}?', r'\1'),        # tilde
-    (r'\\c\{?([a-zA-Z])\}?', r'\1'),        # cedilla
+] + [
+    (r'\\' + cmd + r'\s*\{?\s*([a-zA-Z])\s*\}?', r'\1') for cmd in _ACCENT_COMMANDS
+] + [
+    # Standalone letter commands that aren't accents on an existing letter.
+    # The trailing \s* matters: in LaTeX a space after a control word is the
+    # command's terminator, not a real space, so "Wa{\l }esa" must come out
+    # as "Walesa" rather than "Wal esa". \b keeps these from biting into
+    # longer commands (\l must not match inside \lambda).
+    (r'\\ss\b\s*', 'ss'), (r'\\ae\b\s*', 'ae'), (r'\\AE\b\s*', 'AE'),
+    (r'\\oe\b\s*', 'oe'), (r'\\OE\b\s*', 'OE'),
+    (r'\\o\b\s*', 'o'), (r'\\O\b\s*', 'O'),
+    (r'\\l\b\s*', 'l'), (r'\\L\b\s*', 'L'),
+    (r'\\aa\b\s*', 'aa'), (r'\\AA\b\s*', 'AA'),
 ]
 
 # RIS type codes -> whether we treat the entry as a journal article. Anything
@@ -49,10 +79,15 @@ class CitationParseError(Exception):
 
 def _clean_latex(value: str) -> str:
     text = value or ''
+    # Escaped braces are literal characters in the title, not markup - pull
+    # them out before the unescaped ones get stripped below, otherwise the
+    # brace goes and the backslash stays.
+    text = text.replace(r'\{', '\x00').replace(r'\}', '\x01')
     for pattern, replacement in _LATEX_REPLACEMENTS:
         text = re.sub(pattern, replacement, text)
     # Braces in BibTeX protect capitalisation ({DNA}); the text is what matters.
     text = text.replace('{', '').replace('}', '')
+    text = text.replace('\x00', '{').replace('\x01', '}')
     return re.sub(r'\s+', ' ', text).strip()
 
 

@@ -53,18 +53,7 @@ export function PrismaDiagram({ prisma }) {
   const p = prisma || {};
   const n = (v) => (v == null ? 0 : v);
 
-  // Row geometry. Heights vary because the exclusion-reasons box grows with
-  // however many distinct reasons were recorded.
   const reasons = p.exclusion_reasons || [];
-  const rows = [
-    { y: 20, h: 74 },    // identification
-    { y: 134, h: 60 },   // duplicates removed (right)
-    { y: 234, h: 56 },   // records screened
-    { y: 330, h: 56 },   // reports sought
-    { y: 426, h: 56 },   // reports assessed
-    { y: 522 + Math.max(0, (reasons.length - 1) * 15), h: 56 }, // included
-  ];
-  const height = rows[5].y + rows[5].h + 30;
 
   const identifiedLines = [`Records from databases (n = ${n(p.identified_databases)})`];
   if (p.identified_registers) identifiedLines.push(`Records from registers (n = ${p.identified_registers})`);
@@ -77,6 +66,36 @@ export function PrismaDiagram({ prisma }) {
   const reasonLines = reasons.length > 0
     ? reasons.map((r) => `${r.reason} (n = ${r.count})`)
     : ['No exclusions recorded yet'];
+
+  // Geometry is computed, not hardcoded: several boxes grow with their
+  // content (extra source lines, one line per exclusion reason), and fixed
+  // row heights left the side arrows pointing at empty space beside a box
+  // that had moved.
+  const boxHeight = (lines) => Math.max(56, 26 + lines.length * 16);
+  const GAP = 42;
+
+  const idH = boxHeight(identifiedLines);
+  const removedH = boxHeight(removedLines);
+  const excludedH = boxHeight(reasonLines);
+
+  let y = 20;
+  const identification = { y, h: idH };
+  // Centre the side box on the arrow leaving the main box, so the arrow is
+  // horizontal and lands in the middle of its target.
+  const removed = { y: y + (idH - removedH) / 2, h: removedH };
+
+  y += idH + GAP;
+  const screened = { y, h: 56 };
+  y += 56 + GAP;
+  const sought = { y, h: 56 };
+  y += 56 + GAP;
+  const assessed = { y, h: 56 };
+  const excluded = { y: y + (56 - excludedH) / 2, h: excludedH };
+  y += Math.max(56, excludedH) + GAP;
+  const included = { y, h: 56 };
+
+  const height = included.y + included.h + 24;
+  const mid = (row) => row.y + row.h / 2;
 
   function download() {
     const svg = svgRef.current;
@@ -134,72 +153,72 @@ export function PrismaDiagram({ prisma }) {
             </marker>
           </defs>
 
-          <text x={LEFT_X} y={12} className="prisma__stage">IDENTIFICATION</text>
+          <text x={LEFT_X} y={identification.y - 8} className="prisma__stage">IDENTIFICATION</text>
           <Box
-            x={LEFT_X} y={rows[0].y} w={BOX_W} h={rows[0].h}
+            x={LEFT_X} y={identification.y} w={BOX_W} h={identification.h}
             title="Records identified"
             lines={identifiedLines}
           />
           <Box
-            x={RIGHT_X} y={rows[1].y - 60} w={SIDE_W} h={rows[1].h}
+            x={RIGHT_X} y={removed.y} w={SIDE_W} h={removed.h}
             title="Records removed before screening"
             lines={removedLines}
             muted
           />
-          <Arrow from={[LEFT_X + BOX_W, rows[0].y + 36]} to={[RIGHT_X - 4, rows[0].y + 36]} />
+          <Arrow from={[LEFT_X + BOX_W, mid(identification)]} to={[RIGHT_X - 4, mid(identification)]} />
 
-          <text x={LEFT_X} y={rows[2].y - 10} className="prisma__stage">SCREENING</text>
+          <text x={LEFT_X} y={screened.y - 8} className="prisma__stage">SCREENING</text>
           <Box
-            x={LEFT_X} y={rows[2].y} w={BOX_W} h={rows[2].h}
+            x={LEFT_X} y={screened.y} w={BOX_W} h={screened.h}
             title="Records screened"
             lines={[`n = ${n(p.records_screened)}`]}
           />
           <Box
-            x={RIGHT_X} y={rows[2].y} w={SIDE_W} h={rows[2].h}
+            x={RIGHT_X} y={screened.y} w={SIDE_W} h={screened.h}
             title="Records excluded (title/abstract)"
             lines={[`n = ${n(p.records_excluded)}`]}
             muted
           />
-          <Arrow from={[LEFT_X + BOX_W, rows[2].y + 28]} to={[RIGHT_X - 4, rows[2].y + 28]} />
-          <Arrow from={[LEFT_X + BOX_W / 2, rows[0].y + rows[0].h]} to={[LEFT_X + BOX_W / 2, rows[2].y - 4]} />
+          <Arrow from={[LEFT_X + BOX_W, mid(screened)]} to={[RIGHT_X - 4, mid(screened)]} />
+          <Arrow from={[LEFT_X + BOX_W / 2, identification.y + identification.h]} to={[LEFT_X + BOX_W / 2, screened.y - 4]} />
 
           <Box
-            x={LEFT_X} y={rows[3].y} w={BOX_W} h={rows[3].h}
+            x={LEFT_X} y={sought.y} w={BOX_W} h={sought.h}
             title="Reports sought for retrieval"
             lines={[`n = ${n(p.reports_sought)}`]}
           />
           <Box
-            x={RIGHT_X} y={rows[3].y} w={SIDE_W} h={rows[3].h}
+            x={RIGHT_X} y={sought.y} w={SIDE_W} h={sought.h}
             title="Reports not retrieved"
             lines={[`n = ${n(p.reports_not_retrieved)}`]}
             muted
           />
-          <Arrow from={[LEFT_X + BOX_W, rows[3].y + 28]} to={[RIGHT_X - 4, rows[3].y + 28]} />
-          <Arrow from={[LEFT_X + BOX_W / 2, rows[2].y + rows[2].h]} to={[LEFT_X + BOX_W / 2, rows[3].y - 4]} />
+          <Arrow from={[LEFT_X + BOX_W, mid(sought)]} to={[RIGHT_X - 4, mid(sought)]} />
+          <Arrow from={[LEFT_X + BOX_W / 2, screened.y + screened.h]} to={[LEFT_X + BOX_W / 2, sought.y - 4]} />
 
-          <text x={LEFT_X} y={rows[4].y - 10} className="prisma__stage">ELIGIBILITY</text>
+          <text x={LEFT_X} y={assessed.y - 8} className="prisma__stage">ELIGIBILITY</text>
           <Box
-            x={LEFT_X} y={rows[4].y} w={BOX_W} h={rows[4].h}
+            x={LEFT_X} y={assessed.y} w={BOX_W} h={assessed.h}
             title="Reports assessed for eligibility"
             lines={[`n = ${n(p.reports_assessed)}`]}
           />
           <Box
-            x={RIGHT_X} y={rows[4].y} w={SIDE_W} h={Math.max(56, 30 + reasonLines.length * 15)}
+            x={RIGHT_X} y={excluded.y} w={SIDE_W} h={excluded.h}
             title={`Reports excluded (n = ${n(p.reports_excluded)})`}
             lines={reasonLines}
             muted
           />
-          <Arrow from={[LEFT_X + BOX_W, rows[4].y + 28]} to={[RIGHT_X - 4, rows[4].y + 28]} />
-          <Arrow from={[LEFT_X + BOX_W / 2, rows[3].y + rows[3].h]} to={[LEFT_X + BOX_W / 2, rows[4].y - 4]} />
+          <Arrow from={[LEFT_X + BOX_W, mid(assessed)]} to={[RIGHT_X - 4, mid(assessed)]} />
+          <Arrow from={[LEFT_X + BOX_W / 2, sought.y + sought.h]} to={[LEFT_X + BOX_W / 2, assessed.y - 4]} />
 
-          <text x={LEFT_X} y={rows[5].y - 10} className="prisma__stage">INCLUDED</text>
+          <text x={LEFT_X} y={included.y - 8} className="prisma__stage">INCLUDED</text>
           <Box
-            x={LEFT_X} y={rows[5].y} w={BOX_W} h={rows[5].h}
+            x={LEFT_X} y={included.y} w={BOX_W} h={included.h}
             title="Studies included in review"
             lines={[`n = ${n(p.studies_included)}`]}
             accent
           />
-          <Arrow from={[LEFT_X + BOX_W / 2, rows[4].y + rows[4].h]} to={[LEFT_X + BOX_W / 2, rows[5].y - 4]} />
+          <Arrow from={[LEFT_X + BOX_W / 2, assessed.y + assessed.h]} to={[LEFT_X + BOX_W / 2, included.y - 4]} />
         </svg>
       </div>
 
