@@ -7,10 +7,19 @@ import { MicButton } from '../components/MicButton';
 import { ToolChips } from '../components/ToolChips';
 import { AiChatPanel } from '../components/AiChatPanel';
 import { PageInstructions } from '../components/PageInstructions';
+import { CiteTextarea } from '../components/CiteTextarea';
+import { ReferenceList } from '../components/ReferenceList';
 import { PAGE_TOOLS } from '../data/pageTools';
 import './Manuscript.css';
 
 const SECTIONS = ['abstract', 'introduction', 'methods', 'results', 'discussion', 'references'];
+
+const CITE_STYLES = [
+  ['apa', 'APA'],
+  ['mla', 'MLA'],
+  ['chicago', 'Chicago'],
+  ['vancouver', 'Vancouver'],
+];
 
 function PaperReferencePanel({ projectId }) {
   const [papers, setPapers] = useState([]);
@@ -308,6 +317,16 @@ export function Manuscript() {
   const [editorMode, setEditorMode] = useState('cortex');
   const [googleDocId, setGoogleDocId] = useState('');
   const [googleConnected, setGoogleConnected] = useState(false);
+  const [citeStyle, setCiteStyle] = useState((project.citation_style || 'apa').toLowerCase());
+  const [citeEntries, setCiteEntries] = useState([]);
+
+  // The citation index is keyed by style (the in-text and reference forms
+  // differ per style), so refetch when either the project or the style changes.
+  useEffect(() => {
+    api.getCiteIndex(project.id, citeStyle)
+      .then((d) => setCiteEntries(d.entries || []))
+      .catch(() => setCiteEntries([]));
+  }, [project.id, citeStyle]);
 
   useEffect(() => {
     api.getManuscript(project.id).then((d) => {
@@ -346,6 +365,7 @@ export function Manuscript() {
         accent="blue"
         items={[
           'Write each section of your manuscript below (use the mic button to dictate) and click Save Manuscript.',
+          <>Type <strong>@</strong> anywhere in a section to cite a paper from your library — pick one and Cortex inserts a marker like <code>[@Smith2020]</code>. The References section below builds itself from those markers and updates as you write.</>,
           'Once you\'ve written some of your draft, click "Get AI Feedback on My Draft" in the AI Feedback section for reviewer-style feedback aimed at top-journal quality — then ask follow-up questions in the chat that appears.',
         ]}
       />
@@ -378,11 +398,14 @@ export function Manuscript() {
               <div key={section}>
                 <label htmlFor={`section-${section}`} style={{ textTransform: 'capitalize' }}>{section}</label>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <textarea
+                  <CiteTextarea
                     id={`section-${section}`}
                     value={sections[section] || ''}
-                    onChange={(e) => setSections({ ...sections, [section]: e.target.value })}
-                    placeholder={`Write your ${section}...`}
+                    onChange={(next) => setSections((prev) => ({ ...prev, [section]: next }))}
+                    entries={citeEntries}
+                    placeholder={section === 'references'
+                      ? 'Built automatically from your [@citations] — or write your own here...'
+                      : `Write your ${section}... (type @ to cite a paper)`}
                     style={{ flex: 1, minHeight: 90 }}
                   />
                   <MicButton label={section} onTranscript={(t) => setSections((prev) => ({ ...prev, [section]: prev[section] ? prev[section] + ' ' + t : t }))} />
@@ -390,9 +413,20 @@ export function Manuscript() {
               </div>
             ))}
 
-            <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <Button accent="blue" onClick={save}>Save Manuscript</Button>
               {saveStatus && <span role="status">{saveStatus}</span>}
+              <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label htmlFor="cite-style" style={{ margin: 0, fontSize: 12.5 }}>Citation style</label>
+                <select
+                  id="cite-style"
+                  value={citeStyle}
+                  onChange={(e) => setCiteStyle(e.target.value)}
+                  style={{ width: 130 }}
+                >
+                  {CITE_STYLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </span>
             </div>
 
             <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
@@ -408,6 +442,15 @@ export function Manuscript() {
 
         {showReferences && <PaperReferencePanel projectId={project.id} />}
       </div>
+
+      {editorMode === 'cortex' && (
+        <ReferenceList
+          sections={sections}
+          entries={citeEntries}
+          style={citeStyle}
+          onInsertIntoReferences={(text) => setSections((prev) => ({ ...prev, references: text }))}
+        />
+      )}
 
       {editorMode === 'cortex' ? (
         <Card

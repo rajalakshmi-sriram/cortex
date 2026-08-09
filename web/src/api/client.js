@@ -99,6 +99,7 @@ export const api = {
     request(`/projects/${projectId}/papers/${paperId}`, { method: 'PUT', body: data }),
   deletePaper: (projectId, paperId) => request(`/projects/${projectId}/papers/${paperId}`, { method: 'DELETE' }),
   getCitations: (projectId, style) => request(`/projects/${projectId}/papers/citations?style=${style}`),
+  getCiteIndex: (projectId, style) => request(`/projects/${projectId}/papers/cite-index?style=${style}`),
   bibtexUrl: (projectId) => `${BASE}/projects/${projectId}/papers/bibtex`,
   risUrl: (projectId) => `${BASE}/projects/${projectId}/papers/ris`,
   importReferences: async (projectId, file) => {

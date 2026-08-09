@@ -159,6 +159,74 @@ def _bibtex_key(paper: Dict) -> str:
     return f"{first_author_last}{year}{title_word}"
 
 
+def citation_key(paper: Dict) -> str:
+    """
+    Short human-readable key used by in-text citations - 'Smith2020' rather
+    than the longer BibTeX key, since this one gets typed and read inside the
+    manuscript itself.
+    """
+    authors_raw = paper.get('authors', '')
+    authors = [a.strip() for a in authors_raw.split(',')] if isinstance(authors_raw, str) else (authors_raw or [])
+    last = _parse_name(authors[0])[0] if authors else 'Unknown'
+    last = re.sub(r'[^A-Za-z]', '', last) or 'Unknown'
+    year = re.sub(r'[^0-9]', '', str(paper.get('year', ''))) or 'nd'
+    return f'{last}{year}'
+
+
+def assign_citation_keys(papers: List[Dict]) -> Dict[str, str]:
+    """
+    Map paper id -> unique citation key.
+
+    Two papers by the same first author in the same year collide on the base
+    key, which is exactly the case academic style already has a convention
+    for: suffix them a, b, c (Smith2020a, Smith2020b). Ordered by title so a
+    given paper keeps the same suffix as the library grows.
+    """
+    by_base: Dict[str, List[Dict]] = {}
+    for paper in papers:
+        by_base.setdefault(citation_key(paper), []).append(paper)
+
+    keys: Dict[str, str] = {}
+    for base, group in by_base.items():
+        if len(group) == 1:
+            keys[group[0]['id']] = base
+            continue
+        for i, paper in enumerate(sorted(group, key=lambda p: (p.get('title') or '').lower())):
+            # More than 26 collisions is vanishingly unlikely, but don't crash.
+            suffix = chr(ord('a') + i) if i < 26 else f'_{i}'
+            keys[paper['id']] = f'{base}{suffix}'
+    return keys
+
+
+def in_text_citation(paper: Dict, style: str = 'apa') -> str:
+    """
+    How the citation renders inline, for the preview shown next to each
+    marker. Numeric styles are handled by the caller, which knows the
+    reference-list ordering.
+    """
+    authors_raw = paper.get('authors', '')
+    authors = [a.strip() for a in authors_raw.split(',')] if isinstance(authors_raw, str) else (authors_raw or [])
+    year = paper.get('year', 'n.d.')
+
+    if not authors:
+        return f'(Unknown, {year})'
+
+    lasts = [_parse_name(a)[0] for a in authors]
+    if style == 'mla':
+        if len(lasts) == 1:
+            return f'({lasts[0]})'
+        if len(lasts) == 2:
+            return f'({lasts[0]} and {lasts[1]})'
+        return f'({lasts[0]} et al.)'
+
+    # APA / Chicago author-date
+    if len(lasts) == 1:
+        return f'({lasts[0]}, {year})'
+    if len(lasts) == 2:
+        return f'({lasts[0]} & {lasts[1]}, {year})'
+    return f'({lasts[0]} et al., {year})'
+
+
 def _to_bibtex_entry(paper: Dict) -> str:
     key = _bibtex_key(paper)
     title = paper.get('title', 'Untitled').replace('{', '').replace('}', '')

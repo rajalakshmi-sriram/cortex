@@ -18,7 +18,10 @@ from app.stats_engine import run_analysis, recommend_test, TEST_CATALOG
 from app.chart_engine import generate_chart, CHART_TYPES
 from app.journal_guidelines import lookup_guidelines, list_known_journals
 from app.ai_assistant import AIAssistant, AIUnavailableError
-from app.citation_formatter import format_citation, papers_to_bibtex, papers_to_ris, CITATION_STYLES
+from app.citation_formatter import (
+    format_citation, papers_to_bibtex, papers_to_ris, CITATION_STYLES,
+    assign_citation_keys, in_text_citation,
+)
 from app.citation_parser import parse_references, dedupe_against, CitationParseError
 from app.google_docs_store import GoogleDocsStore, build_authorize_url, exchange_code_for_tokens, get_valid_access_token, fetch_document_text
 
@@ -511,6 +514,42 @@ def create_app():
             citations = [{'id': p['id'], 'citation': format_citation(p, style)} for p in papers]
             return jsonify({'status': 'success', 'style': style, 'citations': citations}), 200
         except Exception as e:
+            return _error(f'Internal server error: {str(e)}')
+
+    @app.route('/api/v1/projects/<project_id>/papers/cite-index', methods=['GET'])
+    def paper_cite_index(project_id):
+        """
+        Everything the manuscript editor needs to cite from the Paper Library:
+        a stable short key per paper, the in-text form, and the full reference
+        entry - all in one request, since the @-picker needs them together.
+        """
+        try:
+            style = request.args.get('style', 'apa')
+            if style not in CITATION_STYLES:
+                return _error(f"Unknown citation style: {style}. Choose from {CITATION_STYLES}", 400)
+
+            papers = project_store.collection(project_id, 'papers').list()
+            keys = assign_citation_keys(papers)
+
+            entries = [
+                {
+                    'id': p['id'],
+                    'key': keys[p['id']],
+                    'title': p.get('title', ''),
+                    'authors': p.get('authors', ''),
+                    'year': p.get('year', ''),
+                    'source': p.get('source', ''),
+                    'in_text': in_text_citation(p, style),
+                    'reference': format_citation(p, style),
+                }
+                for p in papers
+            ]
+            # Reference lists are alphabetical by author in every style Cortex
+            # supports, so sort once here rather than in the client.
+            entries.sort(key=lambda e: (e['reference'] or '').lower())
+            return jsonify({'status': 'success', 'style': style, 'entries': entries}), 200
+        except Exception as e:
+            logger.error(f"Error building cite index: {str(e)}")
             return _error(f'Internal server error: {str(e)}')
 
     @app.route('/api/v1/projects/<project_id>/papers/bibtex', methods=['GET'])
