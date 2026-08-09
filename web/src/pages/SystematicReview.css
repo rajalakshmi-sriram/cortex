@@ -1,0 +1,241 @@
+.review__tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.review__tab {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.review__tab:hover {
+  border-color: var(--accent2-text);
+}
+
+.review__tab--active {
+  background: var(--accent2-tint);
+  color: var(--accent2-text);
+  border-color: var(--accent2-text);
+}
+
+.review__error {
+  color: var(--accent1-text);
+  font-size: 13px;
+}
+
+.review__progress {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.review__done {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent2-text);
+}
+
+/* ---------- one paper being screened ---------- */
+
+.screen-card {
+  padding: 16px 0 4px;
+}
+
+.screen-card__stage {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent3-text);
+  margin-bottom: 6px;
+}
+
+.screen-card__title {
+  font-size: 17px;
+  line-height: 1.35;
+  margin: 0 0 6px;
+}
+
+.screen-card__meta {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
+.screen-card__abstract {
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: var(--surface-alt);
+  border-radius: 9px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.screen-card__abstract--none {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.screen-card__link {
+  display: inline-block;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.screen-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.screen-card__exclude {
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--accent1-tint);
+  margin-top: 4px;
+}
+
+.screen-card__exclude label {
+  margin-top: 0;
+}
+
+.screen-card__note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 8px 0 12px;
+  line-height: 1.5;
+}
+
+/* ---------- PRISMA diagram ---------- */
+
+.prisma__scroll {
+  overflow-x: auto;
+  padding: 4px 0 8px;
+}
+
+.prisma__box-title {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text);
+}
+
+.prisma__box-line {
+  font-size: 11px;
+  fill: var(--text-muted);
+}
+
+.prisma__stage {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  fill: var(--accent3-text);
+}
+
+.prisma__actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.prisma__pending {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* ---------- manual counts ---------- */
+
+.review__counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 4px 18px;
+}
+
+.review__counts input {
+  max-width: 120px;
+}
+
+/* ---------- decided list ---------- */
+
+.review__decided {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.review__decided-item {
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: var(--surface-alt);
+  border-left: 3px solid var(--border);
+}
+
+.review__decided-item--include {
+  border-left-color: var(--accent2-text);
+}
+
+.review__decided-item--exclude {
+  border-left-color: var(--accent1-text);
+}
+
+.review__badge {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-right: 8px;
+}
+
+.review__badge--include {
+  background: var(--accent2-tint);
+  color: var(--accent2-text);
+}
+
+.review__badge--exclude {
+  background: var(--accent1-tint);
+  color: var(--accent1-text);
+}
+
+.review__decided-stage {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.review__decided-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  margin: 6px 0 3px;
+  line-height: 1.4;
+}
+
+.review__decided-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}

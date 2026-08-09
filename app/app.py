@@ -23,6 +23,10 @@ from app.citation_formatter import (
     assign_citation_keys, in_text_citation,
 )
 from app.citation_parser import parse_references, dedupe_against, CitationParseError
+from app.screening import (
+    compute_prisma, screening_summary, paper_screening, apply_decision, reset_decision,
+    COMMON_EXCLUSION_REASONS, MANUAL_COUNT_FIELDS,
+)
 from app.google_docs_store import GoogleDocsStore, build_authorize_url, exchange_code_for_tokens, get_valid_access_token, fetch_document_text
 
 
@@ -582,6 +586,93 @@ def create_app():
                 headers={'Content-Disposition': f'attachment; filename="{filename}"'}
             )
         except Exception as e:
+            return _error(f'Internal server error: {str(e)}')
+
+    # ========== Systematic review: screening + PRISMA ==========
+
+    @app.route('/api/v1/projects/<project_id>/screening', methods=['GET'])
+    def get_screening(project_id):
+        try:
+            if not project_store.get_project(project_id):
+                return _error('Project not found', 404)
+
+            papers = project_store.collection(project_id, 'papers').list()
+            state = project_store.get_screening(project_id)
+            return jsonify({
+                'status': 'success',
+                'screening': state,
+                'summary': screening_summary(papers),
+                'prisma': compute_prisma(papers, state),
+                'exclusion_reasons': COMMON_EXCLUSION_REASONS,
+                'manual_count_fields': [{'key': k, 'label': l} for k, l in MANUAL_COUNT_FIELDS],
+                'papers': [
+                    {
+                        'id': p['id'],
+                        'title': p.get('title', ''),
+                        'authors': p.get('authors', ''),
+                        'year': p.get('year', ''),
+                        'source': p.get('source', ''),
+                        'abstract': p.get('abstract', ''),
+                        'doi': p.get('doi', ''),
+                        'url': p.get('url', ''),
+                        'screening': paper_screening(p),
+                    }
+                    for p in papers
+                ],
+            }), 200
+        except Exception as e:
+            logger.error(f"Error loading screening state: {str(e)}")
+            return _error(f'Internal server error: {str(e)}')
+
+    @app.route('/api/v1/projects/<project_id>/screening', methods=['PUT'])
+    def update_screening(project_id):
+        try:
+            if not project_store.get_project(project_id):
+                return _error('Project not found', 404)
+            state = project_store.update_screening(project_id, request.get_json() or {})
+            papers = project_store.collection(project_id, 'papers').list()
+            return jsonify({
+                'status': 'success',
+                'screening': state,
+                'prisma': compute_prisma(papers, state),
+            }), 200
+        except Exception as e:
+            logger.error(f"Error updating screening state: {str(e)}")
+            return _error(f'Internal server error: {str(e)}')
+
+    @app.route('/api/v1/projects/<project_id>/screening/<paper_id>', methods=['PUT'])
+    def screen_paper(project_id, paper_id):
+        try:
+            collection = project_store.collection(project_id, 'papers')
+            paper = collection.get(paper_id)
+            if not paper:
+                return _error('Paper not found', 404)
+
+            data = request.get_json() or {}
+            decision = data.get('decision', '')
+
+            if decision == 'reset':
+                screening = reset_decision(paper)
+            else:
+                try:
+                    screening = apply_decision(
+                        paper, decision, reason=data.get('reason', ''), notes=data.get('notes', '')
+                    )
+                except ValueError as e:
+                    return _error(str(e), 400)
+
+            collection.update(paper_id, {'screening': screening})
+
+            papers = collection.list()
+            state = project_store.get_screening(project_id)
+            return jsonify({
+                'status': 'success',
+                'screening': screening,
+                'summary': screening_summary(papers),
+                'prisma': compute_prisma(papers, state),
+            }), 200
+        except Exception as e:
+            logger.error(f"Error screening paper: {str(e)}")
             return _error(f'Internal server error: {str(e)}')
 
     # ========== Reference-manager import (.bib / .ris -> Paper Library) ==========

@@ -11,6 +11,7 @@ import { Overview } from './pages/Overview';
 import { ProjectSearch } from './pages/ProjectSearch';
 import { LiteratureReview } from './pages/LiteratureReview';
 import { PaperLibrary } from './pages/PaperLibrary';
+import { SystematicReview } from './pages/SystematicReview';
 import { Methodology } from './pages/Methodology';
 import { Hypotheses } from './pages/Hypotheses';
 import { Tasks } from './pages/Tasks';
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="project-search" element={<ProjectSearch />} />
           <Route path="literature-review" element={<LiteratureReview />} />
           <Route path="paper-library" element={<PaperLibrary />} />
+          <Route path="systematic-review" element={<SystematicReview />} />
           <Route path="methodology" element={<Methodology />} />
           <Route path="hypotheses" element={<Hypotheses />} />
           <Route path="tasks" element={<Tasks />} />

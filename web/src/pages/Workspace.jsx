@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { to: 'project-search', label: 'Project Search', accent: 'sage', icon: <CompassIcon /> },
   { to: 'literature-review', label: 'Literature Review', accent: 'rose', icon: <BulbIcon /> },
   { to: 'paper-library', label: 'Paper Library', accent: 'sand', icon: <FolderIcon /> },
+  { to: 'systematic-review', label: 'Systematic Review', accent: 'sage', icon: <ChecklistIcon /> },
   { to: 'methodology', label: 'Methodology', accent: 'sage', icon: <CompassIcon /> },
   { to: 'hypotheses', label: 'Hypotheses', accent: 'rose', icon: <QuestionIcon /> },
   { to: 'tasks', label: 'Tasks', accent: 'sage', icon: <ChecklistIcon /> },

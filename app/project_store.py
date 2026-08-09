@@ -21,6 +21,12 @@ from app.logger import logger
 
 SUB_COLLECTIONS = ['tasks', 'papers', 'notes', 'hypotheses', 'journals', 'datasets', 'analyses', 'charts']
 
+# Single-object project files (as opposed to the list-shaped SUB_COLLECTIONS).
+# Listed once here so export/import can't quietly miss one - screening.json
+# was added later, and a review's screening decisions going missing from a
+# backup would be a bad way to find that out.
+EXPORTED_FILES = ['methodology.json', 'manuscript.json', 'screening.json']
+
 # Bumped only if the export .zip's internal file layout changes in a way
 # that would break reading an older export back in.
 EXPORT_FORMAT_VERSION = 1
@@ -300,7 +306,7 @@ class ProjectStore:
             }, indent=2))
             zf.writestr('project.json', json.dumps(project, indent=2))
 
-            for filename in ['methodology.json', 'manuscript.json'] + [f'{name}.json' for name in SUB_COLLECTIONS]:
+            for filename in EXPORTED_FILES + [f'{name}.json' for name in SUB_COLLECTIONS]:
                 path = project_dir / filename
                 if path.exists():
                     zf.writestr(filename, path.read_text())
@@ -332,7 +338,7 @@ class ProjectStore:
             project = self.create_project(source_project)
             project_dir = self._project_dir(project['id'])
 
-            for filename in ['methodology.json', 'manuscript.json'] + [f'{name}.json' for name in SUB_COLLECTIONS]:
+            for filename in EXPORTED_FILES + [f'{name}.json' for name in SUB_COLLECTIONS]:
                 if filename in names:
                     atomic_write_text(project_dir / filename, zf.read(filename).decode('utf-8'))
 
@@ -405,6 +411,32 @@ class ProjectStore:
             step_tools[key] = [t for t in step_tools.get(key, []) if t.get('id') != tool_id]
             atomic_write_text(path, json.dumps(state, indent=2))
         return self.get_methodology(project_id)
+
+    def get_screening(self, project_id: str) -> Dict:
+        from app.screening import default_state
+
+        path = self._project_dir(project_id) / 'screening.json'
+        if not path.exists():
+            return default_state()
+        try:
+            return {**default_state(), **json.loads(path.read_text())}
+        except json.JSONDecodeError:
+            return default_state()
+
+    def update_screening(self, project_id: str, data: Dict) -> Dict:
+        from app.screening import default_state
+
+        path = self._project_dir(project_id) / 'screening.json'
+        with _lock_for(path):
+            current = self.get_screening(project_id)
+            allowed = set(default_state().keys())
+            merged = {**current, **{k: v for k, v in data.items() if k in allowed}}
+            # 'counts' is a nested dict - merge rather than replace, so
+            # updating one PRISMA box doesn't zero the others.
+            if 'counts' in data and isinstance(data['counts'], dict):
+                merged['counts'] = {**current.get('counts', {}), **data['counts']}
+            atomic_write_text(path, json.dumps(merged, indent=2))
+            return merged
 
     def get_manuscript(self, project_id: str) -> Dict:
         path = self._project_dir(project_id) / 'manuscript.json'
