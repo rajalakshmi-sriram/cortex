@@ -32,6 +32,9 @@ the bottom-right corner.
 
 ## Quick start
 
+0. **Never done research before?** Open **Research Basics** for a short
+   primer and a glossary, then follow the **Methodology** checklist - each
+   step there explains how to actually do it.
 1. Create a project: give it a title, a research area, and pick one of the
    12 research types below - Cortex builds a matched methodology checklist
    automatically.
@@ -82,7 +85,14 @@ guidelines (e.g. CONSORT, STROBE, PRISMA) - defined in
   your manuscript.
 - **Methodology** - a checklist of the standard steps for your project's
   research type, plus relevant reporting guidelines and recommended tools
-  per step.
+  per step. Every step has a **"How do I do this?"** explainer: what the
+  step means, how to approach it, the mistakes people usually make, and how
+  to tell when you're finished. An Explanations toggle switches between
+  Guided (open by default) and Concise for people who've done this before.
+- **Research Basics** - a short primer for a first project (choosing a
+  question you can finish, reading papers without drowning, not fooling
+  yourself with your own data, ethics and credit) plus a searchable
+  61-term glossary of research jargon in plain language.
 - **Hypotheses** - track candidate hypotheses and their status.
 - **Tasks** - lightweight task/milestone tracking.
 - **Data & Analysis** - import a CSV/TSV dataset and run statistical tests

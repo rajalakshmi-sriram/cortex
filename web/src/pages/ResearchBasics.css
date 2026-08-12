@@ -1,0 +1,123 @@
+.basics__tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.basics__tab {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.basics__tab:hover {
+  border-color: var(--accent2-text);
+}
+
+.basics__tab--active {
+  background: var(--accent2-tint);
+  color: var(--accent2-text);
+  border-color: var(--accent2-text);
+}
+
+.basics__para {
+  font-size: 14px;
+  line-height: 1.68;
+  margin: 0 0 12px;
+  /* Prose reads badly at full card width on a wide screen. */
+  max-width: 68ch;
+}
+
+.basics__para:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- glossary ---------- */
+
+.basics__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.basics__search {
+  max-width: 420px;
+}
+
+.basics__cats {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.basics__cat {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+}
+
+.basics__cat:hover {
+  border-color: var(--accent4-text);
+}
+
+.basics__cat--active {
+  background: var(--accent4-tint);
+  color: var(--accent4-text);
+  border-color: var(--accent4-text);
+}
+
+.basics__count {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
+.basics__glossary {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.basics__entry dt {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.basics__entry dd {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 72ch;
+}
+
+.basics__tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent4-text);
+  background: var(--accent4-tint);
+  border-radius: 4px;
+  padding: 2px 6px;
+}

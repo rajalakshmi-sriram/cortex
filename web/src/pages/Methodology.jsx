@@ -4,11 +4,15 @@ import { api } from '../api/client';
 import { Card } from '../components/Card';
 import { ToolChips } from '../components/ToolChips';
 import { PageInstructions } from '../components/PageInstructions';
+import { StepGuidance } from '../components/StepGuidance';
+import { GuidanceToggle } from '../components/GuidanceToggle';
+import { useGuidanceLevel } from '../hooks/useGuidanceLevel';
 
 export function Methodology() {
   const { project } = useProject();
   const [methodology, setMethodology] = useState(null);
   const [error, setError] = useState('');
+  const { guided } = useGuidanceLevel();
 
   const refresh = useCallback(async () => {
     try {
@@ -45,6 +49,7 @@ export function Methodology() {
         accent="sage"
         items={[
           'This checklist is generated from your project\'s research type and doesn\'t change automatically — check off each step as you actually complete it.',
+          <>New to research? Every step has a <strong>"How do I do this?"</strong> explainer covering what it means, how to approach it, what usually goes wrong, and how to tell you're finished.</>,
           'Each step has recommended tools; click "+ Add Tool" under any step to attach your own.',
           'If reporting guidelines exist for your research type, they appear above the checklist regardless of which step you\'re on.',
         ]}
@@ -65,9 +70,12 @@ export function Methodology() {
         accent="sage"
         data-tour="methodology-checklist"
       >
-        <p style={{ color: 'var(--text-muted)' }}>
-          {methodology.research_type_name} &mdash; {methodology.completed_count} / {methodology.total_steps} steps completed
-        </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <p style={{ color: 'var(--text-muted)', margin: 0 }}>
+            {methodology.research_type_name} &mdash; {methodology.completed_count} / {methodology.total_steps} steps completed
+          </p>
+          <GuidanceToggle />
+        </div>
         <div className="progress-bar" role="progressbar"
           aria-valuenow={methodology.completed_count} aria-valuemin={0} aria-valuemax={methodology.total_steps}
           aria-label="Methodology progress">
@@ -89,12 +97,19 @@ export function Methodology() {
                 </span>
               </label>
               <div style={{ marginLeft: 28, marginTop: 6 }}>
-                <ToolChips
-                  tools={step.recommended_tools}
-                  customTools={step.custom_tools}
-                  onRemove={(toolId) => removeTool(step.index, toolId)}
-                  onAdd={(name, url) => addTool(step.index, name, url)}
+                <StepGuidance
+                  key={`${step.index}-${guided}`}
+                  guidance={step.guidance}
+                  defaultOpen={guided && !step.completed}
                 />
+                <div style={{ marginTop: 8 }}>
+                  <ToolChips
+                    tools={step.recommended_tools}
+                    customTools={step.custom_tools}
+                    onRemove={(toolId) => removeTool(step.index, toolId)}
+                    onAdd={(name, url) => addTool(step.index, name, url)}
+                  />
+                </div>
               </div>
             </li>
           ))}

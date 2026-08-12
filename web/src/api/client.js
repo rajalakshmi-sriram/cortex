@@ -126,6 +126,10 @@ export const api = {
     request(`/projects/${projectId}/${name}/${id}`, { method: 'PUT', body: data }),
   deleteFromCollection: (projectId, name, id) => request(`/projects/${projectId}/${name}/${id}`, { method: 'DELETE' }),
 
+  // Research guide (beginner help)
+  getGuideBasics: () => request('/guide/basics'),
+  getGlossary: (q = '') => request(`/guide/glossary${q ? `?q=${encodeURIComponent(q)}` : ''}`),
+
   // Systematic review screening / PRISMA
   getScreening: (projectId) => request(`/projects/${projectId}/screening`),
   updateScreening: (projectId, data) => request(`/projects/${projectId}/screening`, { method: 'PUT', body: data }),

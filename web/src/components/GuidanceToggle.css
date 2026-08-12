@@ -1,0 +1,36 @@
+.guidance-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.guidance-toggle__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+
+.guidance-toggle__btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 7px;
+  padding: 4px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+}
+
+.guidance-toggle__btn:hover {
+  border-color: var(--accent3-text);
+}
+
+.guidance-toggle__btn--active {
+  background: var(--accent3-tint);
+  color: var(--accent3-text);
+  border-color: var(--accent3-text);
+}

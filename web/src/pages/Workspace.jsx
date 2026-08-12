@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { to: 'data-analysis', label: 'Data & Analysis', accent: 'blue', icon: <BarChartIcon /> },
   { to: 'manuscript', label: 'Manuscript', accent: 'blue', icon: <DocIcon /> },
   { to: 'journals', label: 'Journals', accent: 'sand', icon: <NewspaperIcon /> },
+  { to: 'research-basics', label: 'Research Basics', accent: 'sage', icon: <BulbIcon /> },
 ];
 
 export function Workspace() {

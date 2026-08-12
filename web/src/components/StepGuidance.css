@@ -1,0 +1,101 @@
+.step-guide {
+  margin-top: 6px;
+}
+
+.step-guide__toggle {
+  background: none;
+  border: none;
+  padding: 2px 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent3-text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.step-guide__toggle:hover {
+  text-decoration: underline;
+}
+
+.step-guide__chevron {
+  font-size: 10px;
+}
+
+.step-guide__body {
+  margin-top: 8px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--surface-alt);
+  border-left: 3px solid var(--accent3-btn);
+  animation: step-guide-in 0.16s ease both;
+}
+
+@keyframes step-guide-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+
+.step-guide__what {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.step-guide__heading {
+  margin: 14px 0 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent3-text);
+}
+
+.step-guide__heading--warn {
+  color: var(--accent1-text);
+}
+
+.step-guide__list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.step-guide__list li {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.step-guide__list--warn li::marker {
+  color: var(--accent1-text);
+}
+
+.step-guide__done {
+  margin: 14px 0 0;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: var(--accent2-tint);
+  color: var(--accent2-text);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.step-guide__note {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.step-guide__note-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent4-text);
+  margin-bottom: 3px;
+}

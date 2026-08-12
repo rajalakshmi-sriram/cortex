@@ -351,6 +351,7 @@ class ProjectStore:
             raise ValueError(f"Unknown project: {project_id}")
 
         from app.tool_recommendations import get_recommended_tools, get_methodology_guidelines
+        from app.research_guide import guidance_for_step
 
         steps = self.config.RESEARCH_TYPE_STEPS.get(project['research_type'], [])
         path = self._project_dir(project_id) / 'methodology.json'
@@ -369,6 +370,9 @@ class ProjectStore:
                     'completed': i in completed,
                     'recommended_tools': get_recommended_tools(step),
                     'custom_tools': step_tools.get(str(i), []),
+                    # How to actually do this step, for someone who hasn't
+                    # done it before (app/research_guide.py).
+                    'guidance': guidance_for_step(step),
                 }
                 for i, step in enumerate(steps)
             ],

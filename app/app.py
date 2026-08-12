@@ -23,6 +23,7 @@ from app.citation_formatter import (
     assign_citation_keys, in_text_citation,
 )
 from app.citation_parser import parse_references, dedupe_against, CitationParseError
+from app.research_guide import get_basics, get_glossary, glossary_categories, GLOSSARY
 from app.screening import (
     compute_prisma, screening_summary, paper_screening, apply_decision, reset_decision,
     COMMON_EXCLUSION_REASONS, MANUAL_COUNT_FIELDS,
@@ -587,6 +588,22 @@ def create_app():
             )
         except Exception as e:
             return _error(f'Internal server error: {str(e)}')
+
+    # ========== Research guide (beginner help) ==========
+
+    @app.route('/api/v1/guide/basics', methods=['GET'])
+    def guide_basics():
+        return jsonify({'status': 'success', 'sections': get_basics()}), 200
+
+    @app.route('/api/v1/guide/glossary', methods=['GET'])
+    def guide_glossary():
+        query = request.args.get('q', '')
+        return jsonify({
+            'status': 'success',
+            'terms': get_glossary(query),
+            'categories': glossary_categories(),
+            'total': len(GLOSSARY),
+        }), 200
 
     # ========== Systematic review: screening + PRISMA ==========
 
