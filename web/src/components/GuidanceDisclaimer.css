@@ -1,0 +1,31 @@
+.guide-disclaimer {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 13px 15px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  background: var(--accent4-tint);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+  border-left: 3px solid var(--accent4-text);
+}
+
+.guide-disclaimer--compact {
+  font-size: 12.5px;
+  padding: 11px 13px;
+  margin-bottom: 12px;
+}
+
+.guide-disclaimer__icon {
+  color: var(--accent4-text);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.45;
+  flex-shrink: 0;
+}
+
+.guide-disclaimer em {
+  color: var(--text-muted);
+}

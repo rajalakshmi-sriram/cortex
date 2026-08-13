@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { api } from '../api/client';
 import { Card } from '../components/Card';
 import { PageInstructions } from '../components/PageInstructions';
+import { GuidanceDisclaimer } from '../components/GuidanceDisclaimer';
 import './ResearchBasics.css';
 
 function Primer({ sections }) {
@@ -18,16 +19,26 @@ function Primer({ sections }) {
   );
 }
 
+/**
+ * Strip punctuation for matching, so someone typing "preregistration",
+ * "p value" or "meta analysis" finds the entries filed as
+ * "Pre-registration", "p-value" and "Meta-analysis". Mirrors _search_key()
+ * in app/research_guide.py, which does the same for the API.
+ */
+const searchKey = (text) => (text || '').toLowerCase().replace(/[\s\-/]+/g, '');
+
 function Glossary({ terms, categories }) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const qKey = searchKey(q);
     return terms.filter((t) => {
       if (category !== 'All' && t.category !== category) return false;
       if (!q) return true;
-      return t.term.toLowerCase().includes(q) || t.definition.toLowerCase().includes(q);
+      const haystack = `${t.term} ${t.definition}`;
+      return haystack.toLowerCase().includes(q) || searchKey(haystack).includes(qKey);
     });
   }, [terms, query, category]);
 
@@ -115,6 +126,8 @@ export function ResearchBasics() {
           <>Step-by-step guidance for <em>your</em> project lives on the <strong>Methodology</strong> page — every step there has a "How do I do this?" explainer.</>,
         ]}
       />
+
+      <GuidanceDisclaimer />
 
       <div className="basics__tabs" role="tablist">
         {[['primer', 'Research Basics'], ['glossary', `Glossary (${glossary.length})`]].map(([key, label]) => (

@@ -6,6 +6,7 @@ import { ToolChips } from '../components/ToolChips';
 import { PageInstructions } from '../components/PageInstructions';
 import { StepGuidance } from '../components/StepGuidance';
 import { GuidanceToggle } from '../components/GuidanceToggle';
+import { GuidanceDisclaimer } from '../components/GuidanceDisclaimer';
 import { useGuidanceLevel } from '../hooks/useGuidanceLevel';
 
 export function Methodology() {
@@ -49,7 +50,7 @@ export function Methodology() {
         accent="sage"
         items={[
           'This checklist is generated from your project\'s research type and doesn\'t change automatically — check off each step as you actually complete it.',
-          <>New to research? Every step has a <strong>"How do I do this?"</strong> explainer covering what it means, how to approach it, what usually goes wrong, and how to tell you're finished.</>,
+          <>New to research? Click <strong>"How do I do this?"</strong> under any step for what it means, how to approach it, what usually goes wrong, and how to tell you're finished. Switch <strong>Explanations</strong> to Guided to open them all by default.</>,
           'Each step has recommended tools; click "+ Add Tool" under any step to attach your own.',
           'If reporting guidelines exist for your research type, they appear above the checklist regardless of which step you\'re on.',
         ]}
@@ -81,6 +82,8 @@ export function Methodology() {
           aria-label="Methodology progress">
           <div className="progress-bar__fill" style={{ width: `${(methodology.completed_count / methodology.total_steps) * 100}%` }} />
         </div>
+
+        <GuidanceDisclaimer compact />
 
         <ol style={{ listStyle: 'none', margin: '16px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
           {methodology.steps.map((step) => (

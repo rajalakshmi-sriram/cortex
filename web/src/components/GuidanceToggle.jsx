@@ -2,11 +2,10 @@ import { useGuidanceLevel } from '../hooks/useGuidanceLevel';
 import './GuidanceToggle.css';
 
 /**
- * Switches beginner explanations between open-by-default and collapsed.
+ * Switches step explanations between collapsed and open-by-default.
  *
- * Cortex is aimed first at people doing their first project, so this starts
- * on. Someone who already knows the material turns it off once and it stays
- * off everywhere.
+ * Starts collapsed so the checklist stays readable; flipping to Guided opens
+ * every step's explainer and the choice persists across pages and sessions.
  */
 export function GuidanceToggle() {
   const { level, setLevel } = useGuidanceLevel();
@@ -14,7 +13,7 @@ export function GuidanceToggle() {
   return (
     <div className="guidance-toggle" role="group" aria-label="Level of explanation">
       <span className="guidance-toggle__label">Explanations</span>
-      {[['guided', 'Guided'], ['concise', 'Concise']].map(([value, label]) => (
+      {[['concise', 'Concise'], ['guided', 'Guided']].map(([value, label]) => (
         <button
           key={value}
           type="button"

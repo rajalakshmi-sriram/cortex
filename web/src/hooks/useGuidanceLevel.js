@@ -4,21 +4,23 @@ const KEY = 'cortex_guidance_level';
 const EVENT = 'cortex-guidance-level-change';
 
 /**
- * Whether to show beginner guidance expanded by default.
+ * Whether to show step guidance expanded by default.
  *
- * Defaults to 'guided' - the app is aimed first at people doing their first
- * project, and someone experienced only has to turn it off once. Stored in
- * localStorage and broadcast, so every mounted component agrees without
- * threading a context through the whole tree.
+ * Defaults to 'concise': the checklist is the primary thing on the page, and
+ * eleven expanded explainers bury it. Guidance stays one click away per step,
+ * and switching to 'guided' opens it everywhere.
  *
+ * Stored in localStorage and broadcast, so every mounted component agrees
+ * without threading a context through the whole tree.
+ *
+ * 'concise' - explanations collapsed, one click away (default)
  * 'guided'  - explanations open by default
- * 'concise' - explanations collapsed, still one click away
  */
 export function useGuidanceLevel() {
-  const [level, setLevelState] = useState(() => localStorage.getItem(KEY) || 'guided');
+  const [level, setLevelState] = useState(() => localStorage.getItem(KEY) || 'concise');
 
   useEffect(() => {
-    const sync = () => setLevelState(localStorage.getItem(KEY) || 'guided');
+    const sync = () => setLevelState(localStorage.getItem(KEY) || 'concise');
     window.addEventListener(EVENT, sync);
     // 'storage' only fires in *other* tabs, which is exactly what we want on
     // top of the same-tab custom event above.
