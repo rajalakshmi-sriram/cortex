@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useProject } from './ProjectContext';
+import { useCitationStyle, CITATION_STYLES } from '../hooks/useCitationStyle';
 import { api } from '../api/client';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -9,20 +10,14 @@ import { PageInstructions } from '../components/PageInstructions';
 import { ReferenceImport } from '../components/ReferenceImport';
 import './PaperLibrary.css';
 
-const STYLES = [
-  ['apa', 'APA'],
-  ['mla', 'MLA'],
-  ['chicago', 'Chicago'],
-  ['vancouver', 'Vancouver'],
-];
 
 export function PaperLibrary() {
-  const { project } = useProject();
+  const { project, refresh: refreshProject } = useProject();
   const [papers, setPapers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [annotation, setAnnotation] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
-  const [style, setStyle] = useState('apa');
+  const { style, setStyle } = useCitationStyle(project, refreshProject);
   const [citations, setCitations] = useState({});
   const [copyStatus, setCopyStatus] = useState('');
 
@@ -83,10 +78,10 @@ export function PaperLibrary() {
       <PageInstructions
         accent="sand"
         items={[
-          'Papers you save from Literature Review show up here, sorted by match score. Pick a citation style and copy or download citations for any of them.',
-          <>Already have a library elsewhere? Export it from Zotero, Mendeley, or EndNote as <strong>.bib</strong> or <strong>.ris</strong> and drop it into "Import from a Reference Manager" below — duplicates are skipped automatically.</>,
+          'Papers saved from Literature Review appear here, sorted by match score. The citation style you pick here is used across the whole project.',
+          <>Import an existing library: export it from Zotero, Mendeley or EndNote as <strong>.bib</strong> or <strong>.ris</strong> and drop it in below. Duplicates are skipped.</>,
           'Click a paper to open its details, add your own annotations, or open the source.',
-          'Once a paper is selected, use "Summarize with AI" under Paper Details to get an AI summary grounded in its abstract.',
+          '"Summarize with AI" under Paper Details summarises a selected paper from its abstract.',
         ]}
       />
       <Card
@@ -98,7 +93,7 @@ export function PaperLibrary() {
         <div className="paper-library__style-row" data-tour="citation-export">
           <label htmlFor="citation-style" style={{ margin: 0 }}>Citation style</label>
           <select id="citation-style" value={style} onChange={(e) => setStyle(e.target.value)} style={{ width: 160 }}>
-            {STYLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            {CITATION_STYLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
           <a className="btn btn--secondary" style={{ '--btn-accent-tint': 'var(--accent4-tint)', '--btn-accent-text': 'var(--accent4-text)' }}
             href={api.bibtexUrl(project.id)} download>

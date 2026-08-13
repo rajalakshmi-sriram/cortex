@@ -11,20 +11,15 @@ export function GuidanceDisclaimer({ compact = false }) {
     <div className={`guide-disclaimer ${compact ? 'guide-disclaimer--compact' : ''}`} role="note">
       <span className="guide-disclaimer__icon" aria-hidden="true">ℹ</span>
       <div>
-        <strong>This is a starting point, not a rulebook.</strong>{' '}
-        Every project is different, and research practice varies a great deal between fields — what
-        counts as a sound design in molecular biology, economics, and machine learning are three
-        different things. Treat this as a way to orient yourself and to ask better questions, not as
-        a specification to follow literally.
+        <strong>A starting point, not a rulebook.</strong>{' '}
+        Every project differs, and practice varies by field — use this to orient yourself and ask
+        better questions, not as a spec to follow literally.
         {!compact && (
-          <>
-            {' '}
-            Requirements set by your institution, ethics board, funder, or target journal are binding
-            and override anything here. Where a real standard exists, read it directly — the links on
-            each step point to them.
+          <> Requirements from your institution, ethics board, funder or target journal are binding.
+            Where a real standard exists, read it directly — each step links to them.
           </>
         )}{' '}
-        <em>When this guide and your teacher, advisor, or ethics board disagree, they are right.</em>
+        <em>If this and your advisor disagree, they're right.</em>
       </div>
     </div>
   );

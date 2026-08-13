@@ -121,9 +121,9 @@ export function ResearchBasics() {
       <PageInstructions
         accent="sage"
         items={[
-          'This is a short primer on how research works, written for a first project — how to pick a question you can finish, how to read papers without drowning, and how not to fool yourself with your own data.',
-          'The Glossary tab defines the jargon in plain language. Search it whenever a paper or a page in Cortex uses a word you don\'t know.',
-          <>Step-by-step guidance for <em>your</em> project lives on the <strong>Methodology</strong> page — every step there has a "How do I do this?" explainer.</>,
+          'A primer on how research works, written for a first project.',
+          'The Glossary tab defines the jargon. Search it when a paper uses a term you don\'t know.',
+          <>Guidance for <em>your</em> specific project is on the <strong>Methodology</strong> page.</>,
         ]}
       />
 

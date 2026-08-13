@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useProject } from './ProjectContext';
+import { useCitationStyle, CITATION_STYLES } from '../hooks/useCitationStyle';
 import { api } from '../api/client';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -14,21 +15,33 @@ import './Manuscript.css';
 
 const SECTIONS = ['abstract', 'introduction', 'methods', 'results', 'discussion', 'references'];
 
-const CITE_STYLES = [
-  ['apa', 'APA'],
-  ['mla', 'MLA'],
-  ['chicago', 'Chicago'],
-  ['vancouver', 'Vancouver'],
-];
 
-function PaperReferencePanel({ projectId }) {
+function PaperReferencePanel({ projectId, entries, style, googleMode }) {
   const [papers, setPapers] = useState([]);
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState(null);
+  const [copied, setCopied] = useState('');
 
   useEffect(() => {
     api.listPapers(projectId).then((d) => setPapers(d.papers || [])).catch(() => {});
   }, [projectId]);
+
+  // Citation text comes from the cite index so the panel shows exactly the
+  // style the project is set to, matching Paper Library.
+  const citeByPaper = useMemo(
+    () => new Map((entries || []).map((e) => [e.id, e])),
+    [entries],
+  );
+
+  async function copy(text, label) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(label);
+      setTimeout(() => setCopied(''), 1800);
+    } catch {
+      setCopied('Copy failed — select the text manually');
+    }
+  }
 
   const filtered = papers.filter((p) => {
     const q = query.trim().toLowerCase();
@@ -37,6 +50,7 @@ function PaperReferencePanel({ projectId }) {
   });
 
   const selected = papers.find((p) => p.id === selectedId);
+  const selectedCite = selected ? citeByPaper.get(selected.id) : null;
 
   return (
     <div className="manuscript-refpanel">
@@ -50,6 +64,13 @@ function PaperReferencePanel({ projectId }) {
           aria-label="Filter papers"
         />
       </div>
+
+      {googleMode && (
+        <p className="manuscript-refpanel__hint">
+          Typing <strong>@</strong> only works in the Cortex Editor — Google Docs runs in its own
+          frame Cortex can't type into. Copy a marker here and paste it into your doc instead.
+        </p>
+      )}
       {filtered.length === 0 && (
         <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>
           {papers.length === 0 ? 'No papers saved yet — find some in Literature Review.' : 'No matches.'}
@@ -75,6 +96,29 @@ function PaperReferencePanel({ projectId }) {
           <div className="manuscript-refpanel__meta">
             {selected.authors} &middot; {selected.year} {selected.source && <>&middot; {selected.source}</>}
           </div>
+
+          {selectedCite && (
+            <div className="manuscript-refpanel__cite">
+              <div className="manuscript-refpanel__section-label">
+                Citation &mdash; {style.toUpperCase()}
+              </div>
+              <code className="manuscript-refpanel__cite-text">{selectedCite.reference}</code>
+              <div className="manuscript-refpanel__cite-actions">
+                <Button variant="secondary" accent="blue" onClick={() => copy(selectedCite.reference, 'Reference copied ✓')}>
+                  Copy reference
+                </Button>
+                <Button variant="secondary" accent="blue" onClick={() => copy(selectedCite.in_text, 'In-text copied ✓')}>
+                  Copy {selectedCite.in_text}
+                </Button>
+                <Button variant="ghost" accent="blue" onClick={() => copy(`[@${selectedCite.key}]`, 'Marker copied ✓')}
+                  title="Cortex citation marker — paste into your draft and the reference list picks it up">
+                  Copy [@{selectedCite.key}]
+                </Button>
+              </div>
+              {copied && <span role="status" className="manuscript-refpanel__copied">{copied}</span>}
+            </div>
+          )}
+
           {(selected.url || selected.doi) && (
             <a
               href={selected.url || `https://doi.org/${selected.doi}`}
@@ -310,14 +354,14 @@ function GoogleDocAiFeedback({ docId, connected }) {
 }
 
 export function Manuscript() {
-  const { project } = useProject();
+  const { project, refresh } = useProject();
   const [sections, setSections] = useState(Object.fromEntries(SECTIONS.map((s) => [s, ''])));
   const [saveStatus, setSaveStatus] = useState('');
   const [showReferences, setShowReferences] = useState(false);
   const [editorMode, setEditorMode] = useState('cortex');
   const [googleDocId, setGoogleDocId] = useState('');
   const [googleConnected, setGoogleConnected] = useState(false);
-  const [citeStyle, setCiteStyle] = useState((project.citation_style || 'apa').toLowerCase());
+  const { style: citeStyle, setStyle: setCiteStyle } = useCitationStyle(project, refresh);
   const [citeEntries, setCiteEntries] = useState([]);
 
   // The citation index is keyed by style (the in-text and reference forms
@@ -424,7 +468,7 @@ export function Manuscript() {
                   onChange={(e) => setCiteStyle(e.target.value)}
                   style={{ width: 130 }}
                 >
-                  {CITE_STYLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  {CITATION_STYLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </span>
             </div>
@@ -440,7 +484,14 @@ export function Manuscript() {
           <LinkGoogleDocForm onLink={linkGoogleDoc} />
         )}
 
-        {showReferences && <PaperReferencePanel projectId={project.id} />}
+        {showReferences && (
+          <PaperReferencePanel
+            projectId={project.id}
+            entries={citeEntries}
+            style={citeStyle}
+            googleMode={editorMode === 'google'}
+          />
+        )}
       </div>
 
       {editorMode === 'cortex' && (

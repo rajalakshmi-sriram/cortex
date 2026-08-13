@@ -157,9 +157,9 @@ export function SystematicReview() {
       <PageInstructions
         accent="sage"
         items={[
-          'Systematic review mode screens every paper in your library in two passes — title/abstract first, then full text — and records a reason for each exclusion.',
+          'Screens your library in two passes — title/abstract, then full text — recording a reason for each exclusion.',
           'Decisions build the PRISMA flow diagram below automatically. Download it as an SVG for your manuscript.',
-          'Papers get here from Literature Review or by importing a .bib/.ris file in Paper Library. Screen them here rather than deleting them, so the numbers stay auditable.',
+          'Screen papers here rather than deleting them, so the PRISMA counts stay auditable.',
         ]}
       />
 

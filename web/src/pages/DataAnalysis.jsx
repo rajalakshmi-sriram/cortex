@@ -277,7 +277,7 @@ function TestWizardCard({ projectId, dataset, columns, onAnalysisSaved }) {
   return (
     <Card
       title="Which Test Should I Use?"
-      hint="Pick a numeric column and a grouping column - Cortex checks normality and sample size, then recommends (and can run) the matching test, like a stats calculator's guided mode."
+      hint="Pick a numeric column and a grouping column. Cortex checks normality and sample size, then recommends and runs the matching test."
       accent="sand"
       data-tour="stats-wizard"
     >
@@ -414,7 +414,7 @@ function StatsCard({ projectId, dataset, columns, rowRange, onAnalysisSaved }) {
   }
 
   return (
-    <Card title="Run a Statistical Test" hint="Pick the test and which columns it should run on - you choose everything." accent="sage">
+    <Card title="Run a Statistical Test" hint="You choose the test and the columns — nothing is decided for you." accent="sage">
       <form onSubmit={runTest}>
         <label htmlFor="test-select">Test</label>
         <select id="test-select" value={testKey} onChange={(e) => setTestKey(e.target.value)}>
@@ -762,7 +762,7 @@ function InterpretCard({ projectId, dataset, refreshSignal }) {
   return (
     <Card
       title="Interpret Results with AI"
-      hint="Get a plain-language interpretation of the statistical tests you've already run on this dataset, related to this project's hypotheses if any — grounded only in results you've actually computed."
+      hint="Grounded only in tests you've actually run, and this project's hypotheses if any."
       accent="sage"
     >
       {!loaded ? (

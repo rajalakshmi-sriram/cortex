@@ -49,16 +49,16 @@ export function Methodology() {
       <PageInstructions
         accent="sage"
         items={[
-          'This checklist is generated from your project\'s research type and doesn\'t change automatically — check off each step as you actually complete it.',
-          <>New to research? Click <strong>"How do I do this?"</strong> under any step for what it means, how to approach it, what usually goes wrong, and how to tell you're finished. Switch <strong>Explanations</strong> to Guided to open them all by default.</>,
-          'Each step has recommended tools; click "+ Add Tool" under any step to attach your own.',
-          'If reporting guidelines exist for your research type, they appear above the checklist regardless of which step you\'re on.',
+          'Generated from your research type. Check off each step as you complete it.',
+          <>Click <strong>"How do I do this?"</strong> under any step for a worked explainer. Set <strong>Explanations</strong> to Guided to open them all by default.</>,
+          '"+ Add Tool" attaches your own tools to a step.',
+          'Reporting guidelines for your research type, if any, appear above the checklist.',
         ]}
       />
       {methodology.methodology_guidelines?.length > 0 && (
         <Card
           title="Methodology & Reporting Guidelines"
-          hint={`Reporting standards and regulatory guidance for ${methodology.research_type_name}, independent of which step you're on.`}
+          hint={`Reporting standards for ${methodology.research_type_name}.`}
           accent="blue"
         >
           <ToolChips tools={methodology.methodology_guidelines} />
@@ -67,7 +67,7 @@ export function Methodology() {
 
       <Card
         title="Methodology Checklist"
-        hint="The standard steps for this project's research type. Check off each step as you complete it."
+        hint="Standard steps for this research type."
         accent="sage"
         data-tour="methodology-checklist"
       >

@@ -42,7 +42,7 @@ export function ReferenceImport({ projectId, onImported }) {
   return (
     <Card
       title="Import from a Reference Manager"
-      hint="Bring in an existing library — export it as BibTeX (.bib) or RIS (.ris) from Zotero, Mendeley, EndNote, or Papers, then drop the file here."
+      hint="Export your library as .bib or .ris from Zotero, Mendeley, EndNote or Papers, then drop it here."
       accent="blue"
       data-tour="reference-import"
     >
@@ -104,9 +104,8 @@ export function ReferenceImport({ projectId, onImported }) {
       )}
 
       <p className="ref-import__how">
-        <strong>Where to find the export:</strong> Zotero → right-click a
-        collection → Export Collection → BibTeX or RIS. Mendeley → File →
-        Export. EndNote → File → Export → choose RIS.
+        <strong>Finding the export:</strong> Zotero → right-click a collection → Export
+        Collection. Mendeley → File → Export. EndNote → File → Export → RIS.
       </p>
     </Card>
   );

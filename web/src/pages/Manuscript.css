@@ -105,3 +105,46 @@
   margin-top: 4px;
   white-space: pre-line;
 }
+
+/* ---------- copyable citation in the reference panel ---------- */
+
+.manuscript-refpanel__hint {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  background: var(--accent4-tint);
+  border-radius: 8px;
+  padding: 9px 11px;
+  margin: 0 0 10px;
+}
+
+.manuscript-refpanel__cite {
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--surface-alt);
+}
+
+.manuscript-refpanel__cite-text {
+  display: block;
+  font-size: 12px;
+  line-height: 1.55;
+  margin-bottom: 9px;
+  /* Long references must wrap rather than force the panel wide. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.manuscript-refpanel__cite-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.manuscript-refpanel__copied {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--accent2-text);
+  font-weight: 600;
+}

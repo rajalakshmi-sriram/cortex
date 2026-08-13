@@ -104,9 +104,9 @@ export function ProjectsHome() {
         <PageInstructions
           accent="rose"
           items={[
-            <><strong>New here?</strong> Fill in a title, research area, and research type below, then click Create Project — Cortex builds a matched methodology checklist automatically.</>,
-            <><strong>Returning?</strong> Click any project under "Your Projects" to open its workspace.</>,
-            <>Each project has its own Literature Review, Data & Analysis, Manuscript, and other tabs. Optional AI features (feedback, interpretation, summaries) are available throughout — set up a free local model or your own API key via the sparkle icon in the bottom-right corner.</>,
+            <>Fill in a title, research area, and research type, then Create Project. Cortex builds a methodology checklist matched to the type.</>,
+            <>Open an existing project from "Your Projects" below.</>,
+            <>AI features are optional throughout — set up a free local model or your own API key via the sparkle icon, bottom-right.</>,
           ]}
         />
         <Card title="Start a New Project" hint="Every project gets a methodology checklist matched to its research type." accent="rose">
@@ -151,9 +151,8 @@ export function ProjectsHome() {
 
           <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
             <p style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--text-muted)' }}>
-              New to Cortex? Try a pre-filled example project instead - papers, a hypothesis, a
-              dataset, and a manuscript draft already in place, so you can see how everything fits
-              together before starting your own.
+              A pre-filled example project — papers, a hypothesis, a dataset and a draft already in
+              place — to click around in before starting your own.
             </p>
             <Button variant="secondary" accent="rose" onClick={handleCreateSample} disabled={creatingSample}>
               {creatingSample ? 'Creating…' : 'Try a Sample Project'}
