@@ -90,12 +90,6 @@
   color: var(--text-muted);
 }
 
-.step-guide__sources {
-  margin: 10px 0 0;
-  font-size: 12.5px;
-  line-height: 1.6;
-}
-
 .step-guide__note-label {
   display: block;
   font-size: 10.5px;

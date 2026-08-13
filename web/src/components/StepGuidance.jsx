@@ -59,18 +59,6 @@ export function StepGuidance({ guidance, defaultOpen = false }) {
               {guidance.beginner_note}
             </p>
           )}
-
-          {guidance.sources?.length > 0 && (
-            <p className="step-guide__sources">
-              <span className="step-guide__note-label">Read the standard itself</span>
-              {guidance.sources.map((s, i) => (
-                <span key={s.url}>
-                  {i > 0 && ' · '}
-                  <a href={s.url} target="_blank" rel="noreferrer">{s.name}</a>
-                </span>
-              ))}
-            </p>
-          )}
         </div>
       )}
     </div>

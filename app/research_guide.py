@@ -15,9 +15,9 @@ a supervisor's feedback.
 
 Content is synthesised from standard methodology teaching (university
 library research guides, Cochrane's handbook, reporting-standard
-documentation, and the methods literature) and rewritten here; the `sources`
-field on each step points at authoritative material to read directly rather
-than reproducing it.
+documentation, and the methods literature) and rewritten here in Cortex's
+own words. Standards are named in the prose so they can be looked up, but
+nothing here links out.
 
 SCOPE, which the UI also states: this is general methodology, the parts that
 transfer across disciplines. Field-specific and institutional requirements -
@@ -71,10 +71,6 @@ STEP_KINDS: Dict[str, Dict] = {
             "You can name the population, what varies, what you measure and in what units, and what "
             "you compare against - in one sentence."
         ),
-        'sources': [
-            {'name': 'Cochrane Handbook, Ch. 2 (defining the question)', 'url': 'https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-02'},
-            {'name': 'UNC Libraries: question frameworks beyond PICO', 'url': 'https://guides.lib.unc.edu/pico/frameworks'},
-        ],
     },
 
     'literature': {
@@ -116,9 +112,6 @@ STEP_KINDS: Dict[str, Dict] = {
             "Paywall routes: the preprint (arXiv, bioRxiv, medRxiv), the author's own page, your "
             "library login, or emailing the author - the last works more often than people expect."
         ),
-        'sources': [
-            {'name': "Keshav, 'How to Read a Paper' (the three-pass method)", 'url': 'https://dslsrv1.rnet.missouri.edu/resources/HowToReadAPaper.pdf'},
-        ],
     },
 
     'hypothesis': {
@@ -297,9 +290,6 @@ STEP_KINDS: Dict[str, Dict] = {
             "A read-only raw dataset exists in two locations, with a data dictionary and a "
             "deviation log."
         ),
-        'sources': [
-            {'name': 'UCSF: organising and documenting research data', 'url': 'https://guides.ucsf.edu/datamgmt/organize'},
-        ],
     },
 
     'analyze': {
@@ -424,9 +414,6 @@ STEP_KINDS: Dict[str, Dict] = {
             "Exclusions logged without reasons, making the review unreproducible.",
         ],
         'done_when': "Every record has a decision and a reason, and the PRISMA counts reconcile.",
-        'sources': [
-            {'name': 'PRISMA 2020 statement', 'url': 'https://www.prisma-statement.org'},
-        ],
     },
 
     'extract': {
@@ -495,9 +482,6 @@ STEP_KINDS: Dict[str, Dict] = {
             "A reader in your field could reproduce the study from the Methods and disagree with "
             "your Discussion using only the evidence in your Results."
         ),
-        'sources': [
-            {'name': 'EQUATOR Network (reporting guidelines by study type)', 'url': 'https://www.equator-network.org'},
-        ],
     },
 
     'submit': {
@@ -521,9 +505,6 @@ STEP_KINDS: Dict[str, Dict] = {
             "Reading rejection as a verdict rather than as routine.",
         ],
         'done_when': "Submitted, with venue, date and status recorded.",
-        'sources': [
-            {'name': 'Think. Check. Submit.', 'url': 'https://thinkchecksubmit.org'},
-        ],
     },
 
     'framework': {

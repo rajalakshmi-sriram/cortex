@@ -16,7 +16,7 @@ export function GuidanceDisclaimer({ compact = false }) {
         better questions, not as a spec to follow literally.
         {!compact && (
           <> Requirements from your institution, ethics board, funder or target journal are binding.
-            Where a real standard exists, read it directly — each step links to them.
+            Where a real standard exists, read it directly.
           </>
         )}{' '}
         <em>If this and your advisor disagree, they're right.</em>
