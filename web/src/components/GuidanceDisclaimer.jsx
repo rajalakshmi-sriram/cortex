@@ -19,7 +19,7 @@ export function GuidanceDisclaimer({ compact = false }) {
             Where a real standard exists, read it directly.
           </>
         )}{' '}
-        <em>If this and your advisor disagree, they're right.</em>
+        <em>If this and your advisor disagree, your advisor is right.</em>
       </div>
     </div>
   );

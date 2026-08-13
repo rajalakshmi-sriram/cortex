@@ -959,7 +959,7 @@ BASICS: List[Dict] = [
             "Where a real standard exists, use it directly rather than this summary - the EQUATOR "
             "Network for reporting guidelines, the Cochrane Handbook for systematic reviews, PRISMA "
             "for review reporting, and your institution's own ethics guidance.",
-            "Where this guide and your advisor, teacher, or ethics board disagree, they are right.",
+            "Your advisor, teacher, or ethics board overrides anything here.",
         ],
     },
 ]
