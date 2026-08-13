@@ -161,6 +161,8 @@ not uploaded anywhere.
 
 ### Windows
 
+Note: Windows desktop app (Cortex_<version>_x64-setup.exe) may not work as it has not been tested yet.
+
 1. **Download `Cortex_<version>_x64-setup.exe`**.
 2. Run the installer. Windows SmartScreen will likely show an
    "unrecognized app" warning, since Cortex isn't signed with a paid code
